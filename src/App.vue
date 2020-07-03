@@ -9,3 +9,10 @@ export default {
   name: 'App'
 }
 </script>
+
+<style scoped>
+#app-forum{
+  overflow: scroll;
+    height: 100%;
+}
+</style>
