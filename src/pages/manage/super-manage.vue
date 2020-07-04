@@ -1,15 +1,14 @@
 <template>
   <section>
-    <navbar />
-    <router-view />
+    <manage />
   </section>
 </template>
 
 <script>
-import navbar from '@page/components/navbar'
+import manage from '@page/components/posts-manage'
 export default {
   components: {
-    navbar
+    manage
   }
 }
 </script>
