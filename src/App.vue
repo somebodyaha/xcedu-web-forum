@@ -17,7 +17,6 @@ export default {
 
 <style scoped>
 #app-forum{
-  overflow: scroll;
     height: 100%;
 }
 </style>

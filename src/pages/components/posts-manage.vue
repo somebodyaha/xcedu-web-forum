@@ -15,13 +15,13 @@
         <el-collapse-transition>
           <div v-if="advancedSearch">
             <div class="dss">
-              <div>
+              <div style="width: 30%">
                 <span style="margin-right:10px">发布人</span>
-                <el-input v-model="publish" style="width:300px" />
+                <el-input v-model="publish" style="width: 60%" />
               </div>
-              <div>
+              <div style="width: 30%">
                 <span style="margin-right:10px">所属版块</span>
-                <el-select v-model="value" placeholder="请选择" style="width:300px">
+                <el-select v-model="value" placeholder="请选择" style="width: 60%">
                   <el-option
                     v-for="item in options"
                     :key="item.value"
@@ -76,6 +76,7 @@
         <el-table-column
           prop="time"
           label="发布时间"
+          min-width="150px"
         />
         <el-table-column
           prop="read"
@@ -84,6 +85,7 @@
         <el-table-column
           label="操作"
           width="80px"
+          fixed="right"
         >
           <template slot-scope="scope">
             <!-- <el-button type="text" size="small" @click="handleClick(scope.row)">删除</el-button> -->

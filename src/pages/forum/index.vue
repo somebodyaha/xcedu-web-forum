@@ -1,5 +1,5 @@
 <template>
-  <section>
+  <section class="index">
     <detail />
   </section>
 </template>
@@ -12,3 +12,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+  .index{
+    overflow: scroll;
+    height: 100%;
+  }
+</style>
