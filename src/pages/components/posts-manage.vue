@@ -91,12 +91,12 @@
             <!-- <el-button type="text" size="small">板块置顶</el-button> -->
             <el-dropdown trigger="click" @command="choose">
               <span class="el-dropdown-link">
-                <i class="el-icon-more" @click="handleClick(scope.row)" />
+                <i class="el-icon-more" style="cursor:pointer" @click="handleClick(scope.row)" />
               </span>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="del">删除</el-dropdown-item>
-                <el-dropdown-item command="b">全论坛置顶</el-dropdown-item>
-                <el-dropdown-item command="c">板块置顶</el-dropdown-item>
+                <el-dropdown-item command="allStick">全论坛置顶</el-dropdown-item>
+                <el-dropdown-item command="stick">板块置顶</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
@@ -204,7 +204,7 @@ export default {
     },
     choose (title) {
       if (title === 'del') {
-        this.$confirm('此操作将删除该版块, 是否继续?', '提示', {
+        this.$confirm('此操作将删除该版块 , 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
@@ -212,6 +212,38 @@ export default {
           this.$message({
             type: 'success',
             message: '删除成功!'
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
+      } else if (title === 'allStick') {
+        this.$confirm('此操作将删除该版块 , 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '全论坛置顶成功'
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
+      } else {
+        this.$confirm('此操作将删除该版块 , 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '板块置顶成功'
           })
         }).catch(() => {
           this.$message({
@@ -236,15 +268,18 @@ export default {
   display: flex;
 }
 .dss{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
- .el-collapse{
-   border:none;
- }
+.el-collapse{
+  border:none;
+}
 .el-pagination{
   text-align: center;
+}
+.el-icon-more:hover{
+  color:#3396fc
 }
 </style>
