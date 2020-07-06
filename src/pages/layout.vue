@@ -1,7 +1,9 @@
 <template>
-  <section>
+  <section class="forum-page">
     <navbar />
-    <router-view />
+    <div class="forum-content">
+      <router-view />
+    </div>
   </section>
 </template>
 
@@ -13,3 +15,11 @@ export default {
   }
 }
 </script>
+<style scoped>
+  .forum-page{
+    height: 100%;
+  }
+  .forum-content{
+    height: calc(100% - 61px);
+  }
+</style>

@@ -1,6 +1,5 @@
 <template>
-  <section>
-    首页
+  <section style="height: 100%;">
     <router-view />
   </section>
 </template>

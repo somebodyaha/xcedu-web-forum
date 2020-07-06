@@ -1,12 +1,12 @@
 <template>
-  <div class="home">
-    <el-card class="box-card infinite-list-wrapper" style="overflow:auto">
+  <div class="home infinite-list-wrapper" style="overflow:auto">
+    <el-card class="box-card">
       <div slot="header" class="dss">
         <div style="font-size:16px">最新动态</div>
         <div style="font-weight:bold">发帖子</div>
       </div>
       <div v-infinite-scroll="load" class="list" infinite-scroll-disabled="disabled">
-        <div v-for="(item,index) of counts" :key="index" class="text item list-item">
+        <div v-for="(item,index) of count" :key="index" class="text item list-item">
           <el-row>
             <el-col :span="2">
               <div>
@@ -170,9 +170,8 @@ export default {
       input: '',
       tag: {},
       checked: false,
-      count: 10,
-      loading: false,
-      counts: 40
+      count: 3,
+      loading: false
     }
   },
   computed: {
@@ -187,24 +186,23 @@ export default {
 
   },
   mounted () {
-    // document.addEventListener('click', this.handleClick, false)
-    // this.$once('hook:beforeDestory', () => {
-    //   document.removeEventListener('click', this.handleClick, false)
-    // })
-    // window.addEventListener('click', this.handleClick, false)
+    window.addEventListener('click', this.handleClick, false)
+  },
+  beforeDestroy () {
+    document.removeEventListener('click', this.handleClick, false)
   },
   methods: {
     handleClick (event) {
-      // const e = event || window.event
-      // const oDiv = document.getElementById('targetDiv')
-      // this.$message({ type: 'success', message: e })
-      // this.$message({ type: 'error', message: JSON.stringify(oDiv) })
-      // console.log('1111')
-      // if (!e.target.contains(oDiv)) {
-      //   Object.keys(this.tag).forEach((key) => {
-      //     this.tag[key] = false
-      //   })
-      // }
+      const e = event || window.event
+      e.stopPropagation()
+      const oDiv = document.getElementById('targetDiv')
+      // eslint-disable-next-line no-console
+      console.log(e.target)
+      if (!oDiv.contains(e.target)) {
+        Object.keys(this.tag).forEach((key) => {
+          this.tag[key] = false
+        })
+      }
       // if (e.target.className !== 'fa-more') {
       //   Object.keys(this.tag).forEach((key) => {
       //     this.tag[key] = false
@@ -299,12 +297,12 @@ export default {
   }
   .box-card-right1,.box-card-right2{
      position: fixed;
-    top: 20px;
+    top: 81px;
     left: 65%;
     width: 300px;
    }
    .box-card-right2{
-     top:170px
+     top:231px
    }
    .box-card-right1 .item,.box-card-right2 .item{
      margin-bottom: 0;
@@ -361,5 +359,8 @@ export default {
     color: #8492a6;
     font-size: 14px;
     margin-bottom: 20px;
+  }
+  .infinite-list-wrapper{
+    height: 100%;
   }
 </style>
