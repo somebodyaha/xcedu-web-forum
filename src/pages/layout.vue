@@ -200,8 +200,6 @@ export default {
       // this.$message({ type: 'success', message: e })
       // this.$message({ type: 'error', message: JSON.stringify(oDiv) })
       // console.log('1111')
-      // 我想知道当我点击外面的e.target和oDiv是什么
-      // 当我点击里面的时候e.target和oDivshishenme hao  满足你
       // if (!e.target.contains(oDiv)) {
       //   Object.keys(this.tag).forEach((key) => {
       //     this.tag[key] = false

@@ -281,7 +281,8 @@ const baseConf = (env = 'production') => ({
       use: [{
         loader: 'url-loader',
         options: {
-          sourceMap: env !== 'production'
+          limit: 1024,
+          esModule: false
         }
       }]
     }]
