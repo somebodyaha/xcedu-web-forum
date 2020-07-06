@@ -61,19 +61,23 @@
         />
         <el-table-column
           fixed
-          prop="date"
+          prop="title"
           label="标题"
         />
         <el-table-column
-          prop="name"
+          prop="modules"
           label="所属版块"
         />
         <el-table-column
-          prop="province"
+          prop="issuer"
           label="发布人"
         />
         <el-table-column
-          prop="city"
+          prop="time"
+          label="发布时间"
+        />
+        <el-table-column
+          prop="read"
           label="阅读"
         />
         <el-table-column
@@ -113,25 +117,29 @@ export default {
       publish: '',
       value: '',
       tableData: [{
-        date: '2016-05-02',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区'
+        title: '公积金缴存规定制定',
+        modules: '财务部门',
+        issuer: '爱听歌的鱼',
+        time: '2020-05-08',
+        read: 14
       }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区'
+        title: '公积金缴存规定制定',
+        modules: '财务部门',
+        issuer: '爱听歌的鱼',
+        time: '2020-05-08',
+        read: 14
       }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区'
+        title: '公积金缴存规定制定',
+        modules: '财务部门',
+        issuer: '爱听歌的鱼',
+        time: '2020-05-08',
+        read: 14
       }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区'
+        title: '公积金缴存规定制定',
+        modules: '财务部门',
+        issuer: '爱听歌的鱼',
+        time: '2020-05-08',
+        read: 14
       }],
       multipleSelection: [],
       currentPage3: 5
