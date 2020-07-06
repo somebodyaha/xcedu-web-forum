@@ -35,5 +35,4 @@ const forumLayout = {
     component: () => import('@page/notice/index')
   }]
 }
-
 export default [forumLayout]
