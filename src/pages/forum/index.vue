@@ -1,15 +1,14 @@
 <template>
   <section>
-    <navbar />
-    <router-view />
+    <detail />
   </section>
 </template>
 
 <script>
-import navbar from '@page/components/navbar'
+import detail from '@page/components/detail'
 export default {
   components: {
-    navbar
+    detail
   }
 }
 </script>
