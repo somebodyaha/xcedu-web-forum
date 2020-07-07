@@ -85,7 +85,7 @@
                         <el-button type="primary" size="small">发表</el-button>
                       </el-col>
                     </div>
-                    <div style="display:flex;" class="mt-10">
+                    <div v-for="(ele,num) of 5" :key="num" style="display:flex;" class="mt-10">
                       <el-col :span="2" class="mr-10">
                         <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
                       </el-col>
@@ -97,12 +97,23 @@
                           <div class="dss mt-10 text-color-grey">
                             <span>11:53</span>
                             <div>
-                              <span>回复</span>
+                              <span style="cursor:pointer" @click="reflex(num)">回复</span>
                               <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
                               <span>
                                 <i class="icon--star-hollow" />
                                 <span>&nbsp;&nbsp;11</span>
                               </span>
+                            </div>
+                          </div>
+                          <div v-show="restore[num]">
+                            <div class="mt-10">
+                              <el-input v-model="search" placeholder="回复" />
+                            </div>
+                            <div class="dss mt-10">
+                              <el-col class="dss">
+                                <el-checkbox v-model="checked">匿名评论</el-checkbox>
+                                <el-button type="primary" size="small">发表</el-button>
+                              </el-col>
                             </div>
                           </div>
                         </div>
@@ -171,7 +182,9 @@ export default {
       tag: {},
       checked: false,
       count: 3,
-      loading: false
+      loading: false,
+      restore: {},
+      search: ''
     }
   },
   computed: {
@@ -243,6 +256,22 @@ export default {
     },
     choose (title) {
       this.$message(title)
+    },
+    reflex (index) {
+      // 循环对象 修改属性
+      if (this.restore[index]) {
+        this.search = ''
+        Object.keys(this.restore).forEach((index) => {
+          this.restore[index] = false
+        })
+        this.$set(this.restore, index, false)
+      } else {
+        this.search = ''
+        Object.keys(this.restore).forEach((index) => {
+          this.restore[index] = false
+        })
+        this.$set(this.restore, index, true)
+      }
     }
   }
 }

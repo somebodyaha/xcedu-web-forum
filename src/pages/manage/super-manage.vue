@@ -30,3 +30,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.superManage >>> .el-tabs__nav-wrap{
+  padding-left: 30px;
+}
+</style>

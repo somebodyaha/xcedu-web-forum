@@ -1,15 +1,20 @@
 <template>
   <section class="manage">
     <header>
-      <div class="topsearch">
-        <el-input
-          v-model="search"
-          placeholder="请输入标题"
-          suffix-icon="el-icon-search"
-          style="width:15%;margin-right:15px"
-          @keyup.enter.native="onEnterSearch"
-        />
-        <el-button type="primary" @click="showAdvance">高级搜索</el-button>
+      <div class="dss">
+        <div class="ds">
+          <el-input
+            v-model="search"
+            placeholder="请输入标题"
+            suffix-icon="el-icon-search"
+            style="margin-right:15px"
+            @keyup.enter.native="onEnterSearch"
+          />
+          <el-button type="primary" @click="showAdvance">高级搜索</el-button>
+        </div>
+        <div>
+          <el-button type="primary" @click="dialogFormVisible = true">新建</el-button>
+        </div>
       </div>
       <div style="margin-top:25px">
         <el-collapse-transition>
@@ -117,6 +122,23 @@
         />
       </div>
     </div>
+    <el-dialog title="板块设置" :visible.sync="dialogFormVisible">
+      <el-form ref="numberValidateForm" :model="form" :rules="rules">
+        <el-form-item label="版块名称" :label-width="formLabelWidth" prop="name">
+          <el-input v-model="form.name" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="活动区域" :label-width="formLabelWidth">
+          <el-select v-model="form.region" placeholder="请选择活动区域">
+            <el-option label="区域一" value="shanghai" />
+            <el-option label="区域二" value="beijing" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button style="margin-right:15px" @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submit('numberValidateForm')">确 定</el-button>
+      </div>
+    </el-dialog>
   </section>
 </template>
 
@@ -156,7 +178,25 @@ export default {
         read: 14
       }],
       multipleSelection: [],
-      currentPage: 1
+      currentPage: 1,
+      dialogFormVisible: false,
+      form: {
+        name: '',
+        region: '',
+        date1: '',
+        date2: '',
+        delivery: false,
+        type: [],
+        resource: '',
+        desc: ''
+      },
+      formLabelWidth: '120px',
+      rules: {
+        name: [
+          { required: true, message: '请输入活动名称', trigger: 'blur' },
+          { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
+        ]
+      }
     }
   },
   mounted () {
@@ -254,6 +294,16 @@ export default {
           })
         })
       }
+    },
+    submit (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          alert('submit!')
+        } else {
+          alert('error submit!!')
+          return false
+        }
+      })
     }
   }
 }
@@ -262,9 +312,6 @@ export default {
 <style scoped>
 .manage{
   padding: 30px;
-}
-.topsearch{
-  display: flex;
 }
 .ds{
   display: flex;
@@ -283,5 +330,19 @@ export default {
 }
 .el-icon-more:hover{
   color:#3396fc
+}
+
+.manage>>>.el-dialog__footer {
+    top: 225px;
+    right: 240px;
+}
+.manage>>>.el-dialog__body {
+    padding: 50px 20px;
+    color: #606266;
+    font-size: 14px;
+    word-break: break-all;
+}
+.manage>>>.el-dialog__wrapper .el-dialog{
+  margin-top: -150px!important;
 }
 </style>
