@@ -48,7 +48,7 @@ const devServerOptions = () => {
     proxy: {
       [devEnvConfig.WEB_REQUEST_BASE_URL]: {
         target: devEnvConfig.PROXY_TARGET_SERVER,
-        changeOrigin: true ,
+        changeOrigin: true,
         pathRewrite: {
           [`^${[devEnvConfig.WEB_REQUEST_BASE_URL]}`] : '/'
         }
