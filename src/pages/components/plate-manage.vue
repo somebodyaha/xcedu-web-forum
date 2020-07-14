@@ -19,9 +19,9 @@
     <div style="margin-top:20px">
       <el-table :data="tableData" style="width: 100%" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55px" />
-        <el-table-column fixed prop="plateName" label="板块名称" min-width="300px" />
+        <el-table-column fixed prop="plateName" label="板块名称" />
         <el-table-column prop="plateAdminName" label="板块管理员" />
-        <el-table-column prop="createdBy" label="发布人" />
+        <el-table-column prop="createdName" label="发布人" />
         <el-table-column prop="createdDate" label="创建时间" min-width="150px" />
         <el-table-column label="操作" width="80px" fixed="right">
           <template slot-scope="scope">
@@ -90,13 +90,7 @@ export default {
       dialogFormVisible: false,
       form: {
         name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
+        region: ''
       },
       formLabelWidth: '120px',
       rules: {
@@ -169,15 +163,14 @@ export default {
               })
             }
           })
-        })
-          .catch(err => {
-            // eslint-disable-next-line no-console
-            console.log(err)
-            this.$message({
-              type: 'info',
-              message: err
-            })
+        }).catch(err => {
+          // eslint-disable-next-line no-console
+          console.log(err)
+          this.$message({
+            type: 'info',
+            message: err
           })
+        })
       } else if (title === 'allStick') {
         this.$confirm('此操作将把该帖子全论坛置顶 , 是否继续?', '提示', {
           confirmButtonText: '确定',

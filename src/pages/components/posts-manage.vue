@@ -168,7 +168,6 @@ export default {
     }
   },
   mounted () {
-    alert(this.onetab)
     this.flushArticleList()
     getPlateList().then(res => {
       this.plateList = res

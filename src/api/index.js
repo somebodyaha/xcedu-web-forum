@@ -14,7 +14,7 @@ export function updatePostById (id, form) {
 }
 // 通知列表
 export function getNoticeList (flag) {
-  return axios.get('/advise/notice/pageList?flag=' + flag)
+  return axios.get('/advise/notice/pageList?flag=' + flag + '&pageSize=100')
 }
 // 获得帖子列表
 export function getArticleList (params) {
@@ -36,7 +36,11 @@ export function getPlateList () {
 export function getPlatePage (params) {
   return axios.get('/advise/plate/pageList', { params: params })
 }
-// 通过id删除帖子
+// 通过id删除板块
 export function deletePlateById (params) {
   return axios.get('/advise/plate/delete', { params: params })
+}
+// 保存板块
+export function savePlate (form) {
+  return axios.post('/advise/plate/save', form)
 }
