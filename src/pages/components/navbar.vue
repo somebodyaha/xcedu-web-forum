@@ -4,37 +4,65 @@
       <el-menu-item index="logo">
         <img src="/imgs/logo.png">
       </el-menu-item>
-      <el-menu-item index="1">首页</el-menu-item>
-      <el-submenu index="2">
-        <template slot="title">我的工作台</template>
-        <el-menu-item index="2-1">选项1</el-menu-item>
-        <el-menu-item index="2-2">选项2</el-menu-item>
-        <el-menu-item index="2-3">选项3</el-menu-item>
-        <el-submenu index="2-4">
-          <template slot="title">选项4</template>
-          <el-menu-item index="2-4-1">选项1</el-menu-item>
-          <el-menu-item index="2-4-2">选项2</el-menu-item>
-          <el-menu-item index="2-4-3">选项3</el-menu-item>
-        </el-submenu>
+      <el-menu-item index="0">首页</el-menu-item>
+      <el-menu-item v-for="plate in showPlateList" :key="plate.id" :index="plate.id">{{ plate.plateName }}</el-menu-item>
+      <el-submenu v-if="foldPlateList.length != 0" index="2">
+        <template slot="title">更多</template>
+        <el-menu-item v-for="foldPlate in foldPlateList" :key="foldPlate.id" :index="plate.id">{{ foldPlate.plateName }}</el-menu-item>
       </el-submenu>
-      <el-menu-item index="3" disabled>消息中心</el-menu-item>
-      <el-menu-item index="4"><a href="https://www.ele.me" target="_blank">订单管理</a></el-menu-item>
+      <el-menu-item v-if="isAdmin || userPlateList.length > 0" index="99"><a href="https://www.ele.me" target="_blank">管理</a></el-menu-item>
     </el-menu>
   </section>
 </template>
 
 <script>
+import { allPlate, userManagePlate } from '@/api/index'
 export default {
   name: 'Navbar',
   data () {
     return {
-      activeIndex: '1'
+      activeIndex: '0',
+      showPlateList: [],
+      plateList: [],
+      foldPlateList: [],
+      isAdmin: false,
+      userPlateList: [],
+      title: ''
     }
+  },
+  mounted () {
+    // 获取所有板块列表用于navbar
+    allPlate({}).then(res => {
+      const showNum = 5
+      for (let i = 0; i < res.length; i++) {
+        if (i < showNum) {
+          this.showPlateList.push(res[i])
+        } else {
+          this.foldPlateList.push(res[i])
+        }
+        this.plateList.push(res[i])
+      }
+      this.$store.commit('getPlateList', this.plateList)
+    })
+
+    userManagePlate().then(res => {
+      this.isAdmin = res.isAdmin
+      this.userPlateList = res.plateList
+    })
   },
   methods: {
     handleSelect (key, keyPath) {
       // eslint-disable-next-line no-console
       console.log(key, keyPath)
+      this.$router.replace({
+        path: '/mfs-forum/home/newest',
+        query: {
+          index: key
+        }
+      })
+    },
+    refreshByPlate (plateId) {
+
     }
   }
 }
