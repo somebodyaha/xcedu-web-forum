@@ -21,5 +21,6 @@ export default {
   }
   .forum-content{
     height: calc(100% - 61px);
+    overflow: scroll;
   }
 </style>
