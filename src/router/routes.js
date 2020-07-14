@@ -33,6 +33,10 @@ const forumLayout = {
     name: 'notice',
     path: 'notice',
     component: () => import('@page/notice/index')
+  }, {
+    name: 'newArticle',
+    path: 'newArticle',
+    component: () => import('@page/article/newArticle')
   }]
 }
 export default [forumLayout]
