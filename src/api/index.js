@@ -78,8 +78,8 @@ export function topArticle (params) {
   )
 }
 // 通知列表
-export function getNoticeList (flag) {
-  return axios.get('/advise/notice/pageList?flag=' + flag + '&pageSize=100')
+export function getNoticeList (params) {
+  return axios.get('/advise/notice/pageList', { params: params })
 }
 // 获得帖子列表
 export function getArticleList (params) {

@@ -66,18 +66,43 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button style="margin-right:15px" @click="dialogFormVisible = false">取 消</el-button>
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="submit('numberValidateForm')">确 定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="删除板块" :visible.sync="deletePlateVisible">
+      <el-form ref="transferPlateForm" :model="form" :rules="rules">
+        <el-form-item :label-width="formLabelWidth">
+          该版块中已有发布的内容，需要先将已发布的内容转移到其它版块
+        </el-form-item>
+        <el-form-item :label-width="formLabelWidth">
+          批量转移其中的内容至版块
+        </el-form-item>
+        <el-form-item :label-width="formLabelWidth">
+          <el-select v-model="form.region" placeholder="请选择板块">
+            <el-option
+              v-for="plate in plateList"
+              :key="plate.id"
+              :label="plate.plateName"
+              :value="plate.id"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="deletePlateVisible = false">取 消</el-button>
+        <el-button type="primary" @click="transferPlate('transferPlateForm')">保 存</el-button>
       </div>
     </el-dialog>
   </section>
 </template>
 
 <script>
-import { getPlatePage, deletePlateById } from '@/api/index'
+import { getPlatePage, deletePlateById, getPlateList } from '@/api/index'
 export default {
   data () {
     return {
+      plateList: [],
       params: {
         plateName: '',
         page: 1,
@@ -88,6 +113,7 @@ export default {
       tableData: [],
       multipleSelection: [],
       dialogFormVisible: false,
+      deletePlateVisible: false,
       form: {
         name: '',
         region: ''
@@ -128,7 +154,7 @@ export default {
         this.$refs.multipleTable.clearSelection()
       }
     },
-    // 全选单选 或者批量删除
+    // 全选单选
     handleSelectionChange (val) {
       this.multipleSelection = val
       // eslint-disable-next-line no-console
@@ -151,11 +177,18 @@ export default {
           type: 'warning'
         }).then(() => {
           deletePlateById({ id: row.id }).then(res => {
-            if (res) {
+            if (res === 1) {
               this.$message({
                 message: '删除成功',
                 type: 'success'
               })
+            } else if (res === 2) {
+              this.dialogFormVisible = false
+              // 该板块下还有帖子
+              getPlateList().then(res => {
+                this.plateList = res
+              })
+              this.deletePlateVisible = true
             } else {
               this.$message({
                 message: '删除失败',
@@ -228,14 +261,18 @@ export default {
       }
     },
     submit (formName) {
-      this.$refs[formName].validate(valid => {
-        if (valid) {
-          alert('submit!')
-        } else {
-          alert('error submit!!')
-          return false
-        }
-      })
+      window.console.log(formName)
+      // this.$refs[formName].validate(valid => {
+      //   if (valid) {
+      //     alert('submit!')
+      //   } else {
+      //     alert('error submit!!')
+      //     return false
+      //   }
+      // })
+    },
+    transferPlate (formName) {
+      window.console.log(formName)
     }
   }
 }

@@ -232,6 +232,7 @@ export default {
             message: '删除成功',
             type: 'success'
           })
+          this.flushArticleList()
         } else {
           this.$message({
             message: '删除失败',
@@ -269,15 +270,14 @@ export default {
           type: 'warning'
         }).then(() => {
           this.deleteArticle({ ids: row.id })
-        })
-          .catch(err => {
-            // eslint-disable-next-line no-console
-            console.log(err)
-            this.$message({
-              type: 'info',
-              message: err
-            })
+        }).catch(err => {
+          // eslint-disable-next-line no-console
+          console.log(err)
+          this.$message({
+            type: 'info',
+            message: err
           })
+        })
       } else if (title === 'allStick') {
         this.$confirm('此操作将把该帖子全论坛置顶 , 是否继续?', '提示', {
           confirmButtonText: '确定',
