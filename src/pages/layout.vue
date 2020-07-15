@@ -1,7 +1,7 @@
 <template>
-  <section class="forum-page">
+  <section class="app-forum">
     <navbar />
-    <div class="forum-content">
+    <div class="app-forum-container">
       <router-view />
     </div>
   </section>
@@ -15,12 +15,3 @@ export default {
   }
 }
 </script>
-<style scoped>
-  .forum-page{
-    height: 100%;
-  }
-  .forum-content{
-    height: calc(100% - 61px);
-    overflow: scroll;
-  }
-</style>

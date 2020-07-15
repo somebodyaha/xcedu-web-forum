@@ -25,7 +25,7 @@ export function hotList (params) {
 
 // 获取所有板块列表
 export function allPlate () {
-  return axios.get('/api-personalized/advise/plate/allPlate')
+  return axios.get('/api-personalized/advise/plate/findAll')
 }
 
 // 根据板块id获取分页帖子
@@ -104,4 +104,12 @@ export function getPlatePage (params) {
 // 通过id删除帖子
 export function deletePlateById (params) {
   return axios.get('/api-personalized/advise/plate/delete', { params: params })
+}
+// 选人接口
+export function getChooseUserDataByParams (params) {
+  return axios.get('/api-base/rangeScopes', { params })
+}
+// 选人输入
+export function gettSearchListByValue (params) {
+  return axios.get('/api-base/rangeScopes?type=search', { params })
 }

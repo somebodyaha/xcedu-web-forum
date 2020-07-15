@@ -39,7 +39,7 @@ const devServerOptions = () => {
     port: devEnvConfig.DEV_SERVER_PORT,
     compress: true,
     open: true,
-    openPage: 'user/login',
+    openPage: 'mfs-forum',
     hot: true,
     headers: {
       'Access-Control-Allow-Origin': '*'
@@ -48,10 +48,7 @@ const devServerOptions = () => {
     proxy: {
       [devEnvConfig.WEB_REQUEST_BASE_URL]: {
         target: devEnvConfig.PROXY_TARGET_SERVER,
-        changeOrigin: true,
-        pathRewrite: {
-          [`^${[devEnvConfig.WEB_REQUEST_BASE_URL]}`] : '/'
-        }
+        changeOrigin: true
       }
     },
     overlay: true,
