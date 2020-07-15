@@ -40,16 +40,26 @@ export default {
     }
   },
   mounted: function () {
-    getNoticeList(0).then(res => {
-      this.notices = res.records
-    })
-    getNoticeList(1).then(res => {
-      this.comments = res.records
-    })
+    this.flushNoticeList()
   },
   methods: {
     toggleTab () {
       this.isNotice = !this.isNotice
+      if (this.isNotice) {
+        this.flushNoticeList()
+      } else {
+        this.flushCommentList()
+      }
+    },
+    flushNoticeList () {
+      getNoticeList(0).then(res => {
+        this.notices = res.records
+      })
+    },
+    flushCommentList () {
+      getNoticeList(1).then(res => {
+        this.comments = res.records
+      })
     }
   }
 }
