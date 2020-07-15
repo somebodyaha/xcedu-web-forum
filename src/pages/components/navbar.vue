@@ -9,16 +9,17 @@
           <template slot="title">更多</template>
           <el-menu-item v-for="foldPlate in foldPlateList" :key="foldPlate.id" :index="plate.id">{{ foldPlate.plateName }}</el-menu-item>
         </el-submenu>
-        <el-menu-item v-if="isAdmin || userPlateList.length > 0" index="99"><a href="https://www.ele.me" target="_blank">管理</a></el-menu-item>
+        <el-menu-item index="-1"><a>管理</a></el-menu-item>
       </el-menu>
       <div>
         <el-button type="primary " @click="newArticle">内容发布</el-button>
-        <el-badge :value="200" :max="99">
-          <i class="icon-ding color" />
+        <el-badge :value="12" class="item">
+          <i class="el-icon-bell" @click="directNotice" />
         </el-badge>
       </div>
     </div>
   </section>
+
 </template>
 
 <script>
@@ -61,13 +62,24 @@ export default {
   },
   methods: {
     handleSelect (key, keyPath) {
-      // eslint-disable-next-line no-console
-      console.log(key, keyPath)
+      if (key === '-1') {
+        this.$router.replace({
+          path: '/mfs-forum/super-manage'
+        })
+      } else {
+        // eslint-disable-next-line no-console
+        console.log(key, keyPath)
+        this.$router.replace({
+          path: '/mfs-forum/home/newest',
+          query: {
+            index: key
+          }
+        })
+      }
+    },
+    directNotice () {
       this.$router.replace({
-        path: '/mfs-forum/home/newest',
-        query: {
-          index: key
-        }
+        path: '/mfs-forum/notice'
       })
     },
     refreshByPlate (plateId) {

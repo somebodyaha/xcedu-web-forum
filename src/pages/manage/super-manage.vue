@@ -1,12 +1,12 @@
 <template>
-  <section class="superManage">
+  <section class="superManage margin-top-size-nomal auto-width auto-boxshadow">
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="内容管理" name="first">
         <manage ref="articleManage" />
       </el-tab-pane>
       <el-tab-pane label="板块管理" name="second">
-        <plateManage v-if="!isSet" ref="plateManage" @setPortal="openSetPortal" />
-        <portalSet v-else />
+        <plateManage v-if="!isSet" ref="plateManage" @openPortal="openSetPortal" />
+        <portalSet v-else @closePortal="closeSetPortal" />
       </el-tab-pane>
     </el-tabs>
   </section>
@@ -41,6 +41,9 @@ export default {
     },
     openSetPortal () {
       this.isSet = true
+    },
+    closeSetPortal () {
+      this.isSet = false
     }
   }
 }

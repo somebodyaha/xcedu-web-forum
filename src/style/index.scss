@@ -41,6 +41,11 @@
   &-container {
     height: calc(100% - 61px);
     overflow: scroll;
+    .superManage{
+      margin-left:auto;
+      margin-right: auto;
+      background: #fff;
+    }
   }
   &-create {
     height: 100%;

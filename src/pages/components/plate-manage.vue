@@ -1,5 +1,5 @@
 <template>
-  <section class="manage">
+  <section class="manage padding-left-size-nomal padding-right-size-nomal padding-bottom-size-large">
     <header>
       <div class="dss">
         <div class="ds">
@@ -98,7 +98,7 @@ export default {
   },
   methods: {
     portalSet () {
-      this.$emit('setPortal')
+      this.$emit('openPortal')
     },
     flushPlateList () {
       getPlatePage(this.params).then(res => {
@@ -238,9 +238,6 @@ export default {
 </script>
 
 <style scoped>
-.manage {
-  padding: 30px;
-}
 .ds {
   display: flex;
 }
