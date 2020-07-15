@@ -1,5 +1,5 @@
 <template>
-  <section class="manage">
+  <section class="manage padding-left-size-nomal padding-right-size-nomal padding-bottom-size-large">
     <header>
       <div class="dss">
         <div class="ds">
@@ -12,7 +12,7 @@
           />
         </div>
         <div>
-          <el-button type="primary" @click="dialogFormVisible = true">新建</el-button>
+          <el-button type="primary" @click="portalSet">新建</el-button>
         </div>
       </div>
     </header>
@@ -53,31 +53,16 @@
         />
       </div>
     </div>
-    <el-dialog title="板块设置" :visible.sync="dialogFormVisible">
-      <el-form ref="numberValidateForm" :model="form" :rules="rules">
-        <el-form-item label="版块名称" :label-width="formLabelWidth" prop="name">
-          <el-input v-model="form.name" autocomplete="off" />
-        </el-form-item>
-        <el-form-item label="活动区域" :label-width="formLabelWidth">
-          <el-select v-model="form.region" placeholder="请选择活动区域">
-            <el-option label="区域一" value="shanghai" />
-            <el-option label="区域二" value="beijing" />
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button style="margin-right:15px" @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="submit('numberValidateForm')">确 定</el-button>
-      </div>
-    </el-dialog>
   </section>
 </template>
 
 <script>
 import { getPlatePage, deletePlateById } from '@/api/index'
+
 export default {
   data () {
     return {
+      managerSet: false,
       params: {
         plateName: '',
         page: 1,
@@ -87,7 +72,6 @@ export default {
       totalRecords: 0,
       tableData: [],
       multipleSelection: [],
-      dialogFormVisible: false,
       form: {
         name: '',
         region: '',
@@ -96,7 +80,8 @@ export default {
         delivery: false,
         type: [],
         resource: '',
-        desc: ''
+        desc: '',
+        manager: ''
       },
       formLabelWidth: '120px',
       rules: {
@@ -104,13 +89,17 @@ export default {
           { required: true, message: '请输入活动名称', trigger: 'blur' },
           { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
         ]
-      }
+      },
+      roles: ['orgUser']
     }
   },
   mounted () {
 
   },
   methods: {
+    portalSet () {
+      this.$emit('openPortal')
+    },
     flushPlateList () {
       getPlatePage(this.params).then(res => {
         this.tableData = res.records
@@ -249,9 +238,6 @@ export default {
 </script>
 
 <style scoped>
-.manage {
-  padding: 30px;
-}
 .ds {
   display: flex;
 }

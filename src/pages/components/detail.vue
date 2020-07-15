@@ -3,7 +3,6 @@
     <el-card class="box-card">
       <div slot="header" class="dss">
         <div style="font-size:16px">最新动态</div>
-        <a style="font-weight:bold" @click="newArticle">发帖子</a>
       </div>
       <div v-infinite-scroll="load" class="list" infinite-scroll-disabled="disabled">
         <div v-for="(item,index) in pageContent" :key="index" class="text item list-item">
@@ -214,7 +213,7 @@ export default {
         this.isIndexPage = false
         this.plateId = plateId
       }
-      this.load()
+      // this.load()
     }
   },
   created () {
@@ -343,7 +342,6 @@ export default {
     },
     load () {
       this.loading = true
-
       setTimeout(() => {
         getArticleByPlate({ plateId: this.plateId, page: this.pageNumber++, pageSize: this.pageSize, pageFlag: this.pageFlag }).then(res => {
           for (let i = 0; i < res.records.length; i++) {
@@ -380,10 +378,6 @@ export default {
         })
         this.$set(this.restore, index, true)
       }
-    },
-    newArticle () {
-      this.isPubArticle = true
-      this.$router.push('/mfs-forum/newArticle')
     }
   }
 }

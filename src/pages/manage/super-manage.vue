@@ -1,11 +1,12 @@
 <template>
-  <section class="superManage">
+  <section class="superManage margin-top-size-nomal auto-width auto-boxshadow">
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="内容管理" name="first">
         <manage ref="articleManage" />
       </el-tab-pane>
       <el-tab-pane label="板块管理" name="second">
-        <plateManage ref="plateManage" />
+        <plateManage v-if="!isSet" ref="plateManage" @openPortal="openSetPortal" />
+        <portalSet v-else @closePortal="closeSetPortal" />
       </el-tab-pane>
     </el-tabs>
   </section>
@@ -14,17 +15,20 @@
 <script>
 import manage from '@page/components/posts-manage'
 import plateManage from '@page/components/plate-manage'
+import portalSet from '@page/components/portal-set'
 // import { getPlatePage, getArticleList, deleteArticleById, articleTop, getPlateList } from '@/api/index'
 
 export default {
   components: {
     manage,
-    plateManage
+    plateManage,
+    portalSet
   },
   data () {
     return {
       activeName: 'first',
-      onetab: '123'
+      onetab: '123',
+      isSet: false
     }
   },
   methods: {
@@ -34,6 +38,12 @@ export default {
       } else if (tab.name === 'second') {
         this.$refs.plateManage.flushPlateList()
       }
+    },
+    openSetPortal () {
+      this.isSet = true
+    },
+    closeSetPortal () {
+      this.isSet = false
     }
   }
 }

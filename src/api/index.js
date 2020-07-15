@@ -1,8 +1,8 @@
 import { axios } from '@xcedu/web-share'
 
 // 测试环境需要在请求url前加前缀
-// const prefix = '/api-personalized'
-const prefix = ''
+const prefix = '/api-personalized'
+// const prefix = ''
 
 // ------------------------板块管理相关接口---------------------
 // 新增板块
@@ -122,4 +122,13 @@ export function articleTop (params) {
 // 根据板块id获取分页帖子
 export function getArticleByPlate (params) {
   return axios.get(prefix + '/advise/article/pagelist', { params: params })
+}
+
+// 选人接口
+export function getChooseUserDataByParams (params) {
+  return axios.get('/api-base/rangeScopes', { params })
+}
+// 选人输入
+export function gettSearchListByValue (params) {
+  return axios.get('/api-base/rangeScopes?type=search', { params })
 }
