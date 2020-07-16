@@ -54,14 +54,21 @@
                   <i class="icon-msg mr-3" />
                   <span>{{ item.commentNum == null ? 0 : item.commentNum }}</span>
                 </span>
-                <span class="mr-40" style="cursor:pointer">
-                  <i v-if="item.userHasLike" class="el-icon-platform-eleme mr-3" @click="likeArticle(item.id,0)" />
-                  <i v-else class="el-icon-platform-eleme mr-3" @click="likeArticle(item.id,1)" />
+                <span v-if="item.userHasLike" class="mr-40" style="cursor:pointer" @click="likeArticle(item.id,index,0)">
+                  <i class="el-icon-s-help mr-3" />
                   <span>{{ item.likeNum == null ? 0 : item.likeNum }}</span>
                 </span>
-                <span style="cursor:pointer">
-                  <i v-if="item.userHasAttention" class="icon-star-hollow mr-3" @click="attentionArticle(item.id,0)" />
-                  <i v-else class="icon-star-hollow mr-3" @click="attentionArticle(item.id,1)" />
+
+                <span v-else class="mr-40" style="cursor:pointer" @click="likeArticle(item.id,index,1)">
+                  <i class="el-icon-help mr-3" />
+                  <span>{{ item.likeNum == null ? 0 : item.likeNum }}</span>
+                </span>
+                <span v-if="item.userHasAttention" style="cursor:pointer" @click="attentionArticle(item.id,index,0)">
+                  <i class="el-icon-star-on mr-3" />
+                  <span>取消收藏</span>
+                </span>
+                <span v-else style="cursor:pointer" @click="attentionArticle(item.id,index,1)">
+                  <i class="el-icon-star-off mr-3" />
                   <span>收藏</span>
                 </span>
               </div>
@@ -83,7 +90,7 @@
                       </el-col>
                       <el-col :span="22" class="dss">
                         <el-checkbox v-model="checked">匿名评论</el-checkbox>
-                        <el-button type="primary" size="small" @click="sendComment(item.id)">发表</el-button>
+                        <el-button type="primary" size="small" @click="sendComment(item.id,index)">发表</el-button>
                       </el-col>
                     </div>
                     <div v-for="(comment,num) in commentList" :key="num" style="display:flex;" class="mt-10">
@@ -121,6 +128,22 @@
         <p v-if="noMore" style="text-align:center">没有更多了</p>
       </div>
     </el-card>
+
+    <el-card v-if="!isIndexPage" class="box-card-right1 text-color-grey">
+      <div slot="header" class="dss">
+        <div style="font-size:12px">管理员</div>
+      </div>
+      <div v-for="(manager,index) in plateManager" :key="index" class="text item bghover dss">
+        <el-image
+          style="width: 50px; height: 50px"
+          src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"
+        />
+        <i v-if="manager.gender === 0" class="el-icon-male text-color-grey mr-3" />
+        <i v-else class="el-icon-female text-color-grey mr-3" />
+        <span>{{ manager.userName }}</span>
+      </div>
+    </el-card>
+
     <el-card v-if="isIndexPage" class="box-card-right1 text-color-grey">
       <div class="text item bghover dss">
         <div @click="getArticle('myPub')">
@@ -131,7 +154,7 @@
       </div>
       <div class="text item bghover dss">
         <div @click="getArticle('myComment')">
-          <i class="icon-pingjia text-color-grey mr-3" />
+          <i class="el-icon-s-comment text-color-grey mr-3" />
           <span>我评论的</span>
         </div>
         <el-tag type="info" size="small " class="bgfff">{{ myCount.commentCount }}</el-tag>
@@ -160,7 +183,7 @@
 </template>
 
 <script>
-import { hotList, getArticleByPlate, getMyArticleCount, commentList, saveComment, deleteArticle, attentionArticle, likeArticle, topArticle } from '@/api/index'
+import { hotList, getArticleByPlate, getMyArticleCount, commentList, saveComment, deleteArticle, attentionArticle, likeArticle, topArticle, plateManagerList } from '@/api/index'
 import { arrayToStrWithOutComma } from '@/util/index'
 export default {
   data () {
@@ -181,12 +204,13 @@ export default {
       pageContent: [],
       pageNumber: 1,
       pageSize: 2,
+      recordNum: 0,
       myCount: {},
       commentList: [],
-      isPubArticle: false,
       plateId: '',
       isIndexPage: true,
-      pageFlag: ''
+      pageFlag: '',
+      plateManager: []
     }
   },
   computed: {
@@ -205,15 +229,18 @@ export default {
       console.log(to)
       const plateId = to.query.index
       this.pageContent = []
+      this.plateManager = []
       this.pageNumber = 1
+      this.recordNum = 0
       if (plateId === '0') {
         this.isIndexPage = true
         this.plateId = ''
       } else {
         this.isIndexPage = false
         this.plateId = plateId
+        this.plateManagerList(this.plateId)
       }
-      // this.load()
+      this.load()
     }
   },
   created () {
@@ -224,9 +251,7 @@ export default {
     hotList({ listNum: 5 }).then(res => {
       this.hotArticles = res
     })
-    getMyArticleCount().then(res => {
-      this.myCount = res
-    })
+    this.getMyArticleCount()
   },
   beforeDestroy () {
     document.removeEventListener('click', this.handleClick, false)
@@ -237,13 +262,28 @@ export default {
       this.pageFlag = pageFlag
       this.nomoreState = false
       this.pageNumber = 1
+      this.recordNum = 0
       this.load()
     },
 
-    sendComment (articleId) {
+    getMyArticleCount () {
+      getMyArticleCount().then(res => {
+        this.myCount = res
+      })
+    },
+
+    plateManagerList (plateId) {
+      plateManagerList({ id: plateId }).then(res => {
+        this.plateManager = res
+      })
+    },
+
+    sendComment (articleId, index) {
       saveComment({ articleId: articleId, anonymous: (this.checked ? 1 : 0), commentContent: this.input }).then(res => {
         if (res) {
           this.$message('评论成功')
+          this.pageContent[index].commentNum++
+          this.getMyArticleCount()
         } else {
           this.$message('评论保存失败')
         }
@@ -259,27 +299,34 @@ export default {
       }
     },
 
-    likeArticle (articleId, flag) {
+    likeArticle (articleId, index, flag) {
       likeArticle({ articleId: articleId, flag: flag }).then(res => {
         if (!res) {
           this.$message('操作失败')
         } else if (flag === 0) {
+          this.pageContent[index].likeNum--
+          this.pageContent[index].userHasLike = false
           this.$message('取消点赞成功')
         } else if (flag === 1) {
+          this.pageContent[index].likeNum++
+          this.pageContent[index].userHasLike = true
           this.$message('点赞成功')
         }
       })
     },
 
-    attentionArticle (articleId, flag) {
+    attentionArticle (articleId, index, flag) {
       attentionArticle({ id: articleId, flag: flag }).then(res => {
         if (!res) {
           this.$message('收藏失败，请稍后再试')
         } else if (flag === 0) {
+          this.pageContent[index].userHasAttention = false
           this.$message('取消收藏成功')
         } else if (flag === 1) {
+          this.pageContent[index].userHasAttention = true
           this.$message('收藏成功')
         }
+        this.getMyArticleCount()
       })
     },
 
@@ -342,24 +389,26 @@ export default {
     },
     load () {
       this.loading = true
-      setTimeout(() => {
-        getArticleByPlate({ plateId: this.plateId, page: this.pageNumber++, pageSize: this.pageSize, pageFlag: this.pageFlag }).then(res => {
+      getArticleByPlate({ plateId: this.plateId, page: this.pageNumber++, pageSize: this.pageSize, pageFlag: this.pageFlag }).then(res => {
+        this.nomoreState = this.recordNum >= res.totalRecords
+        window.console.log(this.recordNum, this.nomoreState)
+        if (!this.nomoreState) {
           for (let i = 0; i < res.records.length; i++) {
-            window.console.log(res.records[i])
             this.pageContent.push(res.records[i])
+            this.recordNum++
           }
-          this.nomoreState = (this.pageSize + res.recordNumber) >= res.totalRecords
-        })
+        }
+      })
 
-        this.loading = false
-      }, 1000)
+      this.loading = false
     },
 
     choose (command) {
+      const { href } = this.$router.resolve({ name: 'newArtical' })
       switch (command.command) {
       case 'a':this.topArticle(command.articleId, command.topFlag, 1); break
       case 'b':this.topArticle(command.articleId, command.topFlag, 0); break
-      case 'c': this.isPubArticle = true; this.$router.push('/mfs-forum/newArticle?id=' + command.articleId); break
+      case 'c':window.open(href + '?id=' + command.articleId, '_self'); break
       default:this.deleteArticle(command.articleId)
       }
     },
