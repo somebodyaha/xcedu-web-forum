@@ -13,8 +13,18 @@
       </el-menu>
       <div>
         <el-button type="primary " @click="newArticle">内容发布</el-button>
-        <el-badge :value="12" class="item">
+        <div class="demo-basic--circle">
+          <div class="block"><el-avatar size="50" :src="userInfo.imgUrl" /></div>
+          <div class="block">{{ userInfo.trueName }}</div>
+        </div>
+        <el-badge :value="noticeInfo.messageCount" class="item">
           <i class="el-icon-bell" @click="directNotice" />
+        </el-badge>
+        <el-badge :value="noticeInfo.commentSum" class="item">
+          <i class="el-icon-message" @click="directNotice" />
+        </el-badge>
+        <el-badge :value="noticeInfo.noticeSum" class="item">
+          <i class="el-icon-chat-dot-round" @click="directNotice" />
         </el-badge>
       </div>
     </div>
@@ -23,7 +33,7 @@
 </template>
 
 <script>
-import { allPlate, userManagePlate } from '@/api/index'
+import { getPlateList, userManagePlate, getUserNoticeNum, getUserInfo } from '@/api/index'
 import logo from '@page/components/logo'
 export default {
   name: 'Navbar',
@@ -37,12 +47,24 @@ export default {
       foldPlateList: [],
       isAdmin: false,
       userPlateList: [],
-      title: ''
+      title: '',
+      userInfo: {
+        id: '',
+        trueName: '',
+        aliasName: '',
+        imgUrl: '',
+        gender: 0
+      },
+      noticeInfo: {
+        noticeSum: 0,
+        commentSum: 0,
+        messageCount: 0
+      }
     }
   },
   mounted () {
     // 获取所有板块列表用于navbar
-    allPlate({}).then(res => {
+    getPlateList({}).then(res => {
       const showNum = 5
       for (let i = 0; i < res.length; i++) {
         if (i < showNum) {
@@ -53,6 +75,22 @@ export default {
         this.plateList.push(res[i])
       }
       this.$store.commit('getPlateList', this.plateList)
+    })
+    getUserInfo().then(res => {
+      this.userInfo = {
+        id: res.id,
+        trueName: res.trueName,
+        aliasName: res.aliasName,
+        imgUrl: res.imgUrl,
+        gender: res.gender
+      }
+    })
+    getUserNoticeNum().then(res => {
+      this.noticeInfo = {
+        noticeSum: res.noticeSum,
+        commentSum: res.commentSum,
+        messageCount: res.messageCount
+      }
     })
 
     userManagePlate().then(res => {
@@ -87,7 +125,7 @@ export default {
     },
     newArticle () {
       const { href } = this.$router.resolve({ name: 'newArtical' })
-      window.open(href, '_blank')
+      window.open(href, '_self')
     }
   }
 }

@@ -6,11 +6,11 @@
         <div class="app-forum-navbar-title">
           <h3 class="size-large-x">发帖子</h3>
         </div>
-        <el-button type="primary">发布</el-button>
+        <el-button type="primary" @click="submit">发布</el-button>
       </div>
     </section>
     <div class="app-forum-container">
-      <newArticle />
+      <newArticle :flag="flag" />
     </div>
   </section>
 </template>
@@ -22,7 +22,12 @@ export default {
   },
   data () {
     return {
-
+      flag: 0
+    }
+  },
+  methods: {
+    submit (data) {
+      this.flag++
     }
   }
 }
