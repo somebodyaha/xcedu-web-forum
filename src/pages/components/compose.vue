@@ -37,14 +37,11 @@
       <el-form-item label="匿名发帖">
         <el-checkbox v-model="form.anonymousState" @click="changeAnonymous" />
       </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="submitForm('composeForm')">发布</el-button>
-      </el-form-item>
     </el-form>
   </section>
 </template>
 <script>
-import { createArticle, updateArticle, getNoPubArticle } from '@/api/index'
+import { createArticle, updateArticle, getNoPubArticle, getPlateList } from '@/api/index'
 import fileUp from '@/component/fileUp'
 import editor from '@/component/editor'
 // import navbarVue from './navbar.vue'
@@ -52,6 +49,12 @@ export default {
   components: {
     fileUp,
     editor
+  },
+  props: {
+    flag: {
+      type: Number,
+      default: 0
+    }
   },
   data () {
     return {
@@ -64,7 +67,7 @@ export default {
         fileIds: '',
         anonymous: 0
       },
-      options: this.$store.state.header.plateList,
+      options: [],
       rules: {
         articleTitle: [
           { required: true, message: '请输入标题', trigger: 'blur' }
@@ -91,13 +94,29 @@ export default {
           anonymous: 0
         }
       }
+    },
+    flag (newval, oldval) {
+      if (newval > oldval) {
+        this.submitForm('composeForm')
+      }
     }
   },
   mounted: function () {
+    getPlateList().then(res => {
+      this.options = res
+    })
     const id = this.$route.query.id
-    if (id !== undefined) {
+    if (id) {
       getNoPubArticle(id).then(res => {
-        this.form = res
+        this.form = {
+          id: res.id,
+          articleTitle: res.articleTitle,
+          plateId: res.plateId,
+          articleContent: res.articleContent,
+          imgFileIds: res.imgFileIds,
+          fileIds: res.fileIds,
+          anonymous: res.anonymous
+        }
         this.form.anonymousState = this.form.anonymous === 1
       })
     }
@@ -110,13 +129,17 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           if (this.$route.query.id) {
-            const id = this.$route.query.id
-            updateArticle(id, this.form).then(res => {
+            updateArticle(this.form).then(res => {
               this.$message.success('修改成功')
               this.$router.push({ path: '/mfs-forum' })
             })
           } else {
             createArticle(this.form).then(res => {
+              // this.$message.success('发布成功').then(() => {
+              //   setTimeout(() => {
+              //     window.close()
+              //   }, 1000)
+              // })
               this.$message.success('发布成功')
               this.$router.push({ path: '/mfs-forum' })
             }).catch(err => {

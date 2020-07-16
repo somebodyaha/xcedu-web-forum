@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { allPlate, userManagePlate } from '@/api/index'
+import { getPlateList, userManagePlate } from '@/api/index'
 import logo from '@page/components/logo'
 export default {
   name: 'Navbar',
@@ -42,7 +42,7 @@ export default {
   },
   mounted () {
     // 获取所有板块列表用于navbar
-    allPlate({}).then(res => {
+    getPlateList({}).then(res => {
       const showNum = 5
       for (let i = 0; i < res.length; i++) {
         if (i < showNum) {
@@ -87,7 +87,7 @@ export default {
     },
     newArticle () {
       const { href } = this.$router.resolve({ name: 'newArtical' })
-      window.open(href, '_blank')
+      window.open(href, '_self')
     }
   }
 }

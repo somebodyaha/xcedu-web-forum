@@ -10,9 +10,9 @@ export function createPlate (form) {
   return axios.post(prefix + '/advise/plate/create', form)
 }
 
-// 获取所有板块列表
-export function allPlate () {
-  return axios.get(prefix + '/advise/plate/allPlate')
+// 获取板块管理员-列表
+export function plateManagerList (params) {
+  return axios.get(prefix + '/advise/plate/plateManagerList', { params: params })
 }
 
 // 判断当前用户是否拥有管理员权限
