@@ -1,5 +1,5 @@
 <template>
-  <section class="manage">
+  <section class="manage padding-left-size-nomal padding-right-size-nomal padding-bottom-size-large">
     <header>
       <div class="dss">
         <div class="ds">
@@ -12,7 +12,7 @@
           />
         </div>
         <div>
-          <el-button type="primary" @click="dialogFormVisible = true">新建</el-button>
+          <el-button type="primary" @click="portalSet">新建</el-button>
         </div>
       </div>
     </header>
@@ -53,33 +53,16 @@
         />
       </div>
     </div>
-    <el-dialog title="板块设置" :visible.sync="dialogFormVisible">
-      <el-form ref="numberValidateForm" :model="form" :rules="rules">
-        <el-form-item label="版块名称" :label-width="formLabelWidth" prop="name">
-          <el-input v-model="form.name" autocomplete="off" />
-        </el-form-item>
-        <el-form-item label="活动区域" :label-width="formLabelWidth">
-          <el-select v-model="form.region" placeholder="请选择活动区域">
-            <el-option label="区域一" value="shanghai" />
-            <el-option label="区域二" value="beijing" />
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="submit('numberValidateForm')">确 定</el-button>
-      </div>
-    </el-dialog>
     <el-dialog title="删除板块" :visible.sync="deletePlateVisible">
-      <el-form ref="transferPlateForm" :model="form" :rules="rules">
+      <el-form ref="transferForm" :model="transferForm" :rules="rules">
         <el-form-item :label-width="formLabelWidth">
           该版块中已有发布的内容，需要先将已发布的内容转移到其它版块
         </el-form-item>
         <el-form-item :label-width="formLabelWidth">
           批量转移其中的内容至版块
         </el-form-item>
-        <el-form-item :label-width="formLabelWidth">
-          <el-select v-model="form.region" placeholder="请选择板块">
+        <el-form-item :label-width="formLabelWidth" prop="newPlateId">
+          <el-select v-model="transferForm.newPlateId" placeholder="请选择板块">
             <el-option
               v-for="plate in plateList"
               :key="plate.id"
@@ -88,17 +71,17 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item class="fr">
+          <el-button @click="deletePlateVisible = false">取 消</el-button>
+          <el-button type="primary" @click="transferPlate('transferForm')">保 存</el-button>
+        </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="deletePlateVisible = false">取 消</el-button>
-        <el-button type="primary" @click="transferPlate('transferPlateForm')">保 存</el-button>
-      </div>
     </el-dialog>
   </section>
 </template>
 
 <script>
-import { getPlatePage, deletePlateById, getPlateList } from '@/api/index'
+import { getPlatePage, deletePlateById, getPlateList, transferPlate } from '@/api/index'
 export default {
   data () {
     return {
@@ -114,15 +97,14 @@ export default {
       multipleSelection: [],
       dialogFormVisible: false,
       deletePlateVisible: false,
-      form: {
-        name: '',
-        region: ''
-      },
       formLabelWidth: '120px',
+      transferForm: {
+        newPlateId: null,
+        oldPlateId: ''
+      },
       rules: {
-        name: [
-          { required: true, message: '请输入活动名称', trigger: 'blur' },
-          { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
+        newPlateId: [
+          { required: true, message: '请选择板块', trigger: 'blur' }
         ]
       }
     }
@@ -131,6 +113,9 @@ export default {
 
   },
   methods: {
+    portalSet () {
+      this.$emit('openPortal')
+    },
     flushPlateList () {
       getPlatePage(this.params).then(res => {
         this.tableData = res.records
@@ -182,12 +167,22 @@ export default {
                 message: '删除成功',
                 type: 'success'
               })
+              this.flushPlateList()
             } else if (res === 2) {
               this.dialogFormVisible = false
               // 该板块下还有帖子
+              this.plateList = []
               getPlateList().then(res => {
-                this.plateList = res
+                for (let i = 0; i < res.length; i++) {
+                  if (res[i].id === row.id) {
+                    return
+                  }
+                  this.plateList.push(res[i])
+                }
               })
+              // 转移板块弹窗
+              this.transferForm.newPlateId = null
+              this.transferForm.oldPlateId = row.id
               this.deletePlateVisible = true
             } else {
               this.$message({
@@ -204,84 +199,39 @@ export default {
             message: err
           })
         })
-      } else if (title === 'allStick') {
-        this.$confirm('此操作将把该帖子全论坛置顶 , 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          //   articleTop({ id: row.id, flag: 'forum', topFlag: 1 }).then(res => {
-          //     if (res) {
-          //       this.$message({
-          //         message: '置顶成功',
-          //         type: 'success'
-          //       })
-          //     } else {
-          //       this.$message({
-          //         message: '置顶失败',
-          //         type: 'error'
-          //       })
-          //     }
-          //   })
-          // })
-          // .catch(err => {
-          //   // eslint-disable-next-line no-console
-          //   console.log(err)
-          //   this.$message({
-          //     type: 'info',
-          //     message: '已取消全论坛置顶'
-          //   })
-        })
       } else {
-        this.$confirm('此操作将把该帖子板块置顶 , 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          //   articleTop({ id: row.id, flag: 'plate', topFlag: 1 }).then(res => {
-          //     if (res) {
-          //       this.$message({
-          //         message: '置顶成功',
-          //         type: 'success'
-          //       })
-          //     } else {
-          //       this.$message({
-          //         message: '置顶失败',
-          //         type: 'error'
-          //       })
-          //     }
-          //   })
-          // })
-          // .catch(() => {
-          //   this.$message({
-          //     type: 'info',
-          //     message: '已取消板块置顶'
-          //   })
-        })
+        // 编辑
+        this.$emit('openPortal', row.id)
       }
     },
-    submit (formName) {
-      window.console.log(formName)
-      // this.$refs[formName].validate(valid => {
-      //   if (valid) {
-      //     alert('submit!')
-      //   } else {
-      //     alert('error submit!!')
-      //     return false
-      //   }
-      // })
-    },
     transferPlate (formName) {
-      window.console.log(formName)
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          transferPlate(this.transferForm).then(res => {
+            if (res) {
+              this.$message({
+                message: '转移成功',
+                type: 'success'
+              })
+              this.deletePlateVisible = false
+            } else {
+              this.$message({
+                message: '转移失败',
+                type: 'error'
+              })
+            }
+          })
+        } else {
+          // console.log('error submit!!')
+          return false
+        }
+      })
     }
   }
 }
 </script>
 
 <style scoped>
-.manage {
-  padding: 30px;
-}
 .ds {
   display: flex;
 }

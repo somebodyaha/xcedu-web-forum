@@ -32,10 +32,10 @@
         <fileUp v-model="form.imgFileIds" accept="image/*" accept-tips="只能上传图片格式的文件" dir="dir" />
       </el-form-item>
       <el-form-item label="附件">
-        <fileUp v-model="form.attachment" dir="dir" />
+        <fileUp v-model="form.fileIds" dir="dir" />
       </el-form-item>
       <el-form-item label="匿名发帖">
-        <el-checkbox v-model="form.anonymous" />
+        <el-checkbox v-model="form.anonymousState" @click="changeAnonymous" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="submitForm('composeForm')">发布</el-button>
@@ -56,12 +56,13 @@ export default {
   data () {
     return {
       form: {
-        title: '',
-        belong: '',
-        text: '',
-        pictures: '',
-        attachment: '',
-        anonymous: false
+        id: '',
+        articleTitle: '',
+        plateId: '',
+        articleContent: '',
+        imgFileIds: '',
+        fileIds: '',
+        anonymous: 0
       },
       options: this.$store.state.header.plateList,
       rules: {
@@ -81,23 +82,30 @@ export default {
     $route: function () {
       if (!this.$route.query.id) {
         this.form = {
-          title: '',
-          belong: '',
-          text: '',
-          pictures: '',
-          attachment: '',
-          anonymous: false
+          id: '',
+          articleTitle: '',
+          plateId: '',
+          articleContent: '',
+          imgFileIds: '',
+          fileIds: '',
+          anonymous: 0
         }
       }
     }
   },
   mounted: function () {
     const id = this.$route.query.id
-    getNoPubArticle(id).then(res => {
-      this.form = res
-    })
+    if (id !== undefined) {
+      getNoPubArticle(id).then(res => {
+        this.form = res
+        this.form.anonymousState = this.form.anonymous === 1
+      })
+    }
   },
   methods: {
+    changeAnonymous () {
+      this.form.anonymous = this.form.anonymousState ? 1 : 0
+    },
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {

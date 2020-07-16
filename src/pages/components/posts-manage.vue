@@ -1,5 +1,5 @@
 <template>
-  <section class="manage">
+  <section class="padding-left-size-nomal padding-right-size-nomal padding-bottom-size-large ">
     <header>
       <div class="dss">
         <div class="ds">
@@ -247,6 +247,7 @@ export default {
           message: '未选中数据',
           type: 'info'
         })
+        return
       }
       const req = {
         ids: this.arrayToStrWithOutComma(this.multipleSelection)
@@ -270,14 +271,15 @@ export default {
           type: 'warning'
         }).then(() => {
           this.deleteArticle({ ids: row.id })
-        }).catch(err => {
-          // eslint-disable-next-line no-console
-          console.log(err)
-          this.$message({
-            type: 'info',
-            message: err
-          })
         })
+          .catch(err => {
+            // eslint-disable-next-line no-console
+            console.log(err)
+            this.$message({
+              type: 'info',
+              message: err
+            })
+          })
       } else if (title === 'allStick') {
         this.$confirm('此操作将把该帖子全论坛置顶 , 是否继续?', '提示', {
           confirmButtonText: '确定',
@@ -362,9 +364,6 @@ export default {
 </script>
 
 <style scoped>
-.manage {
-  padding: 30px;
-}
 .ds {
   display: flex;
 }

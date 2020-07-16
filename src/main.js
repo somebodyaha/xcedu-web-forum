@@ -3,6 +3,7 @@ import router from './router'
 import store from './stores'
 import Vuex from 'vuex'
 import App from './App.vue'
+import './style/index.scss'
 Vue.use(Vuex)
 
 new Vue({

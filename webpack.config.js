@@ -39,7 +39,7 @@ const devServerOptions = () => {
     port: devEnvConfig.DEV_SERVER_PORT,
     compress: true,
     open: true,
-    openPage: 'user/login',
+    openPage: 'mfs-forum',
     hot: true,
     headers: {
       'Access-Control-Allow-Origin': '*'
