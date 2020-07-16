@@ -4,6 +4,11 @@ import { axios } from '@xcedu/web-share'
 const prefix = '/api-personalized'
 // const prefix = ''
 
+// -------------------------用户信息接口------------------------
+export function getUserInfo () {
+  return axios.get(prefix + '/advise/user/setting/getUserSetting')
+}
+
 // ------------------------板块管理相关接口---------------------
 // 新增板块
 export function createPlate (form) {
@@ -102,10 +107,7 @@ export function topArticle (params) {
   return axios.get(prefix + '/advise/article/articleTop', { params: params }
   )
 }
-// 通知列表
-export function getNoticeList (flag) {
-  return axios.get(prefix + '/advise/notice/pageList?flag=' + flag)
-}
+
 // 获得帖子列表
 export function getArticleList (params) {
   return axios.get(prefix + '/advise/article/pagelist', { params: params })
@@ -122,6 +124,17 @@ export function articleTop (params) {
 // 根据板块id获取分页帖子
 export function getArticleByPlate (params) {
   return axios.get(prefix + '/advise/article/pagelist', { params: params })
+}
+
+// ----------------------------------用户通知接口------------------------------
+// 通知列表
+export function getNoticeList (flag) {
+  return axios.get(prefix + '/advise/notice/pageList?flag=' + flag)
+}
+
+// 用户通知数量汇总
+export function getUserNoticeNum () {
+  return axios.get(prefix + '/advise/message/summary/getMesSummary')
 }
 
 // 选人接口
