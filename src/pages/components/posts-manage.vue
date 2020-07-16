@@ -1,5 +1,5 @@
 <template>
-  <section class="manage">
+  <section class="padding-left-size-nomal padding-right-size-nomal padding-bottom-size-large ">
     <header>
       <div class="dss">
         <div class="ds">
@@ -362,9 +362,6 @@ export default {
 </script>
 
 <style scoped>
-.manage {
-  padding: 30px;
-}
 .ds {
   display: flex;
 }

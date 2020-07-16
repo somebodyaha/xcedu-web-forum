@@ -1,30 +1,36 @@
 <template>
-  <section class="main-menu-section">
-    <el-menu :default-active="activeIndex" class="margin-lr-auto main-menu" mode="horizontal" @select="handleSelect">
-      <el-menu-item index="logo">
-        <img src="/imgs/logo.png">
-      </el-menu-item>
-      <el-menu-item index="0">首页</el-menu-item>
-      <el-menu-item v-for="plate in showPlateList" :key="plate.id" :index="plate.id">{{ plate.plateName }}</el-menu-item>
-      <el-submenu v-if="foldPlateList.length != 0" index="2">
-        <template slot="title">更多</template>
-        <el-menu-item v-for="foldPlate in foldPlateList" :key="foldPlate.id" :index="plate.id">{{ foldPlate.plateName }}</el-menu-item>
-      </el-submenu>
-      <el-menu-item v-if="isAdmin || userPlateList.length > 0" index="-1"><a>管理</a></el-menu-item>
-    </el-menu>
-    <el-badge :value="12" class="item">
-      <i class="el-icon-bell" @click="directNotice" />
-    </el-badge>
+  <section class="app-forum-navbar">
+    <div>
+      <logo />
+      <el-menu :default-active="activeIndex" class="margin-lr-auto main-menu" mode="horizontal" @select="handleSelect">
+        <el-menu-item index="0">首页</el-menu-item>
+        <el-menu-item v-for="plate in showPlateList" :key="plate.id" :index="plate.id">{{ plate.plateName }}</el-menu-item>
+        <el-submenu v-if="foldPlateList.length != 0" index="2">
+          <template slot="title">更多</template>
+          <el-menu-item v-for="foldPlate in foldPlateList" :key="foldPlate.id" :index="plate.id">{{ foldPlate.plateName }}</el-menu-item>
+        </el-submenu>
+        <el-menu-item index="-1"><a>管理</a></el-menu-item>
+      </el-menu>
+      <div>
+        <el-button type="primary " @click="newArticle">内容发布</el-button>
+        <el-badge :value="12" class="item">
+          <i class="el-icon-bell" @click="directNotice" />
+        </el-badge>
+      </div>
+    </div>
   </section>
 
 </template>
 
 <script>
 import { allPlate, userManagePlate } from '@/api/index'
+import logo from '@page/components/logo'
 export default {
   name: 'Navbar',
+  components: { logo },
   data () {
     return {
+      locationPath: '',
       activeIndex: '0',
       showPlateList: [],
       plateList: [],
@@ -75,15 +81,14 @@ export default {
       this.$router.replace({
         path: '/mfs-forum/notice'
       })
+    },
+    refreshByPlate (plateId) {
+
+    },
+    newArticle () {
+      const { href } = this.$router.resolve({ name: 'newArtical' })
+      window.open(href, '_blank')
     }
   }
 }
 </script>
-<style scoped>
-  .main-menu-section {
-    background-color: #fff;
-  }
-  .main-menu {
-    width: 1170px;
-  }
-</style>
