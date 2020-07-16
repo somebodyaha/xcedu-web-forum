@@ -43,8 +43,7 @@ export function commentList (params) {
 
 // 保存评论
 export function saveComment (form) {
-  return axios.post(prefix + '/advise/comment/save', form
-  )
+  return axios.post(prefix + '/advise/comment/save', form)
 }
 
 // -----------------------帖子相关接口------------------------

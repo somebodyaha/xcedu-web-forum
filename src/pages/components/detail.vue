@@ -147,7 +147,6 @@
     <el-card v-if="isIndexPage" class="box-card-right2">
       <div slot="header" class="clearfix">
         <span style="font-weight:bold;font-size:16px;color:#999">热门</span>
-        <el-button style="float: right; padding: 3px 0;color:#3396FC" type="text">去论坛逛逛>></el-button>
       </div>
       <div v-for="(hotArticle,index) in hotArticles" :key="index" class="text item bghover dsshover">
         <div class="dss">
