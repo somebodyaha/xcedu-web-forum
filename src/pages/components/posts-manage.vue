@@ -16,9 +16,9 @@
           <el-button type="primary" @click="batchDelete">批量删除</el-button>
         </div>
       </div>
-      <div style="margin-top:25px">
+      <div>
         <el-collapse-transition>
-          <div v-if="advancedSearch">
+          <div v-if="advancedSearch" class="padding-top-size-nomal advance-search-container margin-top-size-nomal padding-left-size-nomal padding-right-size-nomal" style="margin-left: -20px; margin-right: -20px;">
             <div class="dss">
               <div style="width: 30%">
                 <span style="margin-right:10px">发布人</span>
@@ -47,7 +47,7 @@
                 />
               </div>
             </div>
-            <div class="ds" style="margin-top:15px">
+            <div class="ds margin-top-size-nomal" style="margin-left: 55px">
               <el-button type="primary" @click="retrieval">检索</el-button>
               <el-button @click="cancel">取消</el-button>
             </div>
@@ -55,7 +55,7 @@
         </el-collapse-transition>
       </div>
     </header>
-    <div style="margin-top:20px">
+    <div class="margin-top-size-large">
       <el-table :data="tableData" style="width: 100%" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55px" />
         <el-table-column fixed prop="articleTitle" label="标题" min-width="300px" />
