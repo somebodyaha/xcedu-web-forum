@@ -1,8 +1,8 @@
 <template>
-  <section class="padding-left-size-nomal padding-right-size-nomal padding-bottom-size-large"> 
+  <section class="padding-left-size-nomal padding-right-size-nomal padding-bottom-size-large">
     <el-form ref="numberValidateForm" :model="form" size="medium">
       <el-form-item label="版块名称" :label-width="formLabelWidth" prop="name">
-        <el-input v-model="form.name" autocomplete="off" /> 
+        <el-input v-model="form.name" autocomplete="off" />
       </el-form-item>
       <el-form-item label="管理员" :label-width="formLabelWidth">
         <chooseUser ref="manager" v-model="form.plateAdminJson" :allow-write="false" :select-role="roles" />
