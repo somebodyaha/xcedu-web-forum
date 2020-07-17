@@ -9,7 +9,7 @@
           <el-row>
             <el-col :span="2">
               <div>
-                <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
+                <el-avatar :src="item.imgUrl" />
               </div>
             </el-col>
             <el-col :span="22">
@@ -21,12 +21,12 @@
                     <i class="el-icon-arrow-down el-icon--right" />
                   </span>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item v-if="item.userIsAdmin && item.forumTop == 0" :command="beforeHandleCommand(item.id,'forum','a')">论坛置顶</el-dropdown-item>
-                    <el-dropdown-item v-if="item.userIsAdmin && item.plateTop == 0" :command="beforeHandleCommand(item.id,'plate','a')">板块置顶</el-dropdown-item>
-                    <el-dropdown-item v-if="item.userIsAdmin && item.forumTop == 1" :command="beforeHandleCommand(item.id,'forum','b')">取消论坛置顶</el-dropdown-item>
-                    <el-dropdown-item v-if="item.userIsAdmin && item.plateTop == 1" :command="beforeHandleCommand(item.id,'plate','b')">取消板块置顶</el-dropdown-item>
-                    <el-dropdown-item v-if="item.userIsAuthor" :command="beforeHandleCommand(item.id,'','c')">编辑</el-dropdown-item>
-                    <el-dropdown-item :command="beforeHandleCommand(item.id,'','d')">删除</el-dropdown-item>
+                    <el-dropdown-item v-if="item.userIsAdmin && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'forum','a')">论坛置顶</el-dropdown-item>
+                    <el-dropdown-item v-if="item.userIsAdmin && item.plateTop == 0" :command="beforeHandleCommand(index,item.id,'plate','a')">板块置顶</el-dropdown-item>
+                    <el-dropdown-item v-if="item.userIsAdmin && item.forumTop == 1" :command="beforeHandleCommand(index,item.id,'forum','b')">取消论坛置顶</el-dropdown-item>
+                    <el-dropdown-item v-if="item.userIsAdmin && item.plateTop == 1" :command="beforeHandleCommand(index,item.id,'plate','b')">取消板块置顶</el-dropdown-item>
+                    <el-dropdown-item v-if="item.userIsAuthor" :command="beforeHandleCommand(index,item.id,'','c')">编辑</el-dropdown-item>
+                    <el-dropdown-item :command="beforeHandleCommand(index,item.id,'','d')">删除</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
               </div>
@@ -38,9 +38,10 @@
                 <span style="font-weight:bold" class="size-large">{{ item.articleTitle }}</span>
               </div>
               <div class="mt-20">
-                <span v-html="item.articleContentShort" />
-                <span v-if="item.articleContentShort && item.articleContentShort.length>=50" class="color" style="cursor:pointer" @click="expand">展开全文</span>
-                <span v-if="false" class="color" style="cursor:pointer" @click="retract">收起全文</span>
+                <span v-show="item.articleContentShort && item.articleContentShort.length>=50 && !item.expandOpen" v-html="item.articleContentShort" />
+                <span v-show="(item.articleContentShort && item.articleContentShort.length<50) || item.expandOpen" v-html="item.articleContent" />
+                <span v-show="item.articleContentShort && item.articleContentShort.length>=50 && !item.expandOpen" class="color" style="cursor:pointer" @click="expand(index)">展开全文</span>
+                <span v-show="item.expandOpen" class="color" style="cursor:pointer" @click="retract(index)">收起全文</span>
               </div>
               <div class="mt-20">
                 <el-image
@@ -78,7 +79,7 @@
                     <!-- <div class="top" /> -->
                     <div style="display:flex">
                       <el-col :span="2" class="mr-10">
-                        <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
+                        <el-avatar :src="userInfo.userAvator" />
                       </el-col>
                       <el-col :span="22">
                         <el-input v-model="input" placeholder="请输入内容" />
@@ -95,7 +96,7 @@
                     </div>
                     <div v-for="(comment,num) in commentList" :key="num" style="display:flex;" class="mt-10">
                       <el-col :span="2" class="mr-10">
-                        <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
+                        <el-avatar :src="comment.imgUrl" />
                       </el-col>
                       <el-col :span="22">
                         <div>
@@ -170,7 +171,7 @@
     <el-card v-if="isIndexPage" class="box-card-right2">
       <div slot="header" class="clearfix">
         <span style="font-weight:bold;font-size:16px;color:#999">热门</span>
-        <el-button style="float: right; padding: 3px 0;color:#3396FC" type="text">去论坛逛逛>></el-button>
+        <!-- <el-button style="float: right; padding: 3px 0;color:#3396FC" type="text">去论坛逛逛>></el-button> -->
       </div>
       <div v-for="(hotArticle,index) in hotArticles" :key="index" class="text item bghover dsshover">
         <div class="dss">
@@ -183,11 +184,16 @@
 </template>
 
 <script>
-import { hotList, getArticleByPlate, getMyArticleCount, commentList, saveComment, deleteArticle, attentionArticle, likeArticle, topArticle, plateManagerList } from '@/api/index'
+import { hotList, getArticleByPlate, getMyArticleCount, getUserSetting, commentList, saveComment, deleteArticle, attentionArticle, likeArticle, topArticle, plateManagerList } from '@/api/index'
 import { arrayToStrWithOutComma } from '@/util/index'
 export default {
   data () {
     return {
+      userInfo: {
+        userAvator: '',
+        userAliasName: '',
+        trueName: ''
+      },
       url: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
       srcList: [
         'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
@@ -252,6 +258,13 @@ export default {
       this.hotArticles = res
     })
     this.getMyArticleCount()
+    getUserSetting().then(res => {
+      this.userInfo = {
+        userAvator: res.imgUrl,
+        userAliasName: res.userAliasName,
+        userName: res.trueName
+      }
+    })
   },
   beforeDestroy () {
     document.removeEventListener('click', this.handleClick, false)
@@ -291,8 +304,9 @@ export default {
     },
 
     // 预处理dropdown 将帖子id装入command
-    beforeHandleCommand (articleId, topFlag, command) {
+    beforeHandleCommand (index, articleId, topFlag, command) {
       return {
+        index: index,
         articleId: articleId,
         command: command,
         topFlag: topFlag
@@ -378,11 +392,12 @@ export default {
       this.commentList = []
       this.getCommentById(articleId)
     },
-    expand () {
-
+    expand (index) {
+      this.pageContent[index].expandOpen = true
+      window.console.log(index, this.pageContent[index].expandOpen)
     },
-    retract () {
-
+    retract (index) {
+      this.pageContent[index].expandOpen = false
     },
     discuss () {
       this.show = !this.show
@@ -394,6 +409,7 @@ export default {
         window.console.log(this.recordNum, this.nomoreState)
         if (!this.nomoreState) {
           for (let i = 0; i < res.records.length; i++) {
+            res.records[i].expandOpen = false
             this.pageContent.push(res.records[i])
             this.recordNum++
           }

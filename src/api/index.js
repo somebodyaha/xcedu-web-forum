@@ -5,7 +5,7 @@ const prefix = '/api-personalized'
 // const prefix = ''
 
 // -------------------------用户信息接口------------------------
-export function getUserInfo () {
+export function getUserSetting () {
   return axios.get(prefix + '/advise/user/setting/getUserSetting')
 }
 
