@@ -21,11 +21,11 @@
                     <i class="el-icon-arrow-down el-icon--right" />
                   </span>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item v-if="item.userIsAdmin && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'forum','a')">论坛置顶</el-dropdown-item>
-                    <el-dropdown-item v-if="item.userIsAdmin && item.plateTop == 0" :command="beforeHandleCommand(index,item.id,'plate','a')">板块置顶</el-dropdown-item>
-                    <el-dropdown-item v-if="item.userIsAdmin && item.forumTop == 1" :command="beforeHandleCommand(index,item.id,'forum','b')">取消论坛置顶</el-dropdown-item>
-                    <el-dropdown-item v-if="item.userIsAdmin && item.plateTop == 1" :command="beforeHandleCommand(index,item.id,'plate','b')">取消板块置顶</el-dropdown-item>
-                    <el-dropdown-item v-if="item.userIsAuthor" :command="beforeHandleCommand(index,item.id,'','c')">编辑</el-dropdown-item>
+                    <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'forum','a')">论坛置顶</el-dropdown-item>
+                    <el-dropdown-item v-show="item.userIsAdmin && item.plateTop == 0" :command="beforeHandleCommand(index,item.id,'plate','a')">板块置顶</el-dropdown-item>
+                    <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 1" :command="beforeHandleCommand(index,item.id,'forum','b')">取消论坛置顶</el-dropdown-item>
+                    <el-dropdown-item v-show="item.userIsAdmin && item.plateTop == 1" :command="beforeHandleCommand(index,item.id,'plate','b')">取消板块置顶</el-dropdown-item>
+                    <el-dropdown-item v-show="item.userIsAuthor" :command="beforeHandleCommand(index,item.id,'','c')">编辑</el-dropdown-item>
                     <el-dropdown-item :command="beforeHandleCommand(index,item.id,'','d')">删除</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
@@ -34,7 +34,7 @@
                 <div class="mt-10 text-color-grey">{{ item.pubDate }}发布</div>
               </div>
               <div class="mt-10">
-                <el-tag v-if="item.forumTop == 1 || item.plateTop == 1" type="danger" size="mini">置顶</el-tag>
+                <el-tag v-show="item.forumTop == 1 || item.plateTop == 1" type="danger" size="mini">置顶</el-tag>
                 <span style="font-weight:bold" class="size-large">{{ item.articleTitle }}</span>
               </div>
               <div class="mt-20">
@@ -344,21 +344,27 @@ export default {
       })
     },
 
-    deleteArticle (articleId) {
+    deleteArticle (index, articleId) {
       deleteArticle({ ids: arrayToStrWithOutComma(articleId.split(',')) }).then(res => {
         if (!res) {
           this.$message('删除失败，请稍后再试')
         } else {
+          this.pageContent.splice(index, 1)
           this.$message('删除成功')
         }
       })
     },
 
-    topArticle (articleId, flag, topFlag) {
+    topArticle (index, articleId, flag, topFlag) {
       topArticle({ id: articleId, flag: flag, topFlag: topFlag }).then(res => {
         if (!res) {
           this.$message('操作失败，请稍后再试')
         } else {
+          if (flag === 'forum') {
+            this.pageContent[index].forumTop = topFlag
+          } else {
+            this.pageContent[index].plateTop = topFlag
+          }
           this.$message('操作成功')
         }
       })
@@ -422,10 +428,10 @@ export default {
     choose (command) {
       const { href } = this.$router.resolve({ name: 'newArtical' })
       switch (command.command) {
-      case 'a':this.topArticle(command.articleId, command.topFlag, 1); break
-      case 'b':this.topArticle(command.articleId, command.topFlag, 0); break
+      case 'a':this.topArticle(command.index, command.articleId, command.topFlag, 1); break
+      case 'b':this.topArticle(command.index, command.articleId, command.topFlag, 0); break
       case 'c':window.open(href + '?id=' + command.articleId, '_self'); break
-      default:this.deleteArticle(command.articleId)
+      default:this.deleteArticle(command.index, command.articleId)
       }
     },
     reflex (index) {
