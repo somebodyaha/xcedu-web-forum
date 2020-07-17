@@ -4,6 +4,10 @@ import { axios } from '@xcedu/web-share'
 // const prefix = '/api-personalized'
 const prefix = ''
 
+export function getUserInfo () {
+  return axios.get('/api-base/users/userInfo')
+}
+
 // -------------------------用户信息接口------------------------
 export function getUserSetting () {
   return axios.get(prefix + '/advise/user/setting/getUserSetting')
@@ -68,8 +72,7 @@ export function commentList (params) {
 
 // 保存评论
 export function saveComment (form) {
-  return axios.post(prefix + '/advise/comment/save', form
-  )
+  return axios.post(prefix + '/advise/comment/save', form)
 }
 
 // -----------------------帖子相关接口------------------------

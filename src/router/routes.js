@@ -41,4 +41,10 @@ const newArtical = {
   path: '/mfs-forum/newArtical',
   component: () => import('@page/article/newArticle')
 }
-export default [forumLayout, newArtical]
+
+const previewDetails = {
+  name: 'previewDetails',
+  path: '/mfs-forum/previewDetails',
+  component: () => import('@page/forum/previewDetails')
+}
+export default [forumLayout, newArtical, previewDetails]
