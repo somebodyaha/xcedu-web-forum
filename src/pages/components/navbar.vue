@@ -16,13 +16,23 @@
         <el-badge :value="noticeNum" class="item">
           <i class="el-icon-bell" @click="directNotice" />
         </el-badge>
+        <!-- <el-badge :value="noticeInfo.commentSum" class="item">
+          <i class="el-icon-message" @click="directNotice" />
+        </el-badge>
+        <el-badge :value="noticeInfo.noticeSum" class="item">
+          <i class="el-icon-chat-dot-round" @click="directNotice" />
+        </el-badge> -->
+        <div class="demo-basic--circle">
+          <div class="block"><el-avatar size="50" :src="userInfo.imgUrl" /></div>
+          <div class="block">{{ userInfo.trueName }}</div>
+        </div>
       </div>
     </div>
   </section>
 </template>
 
 <script>
-import { allPlate, userManagePlate } from '@/api/index'
+import { userManagePlate, getPlateList, getUserSetting } from '@/api/index'
 import { mapGetters } from 'vuex'
 import logo from '@page/components/logo'
 export default {
@@ -37,7 +47,14 @@ export default {
       foldPlateList: [],
       isAdmin: false,
       userPlateList: [],
-      title: ''
+      title: '',
+      userInfo: {
+        id: '',
+        trueName: '',
+        aliasName: '',
+        imgUrl: '',
+        gender: 0
+      }
     }
   },
   computed: {
@@ -48,7 +65,7 @@ export default {
   },
   mounted () {
     // 获取所有板块列表用于navbar
-    allPlate({}).then(res => {
+    getPlateList({}).then(res => {
       const showNum = 5
       for (let i = 0; i < res.length; i++) {
         if (i < showNum) {
@@ -60,7 +77,15 @@ export default {
       }
       this.$store.commit('getPlateList', this.plateList)
     })
-
+    getUserSetting().then(res => {
+      this.userInfo = {
+        id: res.id,
+        trueName: res.trueName,
+        aliasName: res.aliasName,
+        imgUrl: res.imgUrl,
+        gender: res.gender
+      }
+    })
     userManagePlate().then(res => {
       this.isAdmin = res.isAdmin
       this.userPlateList = res.plateList
@@ -93,7 +118,7 @@ export default {
     },
     newArticle () {
       const { href } = this.$router.resolve({ name: 'newArtical' })
-      window.open(href, '_blank')
+      window.open(href, '_self')
     }
   }
 }

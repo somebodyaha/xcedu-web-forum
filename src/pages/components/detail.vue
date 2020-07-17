@@ -9,7 +9,7 @@
           <el-row>
             <el-col :span="2">
               <div>
-                <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
+                <el-avatar :src="item.imgUrl" />
               </div>
             </el-col>
             <el-col :span="22">
@@ -21,12 +21,12 @@
                     <i class="el-icon-arrow-down el-icon--right" />
                   </span>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item v-if="item.userIsAdmin && item.forumTop == 0" :command="beforeHandleCommand(item.id,'forum','a')">论坛置顶</el-dropdown-item>
-                    <el-dropdown-item v-if="item.userIsAdmin && item.plateTop == 0" :command="beforeHandleCommand(item.id,'plate','a')">板块置顶</el-dropdown-item>
-                    <el-dropdown-item v-if="item.userIsAdmin && item.forumTop == 1" :command="beforeHandleCommand(item.id,'forum','b')">取消论坛置顶</el-dropdown-item>
-                    <el-dropdown-item v-if="item.userIsAdmin && item.plateTop == 1" :command="beforeHandleCommand(item.id,'plate','b')">取消板块置顶</el-dropdown-item>
-                    <el-dropdown-item v-if="item.userIsAuthor" :command="beforeHandleCommand(item.id,'','c')">编辑</el-dropdown-item>
-                    <el-dropdown-item :command="beforeHandleCommand(item.id,'','d')">删除</el-dropdown-item>
+                    <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'forum','a')">论坛置顶</el-dropdown-item>
+                    <el-dropdown-item v-show="item.userIsAdmin && item.plateTop == 0" :command="beforeHandleCommand(index,item.id,'plate','a')">板块置顶</el-dropdown-item>
+                    <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 1" :command="beforeHandleCommand(index,item.id,'forum','b')">取消论坛置顶</el-dropdown-item>
+                    <el-dropdown-item v-show="item.userIsAdmin && item.plateTop == 1" :command="beforeHandleCommand(index,item.id,'plate','b')">取消板块置顶</el-dropdown-item>
+                    <el-dropdown-item v-show="item.userIsAuthor" :command="beforeHandleCommand(index,item.id,'','c')">编辑</el-dropdown-item>
+                    <el-dropdown-item :command="beforeHandleCommand(index,item.id,'','d')">删除</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
               </div>
@@ -34,13 +34,14 @@
                 <div class="mt-10 text-color-grey">{{ item.pubDate }}发布</div>
               </div>
               <div class="mt-10">
-                <el-tag v-if="item.forumTop == 1 || item.plateTop == 1" type="danger" size="mini">置顶</el-tag>
+                <el-tag v-show="item.forumTop == 1 || item.plateTop == 1" type="danger" size="mini">置顶</el-tag>
                 <span style="font-weight:bold" class="size-large">{{ item.articleTitle }}</span>
               </div>
               <div class="mt-20">
-                <span v-html="item.articleContentShort" />
-                <span v-if="item.articleContentShort && item.articleContentShort.length>=50" class="color" style="cursor:pointer" @click="expand">展开全文</span>
-                <span v-if="false" class="color" style="cursor:pointer" @click="retract">收起全文</span>
+                <span v-show="item.articleContentShort && item.articleContentShort.length>=50 && !item.expandOpen" v-html="item.articleContentShort" />
+                <span v-show="(item.articleContentShort && item.articleContentShort.length<50) || item.expandOpen" v-html="item.articleContent" />
+                <span v-show="item.articleContentShort && item.articleContentShort.length>=50 && !item.expandOpen" class="color" style="cursor:pointer" @click="expand(index)">展开全文</span>
+                <span v-show="item.expandOpen" class="color" style="cursor:pointer" @click="retract(index)">收起全文</span>
               </div>
               <div class="mt-20">
                 <el-image
@@ -54,14 +55,21 @@
                   <i class="icon-msg mr-3" />
                   <span>{{ item.commentNum == null ? 0 : item.commentNum }}</span>
                 </span>
-                <span class="mr-40" style="cursor:pointer">
-                  <i v-if="item.userHasLike" class="el-icon-platform-eleme mr-3" @click="likeArticle(item.id,0)" />
-                  <i v-else class="el-icon-platform-eleme mr-3" @click="likeArticle(item.id,1)" />
+                <span v-if="item.userHasLike" class="mr-40" style="cursor:pointer" @click="likeArticle(item.id,index,0)">
+                  <i class="el-icon-s-help mr-3" />
                   <span>{{ item.likeNum == null ? 0 : item.likeNum }}</span>
                 </span>
-                <span style="cursor:pointer">
-                  <i v-if="item.userHasAttention" class="icon-star-hollow mr-3" @click="attentionArticle(item.id,0)" />
-                  <i v-else class="icon-star-hollow mr-3" @click="attentionArticle(item.id,1)" />
+
+                <span v-else class="mr-40" style="cursor:pointer" @click="likeArticle(item.id,index,1)">
+                  <i class="el-icon-help mr-3" />
+                  <span>{{ item.likeNum == null ? 0 : item.likeNum }}</span>
+                </span>
+                <span v-if="item.userHasAttention" style="cursor:pointer" @click="attentionArticle(item.id,index,0)">
+                  <i class="el-icon-star-on mr-3" />
+                  <span>取消收藏</span>
+                </span>
+                <span v-else style="cursor:pointer" @click="attentionArticle(item.id,index,1)">
+                  <i class="el-icon-star-off mr-3" />
                   <span>收藏</span>
                 </span>
               </div>
@@ -71,7 +79,7 @@
                     <!-- <div class="top" /> -->
                     <div style="display:flex">
                       <el-col :span="2" class="mr-10">
-                        <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
+                        <el-avatar :src="userInfo.userAvator" />
                       </el-col>
                       <el-col :span="22">
                         <el-input v-model="input" placeholder="请输入内容" />
@@ -83,12 +91,12 @@
                       </el-col>
                       <el-col :span="22" class="dss">
                         <el-checkbox v-model="checked">匿名评论</el-checkbox>
-                        <el-button type="primary" size="small" @click="sendComment(item.id)">发表</el-button>
+                        <el-button type="primary" size="small" @click="sendComment(item.id,index)">发表</el-button>
                       </el-col>
                     </div>
                     <div v-for="(comment,num) in commentList" :key="num" style="display:flex;" class="mt-10">
                       <el-col :span="2" class="mr-10">
-                        <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
+                        <el-avatar :src="comment.imgUrl" />
                       </el-col>
                       <el-col :span="22">
                         <div>
@@ -121,6 +129,22 @@
         <p v-if="noMore" style="text-align:center">没有更多了</p>
       </div>
     </el-card>
+
+    <el-card v-if="!isIndexPage" class="box-card-right1 text-color-grey">
+      <div slot="header" class="dss">
+        <div style="font-size:12px">管理员</div>
+      </div>
+      <div v-for="(manager,index) in plateManager" :key="index" class="text item bghover dss">
+        <el-image
+          style="width: 50px; height: 50px"
+          src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"
+        />
+        <i v-if="manager.gender === 0" class="el-icon-male text-color-grey mr-3" />
+        <i v-else class="el-icon-female text-color-grey mr-3" />
+        <span>{{ manager.userName }}</span>
+      </div>
+    </el-card>
+
     <el-card v-if="isIndexPage" class="box-card-right1 text-color-grey">
       <div class="text item bghover dss">
         <div @click="getArticle('myPub')">
@@ -131,7 +155,7 @@
       </div>
       <div class="text item bghover dss">
         <div @click="getArticle('myComment')">
-          <i class="icon-pingjia text-color-grey mr-3" />
+          <i class="el-icon-s-comment text-color-grey mr-3" />
           <span>我评论的</span>
         </div>
         <el-tag type="info" size="small " class="bgfff">{{ myCount.commentCount }}</el-tag>
@@ -147,7 +171,7 @@
     <el-card v-if="isIndexPage" class="box-card-right2">
       <div slot="header" class="clearfix">
         <span style="font-weight:bold;font-size:16px;color:#999">热门</span>
-        <el-button style="float: right; padding: 3px 0;color:#3396FC" type="text">去论坛逛逛>></el-button>
+        <!-- <el-button style="float: right; padding: 3px 0;color:#3396FC" type="text">去论坛逛逛>></el-button> -->
       </div>
       <div v-for="(hotArticle,index) in hotArticles" :key="index" class="text item bghover dsshover">
         <div class="dss">
@@ -160,11 +184,16 @@
 </template>
 
 <script>
-import { hotList, getArticleByPlate, getMyArticleCount, commentList, saveComment, deleteArticle, attentionArticle, likeArticle, topArticle } from '@/api/index'
+import { hotList, getArticleByPlate, getMyArticleCount, getUserSetting, commentList, saveComment, deleteArticle, attentionArticle, likeArticle, topArticle, plateManagerList } from '@/api/index'
 import { arrayToStrWithOutComma } from '@/util/index'
 export default {
   data () {
     return {
+      userInfo: {
+        userAvator: '',
+        userAliasName: '',
+        trueName: ''
+      },
       url: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
       srcList: [
         'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
@@ -181,12 +210,13 @@ export default {
       pageContent: [],
       pageNumber: 1,
       pageSize: 2,
+      recordNum: 0,
       myCount: {},
       commentList: [],
-      isPubArticle: false,
       plateId: '',
       isIndexPage: true,
-      pageFlag: ''
+      pageFlag: '',
+      plateManager: []
     }
   },
   computed: {
@@ -205,15 +235,18 @@ export default {
       console.log(to)
       const plateId = to.query.index
       this.pageContent = []
+      this.plateManager = []
       this.pageNumber = 1
+      this.recordNum = 0
       if (plateId === '0') {
         this.isIndexPage = true
         this.plateId = ''
       } else {
         this.isIndexPage = false
         this.plateId = plateId
+        this.plateManagerList(this.plateId)
       }
-      // this.load()
+      this.load()
     }
   },
   created () {
@@ -224,8 +257,13 @@ export default {
     hotList({ listNum: 5 }).then(res => {
       this.hotArticles = res
     })
-    getMyArticleCount().then(res => {
-      this.myCount = res
+    this.getMyArticleCount()
+    getUserSetting().then(res => {
+      this.userInfo = {
+        userAvator: res.imgUrl,
+        userAliasName: res.userAliasName,
+        userName: res.trueName
+      }
     })
   },
   beforeDestroy () {
@@ -237,13 +275,28 @@ export default {
       this.pageFlag = pageFlag
       this.nomoreState = false
       this.pageNumber = 1
+      this.recordNum = 0
       this.load()
     },
 
-    sendComment (articleId) {
+    getMyArticleCount () {
+      getMyArticleCount().then(res => {
+        this.myCount = res
+      })
+    },
+
+    plateManagerList (plateId) {
+      plateManagerList({ id: plateId }).then(res => {
+        this.plateManager = res
+      })
+    },
+
+    sendComment (articleId, index) {
       saveComment({ articleId: articleId, anonymous: (this.checked ? 1 : 0), commentContent: this.input }).then(res => {
         if (res) {
           this.$message('评论成功')
+          this.pageContent[index].commentNum++
+          this.getMyArticleCount()
         } else {
           this.$message('评论保存失败')
         }
@@ -251,53 +304,67 @@ export default {
     },
 
     // 预处理dropdown 将帖子id装入command
-    beforeHandleCommand (articleId, topFlag, command) {
+    beforeHandleCommand (index, articleId, topFlag, command) {
       return {
+        index: index,
         articleId: articleId,
         command: command,
         topFlag: topFlag
       }
     },
 
-    likeArticle (articleId, flag) {
+    likeArticle (articleId, index, flag) {
       likeArticle({ articleId: articleId, flag: flag }).then(res => {
         if (!res) {
           this.$message('操作失败')
         } else if (flag === 0) {
+          this.pageContent[index].likeNum--
+          this.pageContent[index].userHasLike = false
           this.$message('取消点赞成功')
         } else if (flag === 1) {
+          this.pageContent[index].likeNum++
+          this.pageContent[index].userHasLike = true
           this.$message('点赞成功')
         }
       })
     },
 
-    attentionArticle (articleId, flag) {
+    attentionArticle (articleId, index, flag) {
       attentionArticle({ id: articleId, flag: flag }).then(res => {
         if (!res) {
           this.$message('收藏失败，请稍后再试')
         } else if (flag === 0) {
+          this.pageContent[index].userHasAttention = false
           this.$message('取消收藏成功')
         } else if (flag === 1) {
+          this.pageContent[index].userHasAttention = true
           this.$message('收藏成功')
         }
+        this.getMyArticleCount()
       })
     },
 
-    deleteArticle (articleId) {
+    deleteArticle (index, articleId) {
       deleteArticle({ ids: arrayToStrWithOutComma(articleId.split(',')) }).then(res => {
         if (!res) {
           this.$message('删除失败，请稍后再试')
         } else {
+          this.pageContent.splice(index, 1)
           this.$message('删除成功')
         }
       })
     },
 
-    topArticle (articleId, flag, topFlag) {
+    topArticle (index, articleId, flag, topFlag) {
       topArticle({ id: articleId, flag: flag, topFlag: topFlag }).then(res => {
         if (!res) {
           this.$message('操作失败，请稍后再试')
         } else {
+          if (flag === 'forum') {
+            this.pageContent[index].forumTop = topFlag
+          } else {
+            this.pageContent[index].plateTop = topFlag
+          }
           this.$message('操作成功')
         }
       })
@@ -331,36 +398,40 @@ export default {
       this.commentList = []
       this.getCommentById(articleId)
     },
-    expand () {
-
+    expand (index) {
+      this.pageContent[index].expandOpen = true
+      window.console.log(index, this.pageContent[index].expandOpen)
     },
-    retract () {
-
+    retract (index) {
+      this.pageContent[index].expandOpen = false
     },
     discuss () {
       this.show = !this.show
     },
     load () {
       this.loading = true
-      setTimeout(() => {
-        getArticleByPlate({ plateId: this.plateId, page: this.pageNumber++, pageSize: this.pageSize, pageFlag: this.pageFlag }).then(res => {
+      getArticleByPlate({ plateId: this.plateId, page: this.pageNumber++, pageSize: this.pageSize, pageFlag: this.pageFlag }).then(res => {
+        this.nomoreState = this.recordNum >= res.totalRecords
+        window.console.log(this.recordNum, this.nomoreState)
+        if (!this.nomoreState) {
           for (let i = 0; i < res.records.length; i++) {
-            window.console.log(res.records[i])
+            res.records[i].expandOpen = false
             this.pageContent.push(res.records[i])
+            this.recordNum++
           }
-          this.nomoreState = (this.pageSize + res.recordNumber) >= res.totalRecords
-        })
+        }
+      })
 
-        this.loading = false
-      }, 1000)
+      this.loading = false
     },
 
     choose (command) {
+      const { href } = this.$router.resolve({ name: 'newArtical' })
       switch (command.command) {
-      case 'a':this.topArticle(command.articleId, command.topFlag, 1); break
-      case 'b':this.topArticle(command.articleId, command.topFlag, 0); break
-      case 'c': this.isPubArticle = true; this.$router.push('/mfs-forum/newArticle?id=' + command.articleId); break
-      default:this.deleteArticle(command.articleId)
+      case 'a':this.topArticle(command.index, command.articleId, command.topFlag, 1); break
+      case 'b':this.topArticle(command.index, command.articleId, command.topFlag, 0); break
+      case 'c':window.open(href + '?id=' + command.articleId, '_self'); break
+      default:this.deleteArticle(command.index, command.articleId)
       }
     },
     reflex (index) {

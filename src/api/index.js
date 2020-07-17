@@ -4,6 +4,11 @@ import { axios } from '@xcedu/web-share'
 // const prefix = '/api-personalized'
 const prefix = ''
 
+// -------------------------用户信息接口------------------------
+export function getUserSetting () {
+  return axios.get(prefix + '/advise/user/setting/getUserSetting')
+}
+
 // ------------------------板块管理相关接口---------------------
 // 新增板块
 export function createPlate (form) {
@@ -28,6 +33,11 @@ export function detailPlate (params) {
 // 获取所有板块列表
 export function allPlate () {
   return axios.get(prefix + '/advise/plate/findAll')
+}
+
+// 获取板块管理员-列表
+export function plateManagerList (params) {
+  return axios.get(prefix + '/advise/plate/plateManagerList', { params: params })
 }
 
 // 判断当前用户是否拥有管理员权限
