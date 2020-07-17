@@ -29,7 +29,7 @@
   </section>
 </template>
 <script>
-import { getNoticeList } from '@/api/index'
+import { getNoticeList, getMesSummary } from '@/api/index'
 export default {
   data () {
     return {
@@ -58,6 +58,9 @@ export default {
       this.notices = res.records
       this.totalRecords = res.totalRecords
       this.params.page += 2
+      getMesSummary().then(res => {
+        this.$store.commit('getNoticeNum', res.messageCount)
+      })
     })
   },
   methods: {
@@ -82,6 +85,9 @@ export default {
         this.notices = res.records
         this.totalRecords = res.totalRecords
         this.params.page += 2
+        getMesSummary().then(res => {
+          this.$store.commit('getNoticeNum', res.messageCount)
+        })
       })
     },
     flushNoticeList () {

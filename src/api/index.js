@@ -152,3 +152,8 @@ export function getChooseUserDataByParams (params) {
 export function gettSearchListByValue (params) {
   return axios.get('/api-base/rangeScopes?type=search', { params })
 }
+
+// -----------------------消息汇总相关接口------------------------
+export function getMesSummary () {
+  return axios.get(prefix + '/advise/message/summary/getMesSummary')
+}

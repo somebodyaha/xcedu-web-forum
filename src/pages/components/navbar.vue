@@ -13,17 +13,17 @@
       </el-menu>
       <div>
         <el-button type="primary " @click="newArticle">内容发布</el-button>
-        <el-badge :value="12" class="item">
+        <el-badge :value="noticeNum" class="item">
           <i class="el-icon-bell" @click="directNotice" />
         </el-badge>
       </div>
     </div>
   </section>
-
 </template>
 
 <script>
 import { allPlate, userManagePlate } from '@/api/index'
+import { mapGetters } from 'vuex'
 import logo from '@page/components/logo'
 export default {
   name: 'Navbar',
@@ -39,6 +39,12 @@ export default {
       userPlateList: [],
       title: ''
     }
+  },
+  computed: {
+  // 使用对象展开运算符将 getter 混入 computed 对象中
+    ...mapGetters([
+      'noticeNum'
+    ])
   },
   mounted () {
     // 获取所有板块列表用于navbar
