@@ -4,8 +4,12 @@ import { axios } from '@xcedu/web-share'
 const prefix = '/api-personalized'
 // const prefix = ''
 
-// -------------------------用户信息接口------------------------
 export function getUserInfo () {
+  return axios.get('/api-base/users/userInfo')
+}
+
+// -------------------------用户信息接口------------------------
+export function getUserSetting () {
   return axios.get(prefix + '/advise/user/setting/getUserSetting')
 }
 

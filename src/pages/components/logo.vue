@@ -1,13 +1,29 @@
 <template>
-  <img :src="imgPath" class="logo">
+  <img :src="logoUrl" alt="" style="height: 40px">
 </template>
 <script>
+import { getUserInfo } from '@/api/index'
+
 export default {
-  name: 'Logo',
   data () {
     return {
-      imgPath: ''
+      logo: ''
     }
+  },
+  computed: {
+    logoUrl: function () {
+      var href = window.location.href
+      var spstr = '//'
+      var prefix = href.indexOf(spstr) + spstr.length
+      var aim = href.substring(prefix)
+      var url = href.substring(0, prefix) + aim.substring(0, aim.indexOf('/'))
+      return url + '/api/v1/' + this.logo + '&access_token=' + localStorage.getItem('token')
+    }
+  },
+  mounted () {
+    getUserInfo().then(res => {
+      this.logo = res.logo
+    })
   }
 }
 </script>

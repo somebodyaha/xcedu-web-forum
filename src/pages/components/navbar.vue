@@ -13,19 +13,16 @@
       </el-menu>
       <div>
         <el-button type="primary " @click="newArticle">内容发布</el-button>
-        <div class="demo-basic--circle">
-          <div class="block"><el-avatar size="50" :src="userInfo.imgUrl" /></div>
-          <div class="block">{{ userInfo.trueName }}</div>
-        </div>
-        <el-badge :value="noticeInfo.messageCount" class="item">
-          <i class="el-icon-bell" @click="directNotice" />
+        <el-badge :value="noticeInfo.messageCount" class="item" style="cursor:pointer">
+          <i class="el-icon-bell size-large-xx" @click="directNotice " />
         </el-badge>
-        <el-badge :value="noticeInfo.commentSum" class="item">
+        <user />
+        <!-- <el-badge :value="noticeInfo.commentSum" class="item">
           <i class="el-icon-message" @click="directNotice" />
         </el-badge>
         <el-badge :value="noticeInfo.noticeSum" class="item">
           <i class="el-icon-chat-dot-round" @click="directNotice" />
-        </el-badge>
+        </el-badge> -->
       </div>
     </div>
   </section>
@@ -33,11 +30,12 @@
 </template>
 
 <script>
-import { getPlateList, userManagePlate, getUserNoticeNum, getUserInfo } from '@/api/index'
+import { getPlateList, userManagePlate, getUserNoticeNum, getUserSetting } from '@/api/index'
 import logo from '@page/components/logo'
+import user from '@page/components/user'
 export default {
   name: 'Navbar',
-  components: { logo },
+  components: { logo, user },
   data () {
     return {
       locationPath: '',
@@ -76,7 +74,7 @@ export default {
       }
       this.$store.commit('getPlateList', this.plateList)
     })
-    getUserInfo().then(res => {
+    getUserSetting().then(res => {
       this.userInfo = {
         id: res.id,
         trueName: res.trueName,

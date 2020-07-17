@@ -13,8 +13,8 @@
               </div>
             </el-col>
             <el-col :span="22">
-              <div style="font-weight:bold" class="dss">
-                <div>{{ item.aliasName }}</div>
+              <div class="dss">
+                <div class="margin-bottom-size-mini">{{ item.aliasName }}</div>
                 <!-- <div><i class="el-icon-arrow-down" /></div> -->
                 <el-dropdown v-if="item.userIsAdmin || item.userIsAuthor" trigger="click" @command="choose">
                   <span class="el-dropdown-link">
@@ -31,61 +31,61 @@
                 </el-dropdown>
               </div>
               <div>
-                <div class="mt-10 text-color-grey">{{ item.pubDate }}发布</div>
+                <div class="text-color-grey">{{ item.pubDate }}发布</div>
               </div>
-              <div class="mt-10">
+              <div class="margin-top-size-nomal">
                 <el-tag v-if="item.forumTop == 1 || item.plateTop == 1" type="danger" size="mini">置顶</el-tag>
                 <span style="font-weight:bold" class="size-large">{{ item.articleTitle }}</span>
               </div>
-              <div class="mt-20">
+              <div class="margin-top-size-small">
                 <span v-html="item.articleContentShort" />
                 <span v-if="item.articleContentShort && item.articleContentShort.length>=50" class="color" style="cursor:pointer" @click="expand">展开全文</span>
                 <span v-if="false" class="color" style="cursor:pointer" @click="retract">收起全文</span>
               </div>
-              <div class="mt-20">
+              <div class="margin-top-size-nomal">
                 <el-image
                   style="width: 100px; height: 100px"
                   :src="url"
                   :preview-src-list="srcList"
                 />
               </div>
-              <div class="text-r mt-20 text-color-grey">
-                <span class="mr-40" style="cursor:pointer" @click.stop="showTag(item.id,index)">
-                  <i class="icon-msg mr-3" />
+              <div class="margin-top-size-nomal text-color-grey tool-bar">
+                <span style="cursor:pointer" @click.stop="showTag(item.id,index)">
+                  <i class="icon-msg" />
                   <span>{{ item.commentNum == null ? 0 : item.commentNum }}</span>
                 </span>
-                <span v-if="item.userHasLike" class="mr-40" style="cursor:pointer" @click="likeArticle(item.id,index,0)">
-                  <i class="el-icon-s-help mr-3" />
+                <span v-if="item.userHasLike" style="cursor:pointer" @click="likeArticle(item.id,index,0)">
+                  <i class="el-icon-s-help" />
                   <span>{{ item.likeNum == null ? 0 : item.likeNum }}</span>
                 </span>
 
-                <span v-else class="mr-40" style="cursor:pointer" @click="likeArticle(item.id,index,1)">
-                  <i class="el-icon-help mr-3" />
+                <span v-else style="cursor:pointer" @click="likeArticle(item.id,index,1)">
+                  <i class="el-icon-help" />
                   <span>{{ item.likeNum == null ? 0 : item.likeNum }}</span>
                 </span>
                 <span v-if="item.userHasAttention" style="cursor:pointer" @click="attentionArticle(item.id,index,0)">
-                  <i class="el-icon-star-on mr-3" />
+                  <i class="el-icon-star-on" />
                   <span>取消收藏</span>
                 </span>
                 <span v-else style="cursor:pointer" @click="attentionArticle(item.id,index,1)">
-                  <i class="el-icon-star-off mr-3" />
+                  <i class="el-icon-star-off" />
                   <span>收藏</span>
                 </span>
               </div>
-              <div class="mt-20 fa-more replay">
+              <div class="fa-more replay">
                 <transition name="el-fade-in-linear">
                   <el-card v-show="tag[index]" ref="operate">
                     <!-- <div class="top" /> -->
                     <div style="display:flex">
-                      <el-col :span="2" class="mr-10">
+                      <el-col :span="2">
                         <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
                       </el-col>
                       <el-col :span="22">
                         <el-input v-model="input" placeholder="请输入内容" />
                       </el-col>
                     </div>
-                    <div class="dss mt-10">
-                      <el-col :span="2" class="mr-10">
+                    <div class="dss">
+                      <el-col :span="2">
                         <div />
                       </el-col>
                       <el-col :span="22" class="dss">
@@ -94,7 +94,7 @@
                       </el-col>
                     </div>
                     <div v-for="(comment,num) in commentList" :key="num" style="display:flex;" class="mt-10">
-                      <el-col :span="2" class="mr-10">
+                      <el-col :span="2">
                         <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
                       </el-col>
                       <el-col :span="22">
@@ -102,7 +102,7 @@
                           <div>
                             {{ comment.aliasName + ' : ' +comment.commentContent }}
                           </div>
-                          <div class="dss mt-10 text-color-grey">
+                          <div class="dss text-color-grey">
                             <span>{{ comment.createdDate }}</span>
                             <div>
                               <span style="cursor:pointer" @click="reflex(num)">回复</span>
@@ -138,8 +138,8 @@
           style="width: 50px; height: 50px"
           src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"
         />
-        <i v-if="manager.gender === 0" class="el-icon-male text-color-grey mr-3" />
-        <i v-else class="el-icon-female text-color-grey mr-3" />
+        <i v-if="manager.gender === 0" class="el-icon-male text-color-grey" />
+        <i v-else class="el-icon-female text-color-grey" />
         <span>{{ manager.userName }}</span>
       </div>
     </el-card>
@@ -147,21 +147,21 @@
     <el-card v-if="isIndexPage" class="box-card-right1 text-color-grey">
       <div class="text item bghover dss">
         <div @click="getArticle('myPub')">
-          <i class="icon-send text-color-grey mr-3" />
+          <i class="icon-send text-color-grey" />
           <span>我发送的</span>
         </div>
         <el-tag type="info" size="small " class="bgfff">{{ myCount.publishCount }}</el-tag>
       </div>
       <div class="text item bghover dss">
         <div @click="getArticle('myComment')">
-          <i class="el-icon-s-comment text-color-grey mr-3" />
+          <i class="el-icon-s-comment text-color-grey" />
           <span>我评论的</span>
         </div>
         <el-tag type="info" size="small " class="bgfff">{{ myCount.commentCount }}</el-tag>
       </div>
       <div class="text item bghover dss">
         <div @click="getArticle('myAttention')">
-          <i class="icon-star-solid text-color-grey mr-3" />
+          <i class="icon-star-solid text-color-grey" />
           <span>我关注的</span>
         </div>
         <el-tag type="info" size="small " class="bgfff">{{ myCount.attentionCount }}</el-tag>
@@ -172,7 +172,7 @@
         <span style="font-weight:bold;font-size:16px;color:#999">热门</span>
       </div>
       <div v-for="(hotArticle,index) in hotArticles" :key="index" class="text item bghover dsshover">
-        <div class="dss">
+        <div class="dss" @click="preViewDetails">
           <div v-html="hotArticle.articleTitle" />
           <div> {{ hotArticle.readNum == null ? 0 : hotArticle.readNum }}次</div>
         </div>
@@ -188,10 +188,7 @@ export default {
   data () {
     return {
       url: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
-      srcList: [
-        'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
-        'https://fuss10.elemecdn.com/1/8e/aeffeb4de74e2fde4bd74fc7b4486jpeg.jpeg'
-      ],
+      srcList: [],
       input: '',
       tag: {},
       checked: false,
@@ -256,6 +253,10 @@ export default {
     document.removeEventListener('click', this.handleClick, false)
   },
   methods: {
+    preViewDetails () {
+      const { href } = this.$router.resolve({ name: 'previewDetails' })
+      window.open(href, '_blank')
+    },
     getArticle (pageFlag) {
       this.pageContent = []
       this.pageFlag = pageFlag
@@ -457,27 +458,11 @@ export default {
     align-items: center;
     justify-content: space-between;
   }
-  .mt-10{
-    margin-top:10px
-  }
-  .mt-20{
-    margin-top: 20px;
-  }
-  .mt-30{
-    margin-top:30px;
-  }
-  .text-r{
+
+  .tool-bar{
     text-align: right;
   }
-  .mr-40{
-    margin-right: 40px;
-  }
-  .mr-3{
-    margin-right: 3px;
-  }
-  .mr-10{
-    margin-right: 10px;
-  }
+
   .box-card-right1,.box-card-right2{
      position: fixed;
     top: 81px;
