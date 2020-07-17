@@ -7,6 +7,7 @@
           <h3 class="size-large-x">发帖子</h3>
         </div>
         <el-button type="primary" @click="submit">发布</el-button>
+        <el-button type="default" @click="goBacktToHome">返回首页</el-button>
       </div>
     </section>
     <div class="app-forum-container">
@@ -28,6 +29,9 @@ export default {
   methods: {
     submit (data) {
       this.flag++
+    },
+    goBacktToHome () {
+      this.$router.push({ name: 'home' })
     }
   }
 }

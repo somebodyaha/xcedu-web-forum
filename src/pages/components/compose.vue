@@ -44,7 +44,6 @@
 import { createArticle, updateArticle, getNoPubArticle, getPlateList } from '@/api/index'
 import fileUp from '@/component/fileUp'
 import editor from '@/component/editor'
-// import navbarVue from './navbar.vue'
 export default {
   components: {
     fileUp,
