@@ -108,8 +108,12 @@
                             <div>
                               <span style="cursor:pointer" @click="reflex(num)">回复</span>
                               <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                              <span>
-                                <i class="icon--star-hollow" />
+                              <span v-show="comment.userHasLike">
+                                <i class="el-icon-folder-checked" @click="likeComment(num,comment.id,0)" />
+                                <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
+                              </span>
+                              <span v-show="!comment.userHasLike">
+                                <i class="el-icon-folder" @click="likeComment(num,comment.id,1)" />
                                 <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
                               </span>
                             </div>
@@ -174,7 +178,7 @@
         <!-- <el-button style="float: right; padding: 3px 0;color:#3396FC" type="text">去论坛逛逛>></el-button> -->
       </div>
       <div v-for="(hotArticle,index) in hotArticles" :key="index" class="text item bghover dsshover">
-        <div class="dss" @click="preViewDetails">
+        <div class="dss" @click="preViewDetails(hotArticle.id)">
           <div v-html="hotArticle.articleTitle" />
           <div> {{ hotArticle.readNum == null ? 0 : hotArticle.readNum }}次</div>
         </div>
@@ -184,7 +188,7 @@
 </template>
 
 <script>
-import { hotList, getArticleByPlate, getMyArticleCount, getUserSetting, commentList, saveComment, deleteArticle, attentionArticle, likeArticle, topArticle, plateManagerList } from '@/api/index'
+import { hotList, getArticleByPlate, getMyArticleCount, getUserSetting, commentList, saveComment, deleteArticle, attentionArticle, likeArticle, topArticle, plateManagerList, likeComment } from '@/api/index'
 import { arrayToStrWithOutComma } from '@/util/index'
 export default {
   data () {
@@ -267,9 +271,9 @@ export default {
     document.removeEventListener('click', this.handleClick, false)
   },
   methods: {
-    preViewDetails () {
+    preViewDetails (id) {
       const { href } = this.$router.resolve({ name: 'previewDetails' })
-      window.open(href, '_blank')
+      window.open(href + '?id=' + id, '_blank')
     },
     getArticle (pageFlag) {
       this.pageContent = []
@@ -300,6 +304,23 @@ export default {
           this.getMyArticleCount()
         } else {
           this.$message('评论保存失败')
+        }
+      })
+    },
+
+    likeComment (index, commentId, flag) {
+      likeComment({ index, commentId: commentId, flag: flag }).then(res => {
+        if (res) {
+          this.$message('点赞成功')
+          if (flag === 0) {
+            this.commentList[index].userHasLike = false
+            this.commentList[index].commentLikeNum--
+          } else {
+            this.commentList[index].userHasLike = true
+            this.commentList[index].commentLikeNum++
+          }
+        } else {
+          this.$message('点赞失败')
         }
       })
     },

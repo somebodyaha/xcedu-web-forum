@@ -1,8 +1,8 @@
 import { axios } from '@xcedu/web-share'
 
 // 测试环境需要在请求url前加前缀
-// const prefix = '/api-personalized'
-const prefix = ''
+const prefix = '/api-personalized'
+// const prefix = ''
 
 export function getUserInfo () {
   return axios.get('/api-base/users/userInfo')
@@ -70,6 +70,10 @@ export function commentList (params) {
   return axios.get(prefix + '/advise/comment/pageList', { params: params })
 }
 
+// 评论点赞
+export function likeComment (params) {
+  return axios.get(prefix + '/advise/comment/like', { params: params })
+}
 // 保存评论
 export function saveComment (form) {
   return axios.post(prefix + '/advise/comment/save', form)
