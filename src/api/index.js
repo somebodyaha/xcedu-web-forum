@@ -1,8 +1,8 @@
 import { axios } from '@xcedu/web-share'
 
 // 测试环境需要在请求url前加前缀
-const prefix = '/api-personalized'
-// const prefix = ''
+// const prefix = '/api-personalized'
+const prefix = ''
 
 export function getUserInfo () {
   return axios.get('/api-base/users/userInfo')
@@ -17,6 +17,26 @@ export function getUserSetting () {
 // 新增板块
 export function createPlate (form) {
   return axios.post(prefix + '/advise/plate/create', form)
+}
+
+// 保存板块
+export function savePlate (form) {
+  return axios.post(prefix + '/advise/plate/save', form)
+}
+
+// 修改板块
+export function updatePlate (form) {
+  return axios.post(prefix + '/advise/plate/update', form)
+}
+
+// 查看板块详情
+export function detailPlate (params) {
+  return axios.get(prefix + '/advise/plate/view', { params: params })
+}
+
+// 获取所有板块列表
+export function allPlate () {
+  return axios.get(prefix + '/advise/plate/findAll')
 }
 
 // 获取板块管理员-列表
@@ -110,7 +130,10 @@ export function topArticle (params) {
   return axios.get(prefix + '/advise/article/articleTop', { params: params }
   )
 }
-
+//
+export function getNoticeList (params) {
+  return axios.get(prefix + '/advise/notice/pageList', { params: params })
+}
 // 获得帖子列表
 export function getArticleList (params) {
   return axios.get(prefix + '/advise/article/pagelist', { params: params })
@@ -129,15 +152,9 @@ export function getArticleByPlate (params) {
   return axios.get(prefix + '/advise/article/pagelist', { params: params })
 }
 
-// ----------------------------------用户通知接口------------------------------
-// 通知列表
-export function getNoticeList (flag) {
-  return axios.get(prefix + '/advise/notice/pageList?flag=' + flag)
-}
-
-// 用户通知数量汇总
-export function getUserNoticeNum () {
-  return axios.get(prefix + '/advise/message/summary/getMesSummary')
+// 转移帖子板块
+export function transferPlate (params) {
+  return axios.get(prefix + '/advise/article/updatePlate', { params: params })
 }
 
 // 选人接口
@@ -147,4 +164,9 @@ export function getChooseUserDataByParams (params) {
 // 选人输入
 export function gettSearchListByValue (params) {
   return axios.get('/api-base/rangeScopes?type=search', { params })
+}
+
+// -----------------------消息汇总相关接口------------------------
+export function getMesSummary () {
+  return axios.get(prefix + '/advise/message/summary/getMesSummary')
 }

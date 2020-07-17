@@ -232,6 +232,7 @@ export default {
             message: '删除成功',
             type: 'success'
           })
+          this.flushArticleList()
         } else {
           this.$message({
             message: '删除失败',
@@ -246,6 +247,7 @@ export default {
           message: '未选中数据',
           type: 'info'
         })
+        return
       }
       const req = {
         ids: this.arrayToStrWithOutComma(this.multipleSelection)

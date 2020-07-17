@@ -12,16 +12,16 @@
           />
         </div>
         <div>
-          <el-button type="primary" @click="portalSet">新建</el-button>
+          <el-button v-if="isAdmian" type="primary" @click="portalSet">新建</el-button>
         </div>
       </div>
     </header>
     <div style="margin-top:20px">
       <el-table :data="tableData" style="width: 100%" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55px" />
-        <el-table-column fixed prop="plateName" label="板块名称" min-width="300px" />
+        <el-table-column fixed prop="plateName" label="板块名称" />
         <el-table-column prop="plateAdminName" label="板块管理员" />
-        <el-table-column prop="createdBy" label="发布人" />
+        <el-table-column prop="createdName" label="发布人" />
         <el-table-column prop="createdDate" label="创建时间" min-width="150px" />
         <el-table-column label="操作" width="80px" fixed="right">
           <template slot-scope="scope">
@@ -34,7 +34,7 @@
               </span>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="edit">编辑</el-dropdown-item>
-                <el-dropdown-item command="del">删除</el-dropdown-item>
+                <el-dropdown-item v-if="isAdmian" command="del">删除</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
@@ -53,16 +53,40 @@
         />
       </div>
     </div>
+    <el-dialog title="删除板块" :visible.sync="deletePlateVisible">
+      <el-form ref="transferForm" :model="transferForm" :rules="rules">
+        <el-form-item :label-width="formLabelWidth">
+          该版块中已有发布的内容，需要先将已发布的内容转移到其它版块
+        </el-form-item>
+        <el-form-item :label-width="formLabelWidth">
+          批量转移其中的内容至版块
+        </el-form-item>
+        <el-form-item :label-width="formLabelWidth" prop="newPlateId">
+          <el-select v-model="transferForm.newPlateId" placeholder="请选择板块">
+            <el-option
+              v-for="plate in plateList"
+              :key="plate.id"
+              :label="plate.plateName"
+              :value="plate.id"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item class="fr">
+          <el-button @click="deletePlateVisible = false">取 消</el-button>
+          <el-button type="primary" @click="transferPlate('transferForm')">保 存</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </section>
 </template>
 
 <script>
-import { getPlatePage, deletePlateById } from '@/api/index'
-
+import { getPlatePage, deletePlateById, getPlateList, transferPlate, userManagePlate } from '@/api/index'
 export default {
   data () {
     return {
-      managerSet: false,
+      isAdmian: false,
+      plateList: [],
       params: {
         plateName: '',
         page: 1,
@@ -72,29 +96,24 @@ export default {
       totalRecords: 0,
       tableData: [],
       multipleSelection: [],
-      form: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: '',
-        manager: ''
-      },
+      dialogFormVisible: false,
+      deletePlateVisible: false,
       formLabelWidth: '120px',
-      rules: {
-        name: [
-          { required: true, message: '请输入活动名称', trigger: 'blur' },
-          { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
-        ]
+      transferForm: {
+        newPlateId: null,
+        oldPlateId: ''
       },
-      roles: ['orgUser']
+      rules: {
+        newPlateId: [
+          { required: true, message: '请选择板块', trigger: 'blur' }
+        ]
+      }
     }
   },
   mounted () {
-
+    userManagePlate().then(res => {
+      this.isAdmian = res.isAdmian
+    })
   },
   methods: {
     portalSet () {
@@ -123,7 +142,7 @@ export default {
         this.$refs.multipleTable.clearSelection()
       }
     },
-    // 全选单选 或者批量删除
+    // 全选单选
     handleSelectionChange (val) {
       this.multipleSelection = val
       // eslint-disable-next-line no-console
@@ -146,11 +165,28 @@ export default {
           type: 'warning'
         }).then(() => {
           deletePlateById({ id: row.id }).then(res => {
-            if (res) {
+            if (res === 1) {
               this.$message({
                 message: '删除成功',
                 type: 'success'
               })
+              this.flushPlateList()
+            } else if (res === 2) {
+              this.dialogFormVisible = false
+              // 该板块下还有帖子
+              this.plateList = []
+              getPlateList().then(res => {
+                for (let i = 0; i < res.length; i++) {
+                  if (res[i].id === row.id) {
+                    return
+                  }
+                  this.plateList.push(res[i])
+                }
+              })
+              // 转移板块弹窗
+              this.transferForm.newPlateId = null
+              this.transferForm.oldPlateId = row.id
+              this.deletePlateVisible = true
             } else {
               this.$message({
                 message: '删除失败',
@@ -158,77 +194,38 @@ export default {
               })
             }
           })
-        })
-          .catch(err => {
-            // eslint-disable-next-line no-console
-            console.log(err)
-            this.$message({
-              type: 'info',
-              message: err
-            })
+        }).catch(err => {
+          // eslint-disable-next-line no-console
+          console.log(err)
+          this.$message({
+            type: 'info',
+            message: err
           })
-      } else if (title === 'allStick') {
-        this.$confirm('此操作将把该帖子全论坛置顶 , 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          //   articleTop({ id: row.id, flag: 'forum', topFlag: 1 }).then(res => {
-          //     if (res) {
-          //       this.$message({
-          //         message: '置顶成功',
-          //         type: 'success'
-          //       })
-          //     } else {
-          //       this.$message({
-          //         message: '置顶失败',
-          //         type: 'error'
-          //       })
-          //     }
-          //   })
-          // })
-          // .catch(err => {
-          //   // eslint-disable-next-line no-console
-          //   console.log(err)
-          //   this.$message({
-          //     type: 'info',
-          //     message: '已取消全论坛置顶'
-          //   })
         })
       } else {
-        this.$confirm('此操作将把该帖子板块置顶 , 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          //   articleTop({ id: row.id, flag: 'plate', topFlag: 1 }).then(res => {
-          //     if (res) {
-          //       this.$message({
-          //         message: '置顶成功',
-          //         type: 'success'
-          //       })
-          //     } else {
-          //       this.$message({
-          //         message: '置顶失败',
-          //         type: 'error'
-          //       })
-          //     }
-          //   })
-          // })
-          // .catch(() => {
-          //   this.$message({
-          //     type: 'info',
-          //     message: '已取消板块置顶'
-          //   })
-        })
+        // 编辑
+        this.$emit('openPortal', row.id)
       }
     },
-    submit (formName) {
-      this.$refs[formName].validate(valid => {
+    transferPlate (formName) {
+      this.$refs[formName].validate((valid) => {
         if (valid) {
-          alert('submit!')
+          transferPlate(this.transferForm).then(res => {
+            if (res) {
+              this.$message({
+                message: '转移成功',
+                type: 'success'
+              })
+              this.deletePlateVisible = false
+            } else {
+              this.$message({
+                message: '转移失败',
+                type: 'error'
+              })
+            }
+          })
         } else {
-          alert('error submit!!')
+          // console.log('error submit!!')
           return false
         }
       })

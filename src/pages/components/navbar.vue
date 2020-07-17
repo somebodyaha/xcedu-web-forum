@@ -12,7 +12,7 @@
         <el-menu-item index="-1"><a>管理</a></el-menu-item>
       </el-menu>
       <div>
-        <el-button type="primary " @click="newArticle">内容发布</el-button>
+        <el-button type="primary " @click="newArticle">内容发布</el-button> 
         <el-badge :value="noticeInfo.messageCount" class="item" style="cursor:pointer">
           <i class="el-icon-bell size-large-xx" @click="directNotice " />
         </el-badge>
@@ -26,11 +26,11 @@
       </div>
     </div>
   </section>
-
 </template>
 
 <script>
-import { getPlateList, userManagePlate, getUserNoticeNum, getUserSetting } from '@/api/index'
+import { userManagePlate, getPlateList, getUserSetting } from '@/api/index'
+import { mapGetters } from 'vuex'
 import logo from '@page/components/logo'
 import user from '@page/components/user'
 export default {
@@ -52,13 +52,14 @@ export default {
         aliasName: '',
         imgUrl: '',
         gender: 0
-      },
-      noticeInfo: {
-        noticeSum: 0,
-        commentSum: 0,
-        messageCount: 0
       }
     }
+  },
+  computed: {
+  // 使用对象展开运算符将 getter 混入 computed 对象中
+    ...mapGetters([
+      'noticeNum'
+    ])
   },
   mounted () {
     // 获取所有板块列表用于navbar
@@ -83,14 +84,6 @@ export default {
         gender: res.gender
       }
     })
-    getUserNoticeNum().then(res => {
-      this.noticeInfo = {
-        noticeSum: res.noticeSum,
-        commentSum: res.commentSum,
-        messageCount: res.messageCount
-      }
-    })
-
     userManagePlate().then(res => {
       this.isAdmin = res.isAdmin
       this.userPlateList = res.plateList

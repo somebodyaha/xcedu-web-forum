@@ -6,7 +6,7 @@
       </el-tab-pane>
       <el-tab-pane label="板块管理" name="second">
         <plateManage v-if="!isSet" ref="plateManage" @openPortal="openSetPortal" />
-        <portalSet v-else @closePortal="closeSetPortal" />
+        <portalSet v-else :id="id" @closePortal="closeSetPortal" />
       </el-tab-pane>
     </el-tabs>
   </section>
@@ -28,7 +28,8 @@ export default {
     return {
       activeName: 'first',
       onetab: '123',
-      isSet: false
+      isSet: false,
+      id: ''
     }
   },
   methods: {
@@ -39,7 +40,8 @@ export default {
         this.$refs.plateManage.flushPlateList()
       }
     },
-    openSetPortal () {
+    openSetPortal (id) {
+      this.id = id
       this.isSet = true
     },
     closeSetPortal () {
