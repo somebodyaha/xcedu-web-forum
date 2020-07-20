@@ -65,17 +65,14 @@
         <el-table-column prop="readNum" label="阅读" />
         <el-table-column label="操作" width="80px" fixed="right">
           <template slot-scope="scope">
-            <!-- <el-button type="text" size="small" @click="handleClick(scope.row)">删除</el-button> -->
-            <!-- <el-button type="text" size="small">全论坛置顶</el-button> -->
-            <!-- <el-button type="text" size="small">板块置顶</el-button> -->
             <el-dropdown trigger="click" @command="title => choose(title, scope.row)">
               <span class="el-dropdown-link">
                 <i class="el-icon-more" style="cursor:pointer" @click="handleClick(scope.row)" />
               </span>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="del">删除</el-dropdown-item>
-                <el-dropdown-item command="allStick">全论坛置顶</el-dropdown-item>
-                <el-dropdown-item command="stick">板块置顶</el-dropdown-item>
+                <el-dropdown-item command="forumTop"><span v-show="scope.row.forumTop">取消</span>全论坛置顶</el-dropdown-item>
+                <el-dropdown-item command="plateTop"><span v-show="scope.row.plateTop">取消</span>板块置顶</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
@@ -94,23 +91,6 @@
         />
       </div>
     </div>
-    <el-dialog title="板块设置" :visible.sync="dialogFormVisible">
-      <el-form ref="numberValidateForm" :model="form" :rules="rules">
-        <el-form-item label="版块名称" :label-width="formLabelWidth" prop="name">
-          <el-input v-model="form.name" autocomplete="off" />
-        </el-form-item>
-        <el-form-item label="活动区域" :label-width="formLabelWidth">
-          <el-select v-model="form.region" placeholder="请选择活动区域">
-            <el-option label="区域一" value="shanghai" />
-            <el-option label="区域二" value="beijing" />
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button style="margin-right:15px" @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="submit('numberValidateForm')">确 定</el-button>
-      </div>
-    </el-dialog>
   </section>
 </template>
 
@@ -130,6 +110,8 @@ export default {
   },
   data () {
     return {
+      forumTop: false,
+      plateTop: false,
       advancedSearch: false,
       plateList: [],
       publish: '',
@@ -147,7 +129,6 @@ export default {
       totalRecords: 0,
       tableData: [],
       multipleSelection: [],
-      dialogFormVisible: false,
       form: {
         name: '',
         region: '',
@@ -175,8 +156,6 @@ export default {
   },
   methods: {
     flushArticleList () {
-      // eslint-disable-next-line no-console
-      console.log(this.params)
       getArticleList(this.params).then(res => {
         this.tableData = res.records
         this.totalRecords = res.totalRecords
@@ -271,58 +250,78 @@ export default {
           type: 'warning'
         }).then(() => {
           this.deleteArticle({ ids: row.id })
-        })
-          .catch(err => {
-            // eslint-disable-next-line no-console
-            console.log(err)
-            this.$message({
-              type: 'info',
-              message: err
-            })
+        }).catch(err => {
+          // eslint-disable-next-line no-console
+          console.log(err)
+          this.$message({
+            type: 'info',
+            message: err
           })
-      } else if (title === 'allStick') {
-        this.$confirm('此操作将把该帖子全论坛置顶 , 是否继续?', '提示', {
+        })
+      } else if (title === 'forumTop') {
+        let warningMsg = '此操作将把帖子全论坛置顶, 是否继续?'
+        let successMsg = '置顶成功'
+        let failureMsg = '置顶失败'
+        let topFlag = 1
+        if (row.forumTop === 1) {
+          warningMsg = '此操作将取消帖子全论坛置顶, 是否继续?'
+          successMsg = '取消置顶成功'
+          failureMsg = '取消置顶失败'
+          topFlag = 0
+        }
+        this.$confirm(warningMsg, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          articleTop({ id: row.id, flag: 'forum', topFlag: 1 }).then(res => {
+          articleTop({ id: row.id, flag: 'forum', topFlag: topFlag }).then(res => {
             if (res) {
               this.$message({
-                message: '置顶成功',
+                message: successMsg,
                 type: 'success'
               })
+              this.flushArticleList()
             } else {
               this.$message({
-                message: '置顶失败',
+                message: failureMsg,
                 type: 'error'
               })
             }
           })
-        })
-          .catch(err => {
-            // eslint-disable-next-line no-console
-            console.log(err)
-            this.$message({
-              type: 'info',
-              message: '已取消全论坛置顶'
-            })
+        }).catch(err => {
+          // eslint-disable-next-line no-console
+          console.log(err)
+          this.$message({
+            type: 'info',
+            message: '已取消操作'
           })
+        })
       } else {
-        this.$confirm('此操作将把该帖子板块置顶 , 是否继续?', '提示', {
+        let warningMsg = '此操作将把帖子板块置顶, 是否继续?'
+        let successMsg = '置顶成功'
+        let failureMsg = '置顶失败'
+        let topFlag = 1
+        if (row.plateTop === 1) {
+          warningMsg = '此操作将取消帖子板块置顶, 是否继续?'
+          successMsg = '取消置顶成功'
+          failureMsg = '取消置顶失败'
+          topFlag = 0
+        }
+        this.$confirm(warningMsg, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          articleTop({ id: row.id, flag: 'plate', topFlag: 1 }).then(res => {
+          articleTop({ id: row.id, flag: 'plate', topFlag: topFlag }).then(res => {
             if (res) {
               this.$message({
-                message: '置顶成功',
+                message: successMsg,
                 type: 'success'
               })
+              this.flushArticleList()
             } else {
               this.$message({
-                message: '置顶失败',
+                message: failureMsg,
                 type: 'error'
               })
             }
@@ -331,7 +330,7 @@ export default {
           .catch(() => {
             this.$message({
               type: 'info',
-              message: '已取消板块置顶'
+              message: '已取消操作'
             })
           })
       }
