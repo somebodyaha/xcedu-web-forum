@@ -5,7 +5,7 @@
         <div class="ds">
           <el-input
             v-model="params.plateName"
-            placeholder="请输入板块名称"
+            placeholder="请输入版块名称"
             suffix-icon="el-icon-search"
             style="margin-right:15px"
             @keyup.enter.native="onEnterSearch"
@@ -19,15 +19,15 @@
     <div style="margin-top:20px">
       <el-table :data="tableData" style="width: 100%" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55px" />
-        <el-table-column fixed prop="plateName" label="板块名称" />
-        <el-table-column prop="plateAdminName" label="板块管理员" />
+        <el-table-column fixed prop="plateName" label="版块名称" />
+        <el-table-column prop="plateAdminName" label="版块管理员" />
         <el-table-column prop="createdName" label="发布人" />
         <el-table-column prop="createdDate" label="创建时间" min-width="150px" />
         <el-table-column label="操作" width="80px" fixed="right">
           <template slot-scope="scope">
             <!-- <el-button type="text" size="small" @click="handleClick(scope.row)">删除</el-button> -->
             <!-- <el-button type="text" size="small">全论坛置顶</el-button> -->
-            <!-- <el-button type="text" size="small">板块置顶</el-button> -->
+            <!-- <el-button type="text" size="small">版块置顶</el-button> -->
             <el-dropdown trigger="click" @command="title => choose(title, scope.row)">
               <span class="el-dropdown-link">
                 <i class="el-icon-more" style="cursor:pointer" @click="handleClick(scope.row)" />
@@ -53,7 +53,7 @@
         />
       </div>
     </div>
-    <el-dialog title="删除板块" :visible.sync="deletePlateVisible">
+    <el-dialog title="删除版块" :visible.sync="deletePlateVisible">
       <el-form ref="transferForm" :model="transferForm" :rules="rules">
         <el-form-item :label-width="formLabelWidth">
           该版块中已有发布的内容，需要先将已发布的内容转移到其它版块
@@ -62,7 +62,7 @@
           批量转移其中的内容至版块
         </el-form-item>
         <el-form-item :label-width="formLabelWidth" prop="newPlateId">
-          <el-select v-model="transferForm.newPlateId" placeholder="请选择板块">
+          <el-select v-model="transferForm.newPlateId" placeholder="请选择版块">
             <el-option
               v-for="plate in plateList"
               :key="plate.id"
@@ -104,7 +104,7 @@ export default {
       },
       rules: {
         newPlateId: [
-          { required: true, message: '请选择板块', trigger: 'blur' }
+          { required: true, message: '请选择版块', trigger: 'blur' }
         ]
       }
     }
@@ -169,7 +169,7 @@ export default {
               this.flushPlateList()
             } else if (res === 2) {
               this.dialogFormVisible = false
-              // 该板块下还有帖子
+              // 该版块下还有帖子
               this.plateList = []
               getPlateList().then(res => {
                 for (let i = 0; i < res.length; i++) {
@@ -179,7 +179,7 @@ export default {
                   this.plateList.push(res[i])
                 }
               })
-              // 转移板块弹窗
+              // 转移版块弹窗
               this.transferForm.newPlateId = null
               this.transferForm.oldPlateId = row.id
               this.deletePlateVisible = true

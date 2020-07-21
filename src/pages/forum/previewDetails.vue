@@ -11,8 +11,8 @@
     <span v-show="article.userIsAdmin||article.userIsAuthor" @click="deleteArticle">删除</span>
     <span v-show="article.userIsAdmin && article.forumTop === 0" @click="topArticle('forum',1)">全论坛置顶</span>
     <span v-show="article.userIsAdmin && article.forumTop === 1" @click="topArticle('forum',0)">取消论坛置顶</span>
-    <span v-show="article.userIsAdmin && article.plateTop === 0" @click="topArticle('plate',1)">板块置顶</span>
-    <span v-show="article.userIsAdmin && article.plateTop ===1" @click="topArticle('plate',0)">取消板块置顶</span>
+    <span v-show="article.userIsAdmin && article.plateTop === 0" @click="topArticle('plate',1)">版块置顶</span>
+    <span v-show="article.userIsAdmin && article.plateTop ===1" @click="topArticle('plate',0)">取消版块置顶</span>
 
     <span v-show="!article.userHasLike" @click="likeArticle(1)">点赞{{ article.likeNum }}</span>
     <span v-show="article.userHasLike" @click="likeArticle(0)">取消点赞{{ article.likeNum }}</span>

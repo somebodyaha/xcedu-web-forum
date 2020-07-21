@@ -62,7 +62,7 @@ export default {
     ])
   },
   mounted () {
-    // 获取所有板块列表用于navbar
+    // 获取所有版块列表用于navbar
     getPlateList({}).then(res => {
       const showNum = 5
       for (let i = 0; i < res.length; i++) {

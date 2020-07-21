@@ -36,7 +36,7 @@ export default {
       roles: ['orgUser'],
       rules: {
         plateName: [
-          { required: true, message: '板块名称不能为空', trigger: 'blur' }
+          { required: true, message: '版块名称不能为空', trigger: 'blur' }
         ],
         plateAdminJson: [
           { required: true, message: '请选择管理员', trigger: 'blur' }
