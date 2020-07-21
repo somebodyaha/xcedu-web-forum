@@ -79,7 +79,7 @@
           </el-row>
           <div class="fa-more replay margin-top-size-nomal" style="margin-top: 20px; margin-left: -20px; margin-right: -20px;">
             <transition name="el-fade-in-linear">
-              <el-card v-show="tag[index]" ref="operate" style="border: 0 none; box-shadow: non; box-shadow:inset 1px 3px 3px rgba(0,0,0,.05)">
+              <el-card v-show="tag[index]" ref="operate" style="border: 0 none; box-shadow: none; box-shadow:inset 1px 3px 3px rgba(0,0,0,.05)">
                 <!-- <div class="top" /> -->
                 <div style="display:flex">
                   <el-col :span="2" class="mr-10">
@@ -110,44 +110,24 @@
                     <div class="dss text-color-grey  margin-top-size-mix ">
                       <span>{{ comment.createdDate }}</span>
                       <div>
-<<<<<<< HEAD
-                        <span style="cursor:pointer" @click="reflex(num)">回复</span>
-                        <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                        <span v-show="comment.userHasLike">
-                          <i class="el-icon-folder-checked" @click="likeComment(num,comment.id,0)" />
-                          <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
-                        </span>
-                        <span v-show="!comment.userHasLike">
-                          <i class="el-icon-folder" @click="likeComment(num,comment.id,1)" />
-                          <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
-                        </span>
-=======
-                        <span class="color">{{ comment.aliasName }} </span>
-                        <span>: {{ comment.commentContent }}</span>
-                      </div>
-                      <div class="dss text-color-grey  margin-top-size-mix ">
-                        <span>{{ comment.createdDate }}</span>
                         <div>
+                          {{ comment.aliasName + ' : ' +comment.commentContent }}
+                        </div>
+                        <div class="dss text-color-grey">
+                          <span>{{ comment.createdDate }}</span>
                           <div>
-                            {{ comment.aliasName + ' : ' +comment.commentContent }}
-                          </div>
-                          <div class="dss text-color-grey">
-                            <span>{{ comment.createdDate }}</span>
-                            <div>
-                              <span style="cursor:pointer" @click="reflex(num)">回复</span>
-                              <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                              <span v-show="comment.userHasLike">
-                                <i class="el-icon-folder-checked" @click="likeComment(num,comment.id,0)" />
-                                <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
-                              </span>
-                              <span v-show="!comment.userHasLike">
-                                <i class="el-icon-folder" @click="likeComment(num,comment.id,1)" />
-                                <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
-                              </span>
-                            </div>
+                            <span style="cursor:pointer" @click="reflex(num)">回复</span>
+                            <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                            <span v-show="comment.userHasLike">
+                              <i class="el-icon-folder-checked" @click="likeComment(num,comment.id,0)" />
+                              <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
+                            </span>
+                            <span v-show="!comment.userHasLike">
+                              <i class="el-icon-folder" @click="likeComment(num,comment.id,1)" />
+                              <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
+                            </span>
                           </div>
                         </div>
->>>>>>> e8c5fdd3f65e9fed4142893570e0a2914dd8471f
                       </div>
                     </div>
                   </el-col>
