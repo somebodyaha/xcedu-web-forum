@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const webpack = require('webpack')
 const { smart } = require('webpack-merge')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+// const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin')
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin')
@@ -49,6 +49,9 @@ const devServerOptions = () => {
       [devEnvConfig.WEB_REQUEST_BASE_URL]: {
         target: devEnvConfig.PROXY_TARGET_SERVER,
         changeOrigin: true
+        // pathRewrite: {
+        //   [`^${[devEnvConfig.WEB_REQUEST_BASE_URL]}`] : '/'
+        // }
       }
     },
     overlay: true,
@@ -188,7 +191,8 @@ const baseConf = (env = 'production') => ({
     }, {
       test: /\.css$/,
       use: [{
-        loader: env === 'production' ? MiniCssExtractPlugin.loader : 'vue-style-loader',
+        // loader: env === 'production' ? MiniCssExtractPlugin.loader : 'vue-style-loader',
+        loader: 'vue-style-loader',
         options: {
           sourceMap: env !== 'production'
         }
@@ -207,7 +211,8 @@ const baseConf = (env = 'production') => ({
     }, {
       test: /\.less$/,
       use: [{
-        loader: env === 'production' ? MiniCssExtractPlugin.loader : 'vue-style-loader',
+        // loader: env === 'production' ? MiniCssExtractPlugin.loader : 'vue-style-loader',
+        loader: 'vue-style-loader',
         options: {
           sourceMap: env !== 'production'
         }
@@ -231,7 +236,8 @@ const baseConf = (env = 'production') => ({
     }, {
       test: /\.s(c|a)ss$/,
       use: [{
-        loader: env === 'production' ? MiniCssExtractPlugin.loader : 'vue-style-loader',
+        // loader: env === 'production' ? MiniCssExtractPlugin.loader : 'vue-style-loader',
+        loader: 'vue-style-loader',
         options: {
           sourceMap: env !== 'production'
         }
@@ -255,7 +261,8 @@ const baseConf = (env = 'production') => ({
     }, {
       test: /\.styl(us)?$/,
       use: [{
-        loader: env === 'production' ? MiniCssExtractPlugin.loader : 'vue-style-loader',
+        // loader: env === 'production' ? MiniCssExtractPlugin.loader : 'vue-style-loader',
+        loader: 'vue-style-loader',
         options: {
           sourceMap: env !== 'production'
         }
@@ -335,7 +342,7 @@ const prodConf = smart(baseConf('production'), {
     minimizer: [new TerserPlugin()]
   },
   plugins: [
-    new MiniCssExtractPlugin({ filename: 'index.[chunkhash:8].css' }),
+    // new MiniCssExtractPlugin({ filename: 'index.[chunkhash:8].css' }),
     new CompressionWebpackPlugin({ test: /\.(js|css)$/ })
   ]
 })
