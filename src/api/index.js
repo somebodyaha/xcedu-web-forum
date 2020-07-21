@@ -1,8 +1,8 @@
 import { axios } from '@xcedu/web-share'
 
 // 测试环境需要在请求url前加前缀
-const prefix = '/api-personalized'
-// const prefix = ''
+// const prefix = '/api-personalized'
+const prefix = ''
 
 export function getUserInfo () {
   return axios.get('/api-base/users/userInfo')
@@ -26,7 +26,7 @@ export function savePlate (form) {
 
 // 修改板块
 export function updatePlate (form) {
-  return axios.post(prefix + '/advise/plate/update', form)
+  return axios.put(prefix + '/advise/plate/update', form)
 }
 
 // 查看板块详情
@@ -163,11 +163,11 @@ export function transferPlate (params) {
 
 // 选人接口
 export function getChooseUserDataByParams (params) {
-  return axios.get('/api-base/rangeScopes', { params })
+  return axios.get('http://118.178.125.132:8182//api/v1/api-base/rangeScopes', { params })
 }
 // 选人输入
 export function gettSearchListByValue (params) {
-  return axios.get('/api-base/rangeScopes?type=search', { params })
+  return axios.get('http://118.178.125.132:8182//api/v1/api-base/rangeScopes?type=search', { params })
 }
 
 // -----------------------消息汇总相关接口------------------------
