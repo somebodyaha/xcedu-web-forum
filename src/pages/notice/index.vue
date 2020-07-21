@@ -13,10 +13,11 @@
           <div class="fl" style="width: calc(100% - 65px);">
             <div class="bold">{{ notice.initiateBy }}</div>
             <div class="margin-top-size-mix text-color-grey">{{ notice.createdDate }}</div>
-            <div class="margin-top-size-nomal">{{ notice.commentContent }}</div>
+            <div class="margin-top-size-nomal">{{ notice.noticeContent != null ? notice.noticeContent : notice.commentContent }}</div>
             <div class="margin-top-size-small padding-left-right-size-nomal padding-top-bottom-size-small bg-grey">
               <span class="color">{{ notice.subName }}</span>
-              <span>{{ notice.articleTitle != null ? notice.articleTitle : notice.previousCommentContent }}</span>
+              <span v-if="notice.noticeType !== 5">{{ notice.articleTitle != null ? notice.articleTitle : notice.previousCommentContent }}</span>
+              <span v-if="notice.noticeType === 5">{{ notice.commentContent }}</span>
             </div>
           </div>
           <div class="clearfix" />
