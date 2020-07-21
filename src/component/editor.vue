@@ -5,10 +5,10 @@
       :init="{
         height: 500,
         language: 'zh_CN',
-        language_url: '/tinymce/langs/zh_CN.js',
+        language_url: publicPath + 'tinymce/langs/zh_CN.js',
         skin: 'oxide',
-        skin_url: '/tinymce/skins/ui/oxide',
-        content_css: '/tinymce/skins/content/default/content.css',
+        skin_url: publicPath + 'tinymce/skins/ui/oxide',
+        content_css: publicPath + 'tinymce/skins/content/default/content.css',
         menubar: true,
         toolbar:
           'undo redo | formatselect | bold italic backcolor | \
@@ -49,6 +49,7 @@ export default {
   },
   data () {
     return {
+      publicPath: process.env.WEB_PUBLIC_PATH,
       htmlContent: ''
     }
   },

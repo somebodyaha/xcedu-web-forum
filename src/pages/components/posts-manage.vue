@@ -154,9 +154,6 @@ export default {
       this.plateList = res
     })
   },
-  created () {
-    alert(1111)
-  },
   methods: {
     flushArticleList () {
       getArticleList(this.params).then(res => {

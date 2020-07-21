@@ -73,7 +73,6 @@ export default {
         }
         this.plateList.push(res[i])
       }
-      this.$store.commit('getPlateList', this.plateList)
     })
     getUserSetting().then(res => {
       this.userInfo = {
@@ -83,10 +82,12 @@ export default {
         imgUrl: res.imgUrl,
         gender: res.gender
       }
+      this.$store.commit('getPlateList', this.plateList)
     })
     userManagePlate().then(res => {
       this.isAdmin = res.isAdmin
       this.userPlateList = res.plateList
+      this.$store.commit('getAdminState', res.isAdmin)
     })
   },
   methods: {

@@ -4,6 +4,7 @@
       <el-tab-pane label="内容管理" name="first">
         <manage ref="articleManage" />
       </el-tab-pane>
+      <!-- <el-tab-pane v-if="isAdmin" label="板块管理" name="second"> -->
       <el-tab-pane label="板块管理" name="second">
         <plateManage v-if="!isSet" ref="plateManage" @openPortal="openSetPortal" />
         <portalSet v-else :id="id" @closePortal="closeSetPortal" />
@@ -16,7 +17,6 @@
 import manage from '@page/components/posts-manage'
 import plateManage from '@page/components/plate-manage'
 import portalSet from '@page/components/portal-set'
-// import { getPlatePage, getArticleList, deleteArticleById, articleTop, getPlateList } from '@/api/index'
 
 export default {
   components: {
@@ -29,8 +29,12 @@ export default {
       activeName: 'first',
       onetab: '123',
       isSet: false,
-      id: ''
+      id: '',
+      isAdmin: false
     }
+  },
+  mounted: function () {
+    this.isAdmin = this.$store.state.header.adminState
   },
   methods: {
     handleClick (tab, event) {

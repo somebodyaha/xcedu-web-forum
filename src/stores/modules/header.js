@@ -1,12 +1,16 @@
 const state = {
   plateList: null,
-  noticeNum: 0
+  noticeNum: 0,
+  adminState: false
 }
 const getters = {
   value: state => state.value,
   noticeNum: state => state.noticeNum
 }
 const mutations = {
+  getAdminState (state, newVal) {
+    state.adminState = newVal
+  },
   getPlateList (state, newVal) {
     state.plateList = newVal
   },
