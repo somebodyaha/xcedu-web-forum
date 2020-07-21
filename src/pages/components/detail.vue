@@ -9,8 +9,8 @@
           <el-row>
             <el-col :span="2">
               <div>
-                <el-avatar v-if="item.imgUrl" :src="item.imgUrl" />
-                <el-avatar v-else src="@assets/user.png" />
+                <el-avatar v-if="item.anonymous === 0" :src="item.imgUrl" />
+                <el-avatar v-else :src="require('@/assets/user.png')" />
               </div>
             </el-col>
             <el-col :span="22">
@@ -44,10 +44,12 @@
                 <span v-show="item.articleContentShort && item.articleContentShort.length>=50 && !item.expandOpen" class="color" style="cursor:pointer" @click="expand(index)">展开全文</span>
                 <span v-show="item.expandOpen" class="color" style="cursor:pointer" @click="retract(index)">收起全文</span>
               </div>
-              <div class="margin-top-size-nomal">
+              <div v-if="item.imgFileIds" class="margin-top-size-nomal">
                 <el-image
-                  style="width: 100px; height: 100px"
-                  :src="url"
+                  v-for="imgId in item.imgFileIds.split(',')"
+                  :key="imgId"
+                  style="width: 100px; height: 100px;margin-right:20px"
+                  :src="'/'+item.filePrefix + imgId"
                   :preview-src-list="srcList"
                 />
               </div>
@@ -57,11 +59,11 @@
                   <span>{{ item.commentNum == null ? 0 : item.commentNum }}</span>
                 </span>
                 <span v-if="item.userHasLike" style="cursor:pointer" class="margin-right-size-large" @click="likeArticle(item.id,index,0)">
-                  <i class="icon-zan" />
+                  <i class="icon-zan-shixin red" />
                   <span>{{ item.likeNum == null ? 0 : item.likeNum }}</span>
                 </span>
                 <span v-else style="cursor:pointer" class="margin-right-size-large" @click="likeArticle(item.id,index,1)">
-                  <i class="icon-zan-shixin red" />
+                  <i class="icon-zan" />
                   <span>{{ item.likeNum == null ? 0 : item.likeNum }}</span>
                 </span>
                 <span v-if="item.userHasAttention" style="cursor:pointer" @click="attentionArticle(item.id,index,0)">
@@ -102,20 +104,22 @@
                   </el-col>
                   <el-col :span="22">
                     <div>
+                      <span class="color">{{ comment.aliasName }} </span>
+                      <span>: {{ comment.commentContent }}</span>
+                    </div>
+                    <div class="dss text-color-grey  margin-top-size-mix ">
+                      <span>{{ comment.createdDate }}</span>
                       <div>
-                        <span class="color">{{ comment.aliasName }} </span>
-                        <span>: {{ comment.commentContent }}</span>
-                      </div>
-                      <div class="dss text-color-grey  margin-top-size-mix ">
-                        <span>{{ comment.createdDate }}</span>
-                        <div>
-                          <span style="cursor:pointer" @click="reflex(num)">回复</span>
-                          <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                          <span>
-                            <i class="icon-zan" style="cursor: pointer" />
-                            <span>{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
-                          </span>
-                        </div>
+                        <span style="cursor:pointer" @click="reflex(num)">回复</span>
+                        <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                        <span v-show="comment.userHasLike">
+                          <i class="el-icon-folder-checked" @click="likeComment(num,comment.id,0)" />
+                          <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
+                        </span>
+                        <span v-show="!comment.userHasLike">
+                          <i class="el-icon-folder" @click="likeComment(num,comment.id,1)" />
+                          <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
+                        </span>
                       </div>
                     </div>
                   </el-col>
@@ -174,7 +178,7 @@
         <!-- <el-button style="float: right; padding: 3px 0;color:#3396FC" type="text">去论坛逛逛>></el-button> -->
       </div>
       <div v-for="(hotArticle,index) in hotArticles" :key="index" class="text item bghover dsshover">
-        <div class="dss" @click="preViewDetails">
+        <div class="dss" @click="preViewDetails(hotArticle.id)">
           <div v-html="hotArticle.articleTitle" />
           <div> {{ hotArticle.readNum == null ? 0 : hotArticle.readNum }}次</div>
         </div>
@@ -184,7 +188,7 @@
 </template>
 
 <script>
-import { hotList, getArticleByPlate, getMyArticleCount, getUserSetting, commentList, saveComment, deleteArticle, attentionArticle, likeArticle, topArticle, plateManagerList } from '@/api/index'
+import { hotList, getArticleByPlate, getMyArticleCount, getUserSetting, commentList, saveComment, deleteArticle, attentionArticle, likeArticle, topArticle, plateManagerList, likeComment } from '@/api/index'
 import { arrayToStrWithOutComma } from '@/util/index'
 export default {
   data () {
@@ -206,7 +210,7 @@ export default {
       hotArticles: [],
       pageContent: [],
       pageNumber: 1,
-      pageSize: 2,
+      pageSize: 4,
       recordNum: 0,
       myCount: {},
       commentList: [],
@@ -247,7 +251,6 @@ export default {
     }
   },
   created () {
-
   },
   mounted () {
     // 获取list
@@ -267,9 +270,9 @@ export default {
     document.removeEventListener('click', this.handleClick, false)
   },
   methods: {
-    preViewDetails () {
+    preViewDetails (id) {
       const { href } = this.$router.resolve({ name: 'previewDetails' })
-      window.open(href, '_blank')
+      window.open(href + '?id=' + id, '_blank')
     },
     getArticle (pageFlag) {
       this.pageContent = []
@@ -279,19 +282,16 @@ export default {
       this.recordNum = 0
       this.load()
     },
-
     getMyArticleCount () {
       getMyArticleCount().then(res => {
         this.myCount = res
       })
     },
-
     plateManagerList (plateId) {
       plateManagerList({ id: plateId }).then(res => {
         this.plateManager = res
       })
     },
-
     sendComment (articleId, index) {
       saveComment({ articleId: articleId, anonymous: (this.checked ? 1 : 0), commentContent: this.input }).then(res => {
         if (res) {
@@ -303,7 +303,22 @@ export default {
         }
       })
     },
-
+    likeComment (index, commentId, flag) {
+      likeComment({ index, commentId: commentId, flag: flag }).then(res => {
+        if (res) {
+          this.$message('点赞成功')
+          if (flag === 0) {
+            this.commentList[index].userHasLike = false
+            this.commentList[index].commentLikeNum--
+          } else {
+            this.commentList[index].userHasLike = true
+            this.commentList[index].commentLikeNum++
+          }
+        } else {
+          this.$message('点赞失败')
+        }
+      })
+    },
     // 预处理dropdown 将帖子id装入command
     beforeHandleCommand (index, articleId, topFlag, command) {
       return {
@@ -313,7 +328,6 @@ export default {
         topFlag: topFlag
       }
     },
-
     likeArticle (articleId, index, flag) {
       likeArticle({ articleId: articleId, flag: flag }).then(res => {
         if (!res) {
@@ -329,7 +343,6 @@ export default {
         }
       })
     },
-
     attentionArticle (articleId, index, flag) {
       attentionArticle({ id: articleId, flag: flag }).then(res => {
         if (!res) {
@@ -344,7 +357,6 @@ export default {
         this.getMyArticleCount()
       })
     },
-
     deleteArticle (index, articleId) {
       deleteArticle({ ids: arrayToStrWithOutComma(articleId.split(',')) }).then(res => {
         if (!res) {
@@ -355,7 +367,6 @@ export default {
         }
       })
     },
-
     topArticle (index, articleId, flag, topFlag) {
       topArticle({ id: articleId, flag: flag, topFlag: topFlag }).then(res => {
         if (!res) {
@@ -370,7 +381,6 @@ export default {
         }
       })
     },
-
     getCommentById (articleId) {
       commentList({ articleId: articleId, page: 1, pageSize: 1000 }).then(res => {
         for (let i = 0; i < res.records.length; i++) {
@@ -401,7 +411,6 @@ export default {
     },
     expand (index) {
       this.pageContent[index].expandOpen = true
-      window.console.log(index, this.pageContent[index].expandOpen)
     },
     retract (index) {
       this.pageContent[index].expandOpen = false
@@ -422,10 +431,8 @@ export default {
           }
         }
       })
-
       this.loading = false
     },
-
     choose (command) {
       const { href } = this.$router.resolve({ name: 'newArtical' })
       switch (command.command) {
@@ -462,7 +469,6 @@ export default {
   .item {
     margin-bottom: 18px;
   }
-
   .clearfix:before,
   .clearfix:after {
     display: table;
@@ -471,7 +477,6 @@ export default {
   .clearfix:after {
     clear: both
   }
-
   .box-card {
     width: 44%;
     margin: 20px 20%;
@@ -481,11 +486,9 @@ export default {
     align-items: center;
     justify-content: space-between;
   }
-
   .tool-bar{
     text-align: right;
   }
-
   .box-card-right1,.box-card-right2{
      position: fixed;
     top: 81px;
