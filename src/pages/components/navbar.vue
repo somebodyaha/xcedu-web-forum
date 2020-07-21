@@ -7,7 +7,7 @@
         <el-menu-item v-for="plate in showPlateList" :key="plate.id" :index="plate.id">{{ plate.plateName }}</el-menu-item>
         <el-submenu v-if="foldPlateList.length != 0" index="2">
           <template slot="title">更多</template>
-          <el-menu-item v-for="foldPlate in foldPlateList" :key="foldPlate.id" :index="plate.id">{{ foldPlate.plateName }}</el-menu-item>
+          <el-menu-item v-for="foldPlate in foldPlateList" :key="foldPlate.id" :index="foldPlate.id">{{ foldPlate.plateName }}</el-menu-item>
         </el-submenu>
         <el-menu-item index="-1"><a>管理</a></el-menu-item>
       </el-menu>
