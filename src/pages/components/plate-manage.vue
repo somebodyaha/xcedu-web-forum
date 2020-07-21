@@ -12,7 +12,7 @@
           />
         </div>
         <div>
-          <el-button v-if="isAdmian" type="primary" @click="portalSet">新建</el-button>
+          <el-button type="primary" @click="portalSet">新建</el-button>
         </div>
       </div>
     </header>
@@ -34,7 +34,7 @@
               </span>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="edit">编辑</el-dropdown-item>
-                <el-dropdown-item v-if="isAdmian" command="del">删除</el-dropdown-item>
+                <el-dropdown-item command="del">删除</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
@@ -81,11 +81,10 @@
 </template>
 
 <script>
-import { getPlatePage, deletePlateById, getPlateList, transferPlate, userManagePlate } from '@/api/index'
+import { getPlatePage, deletePlateById, getPlateList, transferPlate } from '@/api/index'
 export default {
   data () {
     return {
-      isAdmian: false,
       plateList: [],
       params: {
         plateName: '',
@@ -111,9 +110,7 @@ export default {
     }
   },
   mounted () {
-    userManagePlate().then(res => {
-      this.isAdmian = res.isAdmian
-    })
+
   },
   methods: {
     portalSet () {
