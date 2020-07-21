@@ -9,8 +9,8 @@
           <el-row>
             <el-col :span="2">
               <div>
-                <el-avatar v-if="item.imgUrl" :src="item.imgUrl" />
-                <el-avatar v-else src="@assets/user.png" />
+                <el-avatar v-if="item.anonymous === 0" :src="item.imgUrl" />
+                <el-avatar v-else :src="require('@/assets/user.png')" />
               </div>
             </el-col>
             <el-col :span="22">
@@ -44,10 +44,12 @@
                 <span v-show="item.articleContentShort && item.articleContentShort.length>=50 && !item.expandOpen" class="color" style="cursor:pointer" @click="expand(index)">展开全文</span>
                 <span v-show="item.expandOpen" class="color" style="cursor:pointer" @click="retract(index)">收起全文</span>
               </div>
-              <div class="margin-top-size-nomal">
+              <div v-if="item.imgFileIds" class="margin-top-size-nomal">
                 <el-image
-                  style="width: 100px; height: 100px"
-                  :src="url"
+                  v-for="imgId in item.imgFileIds.split(',')"
+                  :key="imgId"
+                  style="width: 100px; height: 100px;margin-right:20px"
+                  :src="'/'+item.filePrefix + imgId"
                   :preview-src-list="srcList"
                 />
               </div>
@@ -57,11 +59,11 @@
                   <span>{{ item.commentNum == null ? 0 : item.commentNum }}</span>
                 </span>
                 <span v-if="item.userHasLike" style="cursor:pointer" class="margin-right-size-large" @click="likeArticle(item.id,index,0)">
-                  <i class="icon-zan" />
+                  <i class="icon-zan-shixin red" />
                   <span>{{ item.likeNum == null ? 0 : item.likeNum }}</span>
                 </span>
                 <span v-else style="cursor:pointer" class="margin-right-size-large" @click="likeArticle(item.id,index,1)">
-                  <i class="icon-zan-shixin red" />
+                  <i class="icon-zan" />
                   <span>{{ item.likeNum == null ? 0 : item.likeNum }}</span>
                 </span>
                 <span v-if="item.userHasAttention" style="cursor:pointer" @click="attentionArticle(item.id,index,0)">
@@ -102,7 +104,24 @@
                   </el-col>
                   <el-col :span="22">
                     <div>
+                      <span class="color">{{ comment.aliasName }} </span>
+                      <span>: {{ comment.commentContent }}</span>
+                    </div>
+                    <div class="dss text-color-grey  margin-top-size-mix ">
+                      <span>{{ comment.createdDate }}</span>
                       <div>
+<<<<<<< HEAD
+                        <span style="cursor:pointer" @click="reflex(num)">回复</span>
+                        <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                        <span v-show="comment.userHasLike">
+                          <i class="el-icon-folder-checked" @click="likeComment(num,comment.id,0)" />
+                          <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
+                        </span>
+                        <span v-show="!comment.userHasLike">
+                          <i class="el-icon-folder" @click="likeComment(num,comment.id,1)" />
+                          <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
+                        </span>
+=======
                         <span class="color">{{ comment.aliasName }} </span>
                         <span>: {{ comment.commentContent }}</span>
                       </div>
@@ -128,6 +147,7 @@
                             </div>
                           </div>
                         </div>
+>>>>>>> e8c5fdd3f65e9fed4142893570e0a2914dd8471f
                       </div>
                     </div>
                   </el-col>
@@ -218,7 +238,7 @@ export default {
       hotArticles: [],
       pageContent: [],
       pageNumber: 1,
-      pageSize: 2,
+      pageSize: 4,
       recordNum: 0,
       myCount: {},
       commentList: [],
@@ -430,7 +450,6 @@ export default {
     },
     expand (index) {
       this.pageContent[index].expandOpen = true
-      window.console.log(index, this.pageContent[index].expandOpen)
     },
     retract (index) {
       this.pageContent[index].expandOpen = false
