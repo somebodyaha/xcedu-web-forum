@@ -15,8 +15,8 @@
           placeholder="标题"
         />
       </el-form-item>
-      <el-form-item label="所属板块" prop="plateId">
-        <el-select v-model="form.plateId" placeholder="所属板块" style="width: 100%;">
+      <el-form-item label="所属版块" prop="plateId">
+        <el-select v-model="form.plateId" placeholder="所属版块" style="width: 100%;">
           <el-option
             v-for="item in options"
             :key="item.id"
@@ -74,7 +74,7 @@ export default {
           { required: true, message: '请输入标题', trigger: 'blur' }
         ],
         plateId: [
-          { required: true, message: '请选择所属板块', trigger: 'change' }
+          { required: true, message: '请选择所属版块', trigger: 'change' }
         ],
         articleContent: [
           { required: true, message: '请输入正文', trigger: 'blur' }

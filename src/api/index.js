@@ -18,33 +18,33 @@ export function getUserSetting () {
   return axios.get(prefix + '/advise/user/setting/getUserSetting')
 }
 
-// ------------------------板块管理相关接口---------------------
-// 新增板块
+// ------------------------版块管理相关接口---------------------
+// 新增版块
 export function createPlate (form) {
   return axios.post(prefix + '/advise/plate/create', form)
 }
 
-// 保存板块
+// 保存版块
 export function savePlate (form) {
   return axios.post(prefix + '/advise/plate/save', form)
 }
 
-// 修改板块
+// 修改版块
 export function updatePlate (form) {
   return axios.put(prefix + '/advise/plate/update', form)
 }
 
-// 查看板块详情
+// 查看版块详情
 export function detailPlate (params) {
   return axios.get(prefix + '/advise/plate/view', { params: params })
 }
 
-// 获取所有板块列表
+// 获取所有版块列表
 export function allPlate () {
   return axios.get(prefix + '/advise/plate/findAll')
 }
 
-// 获取板块管理员-列表
+// 获取版块管理员-列表
 export function plateManagerList (params) {
   return axios.get(prefix + '/advise/plate/plateManagerList', { params: params })
 }
@@ -54,11 +54,11 @@ export function userManagePlate () {
   return axios.get(prefix + '/advise/plate/userManagePlate')
 }
 
-// 获得板块列表
+// 获得版块列表
 export function getPlateList () {
   return axios.get(prefix + '/advise/plate/findAll')
 }
-// 板块分页
+// 版块分页
 export function getPlatePage (params) {
   return axios.get(prefix + '/advise/plate/pageList', { params: params })
 }
@@ -156,12 +156,12 @@ export function articleTop (params) {
   return axios.get(prefix + '/advise/article/articleTop', { params: params })
 }
 
-// 根据板块id获取分页帖子
+// 根据版块id获取分页帖子
 export function getArticleByPlate (params) {
   return axios.get(prefix + '/advise/article/pagelist', { params: params })
 }
 
-// 转移帖子板块
+// 转移帖子版块
 export function transferPlate (params) {
   return axios.get(prefix + '/advise/article/updatePlate', { params: params })
 }
