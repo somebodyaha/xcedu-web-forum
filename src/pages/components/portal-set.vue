@@ -1,10 +1,10 @@
 <template>
   <section class="padding-left-size-nomal padding-right-size-nomal padding-bottom-size-large">
-    <el-form ref="numberValidateForm" :model="form" size="medium">
-      <el-form-item label="版块名称" :label-width="formLabelWidth" prop="name">
-        <el-input v-model="form.name" autocomplete="off" />
+    <el-form ref="numberValidateForm" :model="form" :rules="rules" size="medium">
+      <el-form-item label="版块名称" :label-width="formLabelWidth" prop="plateName">
+        <el-input v-model="form.plateName" />
       </el-form-item>
-      <el-form-item label="管理员" :label-width="formLabelWidth">
+      <el-form-item label="管理员" :label-width="formLabelWidth" prop="plateAdminJson">
         <chooseUser ref="manager" v-model="form.plateAdminJson" :allow-write="false" :select-role="roles" />
       </el-form-item>
     </el-form>
@@ -37,6 +37,9 @@ export default {
       rules: {
         plateName: [
           { required: true, message: '板块名称不能为空', trigger: 'blur' }
+        ],
+        plateAdminJson: [
+          { required: true, message: '请选择管理员', trigger: 'blur' }
         ]
       }
     }
@@ -61,9 +64,14 @@ export default {
       })
     },
     submit () {
+      const param = {
+        id: this.form.id,
+        plateName: this.form.plateName,
+        plateAdminJson: JSON.stringify(this.form.plateAdminJson)
+      }
       // 提交表单 成功后返回列表
       if (this.id === '') {
-        savePlate(this.form).then(res => {
+        savePlate(param).then(res => {
           if (res) {
             this.$message({
               message: '添加成功',
@@ -75,12 +83,10 @@ export default {
               type: 'error'
             })
           }
-          setTimeout(() => {
-            this.$emit('closePortal')
-          }, 2000)
+          this.$emit('closePortal')
         })
       } else {
-        updatePlate().then(res => {
+        updatePlate(param).then(res => {
           if (res) {
             this.$message({
               message: '修改成功',
@@ -93,9 +99,7 @@ export default {
             })
           }
         })
-        setTimeout(() => {
-          this.$emit('closePortal')
-        }, 1000)
+        this.$emit('closePortal')
       }
     },
     cancal () {
