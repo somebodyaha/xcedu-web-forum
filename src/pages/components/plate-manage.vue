@@ -85,7 +85,7 @@ import { getPlatePage, deletePlateById, getPlateList, transferPlate, userManageP
 export default {
   data () {
     return {
-      isAdmian: false,
+      isAdmian: true,
       plateList: [],
       params: {
         plateName: '',
@@ -111,9 +111,13 @@ export default {
     }
   },
   mounted () {
+    this.flushPlateList()
     userManagePlate().then(res => {
-      this.isAdmian = res.isAdmian
+      // this.isAdmian = res.isAdmian
     })
+  },
+  created () {
+    alert(1111)
   },
   methods: {
     portalSet () {

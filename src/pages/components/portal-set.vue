@@ -2,7 +2,7 @@
   <section class="padding-left-size-nomal padding-right-size-nomal padding-bottom-size-large">
     <el-form ref="numberValidateForm" :model="form" size="medium">
       <el-form-item label="版块名称" :label-width="formLabelWidth" prop="name">
-        <el-input v-model="form.name" autocomplete="off" />
+        <el-input v-model="form.plateName" autocomplete="off" />
       </el-form-item>
       <el-form-item label="管理员" :label-width="formLabelWidth">
         <chooseUser ref="manager" v-model="form.plateAdminJson" :allow-write="false" :select-role="roles" />
@@ -23,9 +23,6 @@ export default {
   components: {
     chooseUser
   },
-  props: {
-    id: { type: String, default: '' }
-  },
   data () {
     return {
       formLabelWidth: '120px',
@@ -45,7 +42,7 @@ export default {
     if (this.id !== '') {
       detailPlate({ id: this.id }).then(res => {
         this.form.plateName = res.plateName
-      // this.form.plateAdminJson = res.plateAdminJson
+        this.form.plateAdminJson = JSON.parse(res.plateAdminJson)
       })
     }
   },
@@ -61,9 +58,14 @@ export default {
       })
     },
     submit () {
+      const params = {
+        id: this.id,
+        plateName: this.form.plateName,
+        plateAdminJson: JSON.stringify(this.form.plateAdminJson)
+      }
       // 提交表单 成功后返回列表
       if (this.id === '') {
-        savePlate(this.form).then(res => {
+        savePlate(params).then(res => {
           if (res) {
             this.$message({
               message: '添加成功',
@@ -80,7 +82,7 @@ export default {
           }, 2000)
         })
       } else {
-        updatePlate().then(res => {
+        updatePlate(params).then(res => {
           if (res) {
             this.$message({
               message: '修改成功',
