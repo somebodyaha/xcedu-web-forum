@@ -9,8 +9,12 @@
           <el-row>
             <el-col :span="2">
               <div>
-                <el-avatar v-if="item.anonymous === 0" :src="item.imgUrl" />
-                <el-avatar v-else :src="require('@/assets/user.png')" />
+                <el-avatar v-if="item.anonymous === 0 && item.imgUrl" :src="item.imgUrl" />
+                <div v-if="item.anonymous === 0 && !item.imgUrl" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
+                  {{ item.aliasName.slice(item.aliasName.length - 2 , item.aliasName.length) }}
+                </div>
+                <el-avatar v-if="item.anonymous === 1" :src="require('@/assets/user.png')" />
+
               </div>
             </el-col>
             <el-col :span="22">
@@ -83,7 +87,10 @@
                 <!-- <div class="top" /> -->
                 <div style="display:flex">
                   <el-col :span="2" class="mr-10">
-                    <el-avatar :src="userInfo.userAvator" />
+                    <el-avatar v-if="userInfo.userAvator" :src="userInfo.userAvator" />
+                    <div v-else style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
+                      {{ userInfo.userName.slice(userInfo.userName.length - 2 , userInfo.userName.length) }}
+                    </div>
                   </el-col>
                   <el-col :span="22">
                     <el-input v-model="input" placeholder="请输入内容" />
@@ -100,7 +107,11 @@
                 </div>
                 <div v-for="(comment,num) in commentList" :key="num" class="margin-top-size-mix padding-top-size-mix replay-line" style="display:flex; ">
                   <el-col :span="2" class="mr-10">
-                    <el-avatar :src="comment.imgUrl" />
+                    <el-avatar v-if="comment.anonymous === 0 && comment.imgUrl" :src="comment.imgUrl" />
+                    <div v-if="comment.anonymous === 0 && !comment.imgUrl" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
+                      {{ comment.aliasName.slice(comment.aliasName.length - 2 , comment.aliasName.length) }}
+                    </div>
+                    <el-avatar v-if="comment.anonymous === 1" :src="require('@/assets/user.png')" />
                   </el-col>
                   <el-col :span="22">
                     <div>
@@ -139,12 +150,10 @@
         <div style="font-size:12px">管理员</div>
       </div>
       <div v-for="(manager,index) in plateManager" :key="index" class="text item bghover dss">
-        <el-image
-          style="width: 50px; height: 50px"
-          src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"
-        />
-        <i v-if="manager.gender === 0" class="el-icon-male text-color-grey" />
-        <i v-else class="el-icon-female text-color-grey" />
+        <el-avatar v-if="manager.userImgUrl" :src="manager.userImgUrl" />
+        <div v-else style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
+          {{ manager.userName.slice(manager.userName.length - 2 , manager.userName.length) }}
+        </div>
         <span>{{ manager.userName }}</span>
       </div>
     </el-card>
