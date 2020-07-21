@@ -9,7 +9,8 @@
           <el-row>
             <el-col :span="2">
               <div>
-                <el-avatar :src="item.imgUrl" />
+                <el-avatar v-if="item.anonymous === 0" :src="item.imgUrl" />
+                <el-avatar v-else :src="require('@/assets/user.png')" />
               </div>
             </el-col>
             <el-col :span="22">
@@ -43,90 +44,89 @@
                 <span v-show="item.articleContentShort && item.articleContentShort.length>=50 && !item.expandOpen" class="color" style="cursor:pointer" @click="expand(index)">展开全文</span>
                 <span v-show="item.expandOpen" class="color" style="cursor:pointer" @click="retract(index)">收起全文</span>
               </div>
-              <div class="margin-top-size-nomal">
+              <div v-if="item.imgFileIds" class="margin-top-size-nomal">
                 <el-image
-                  style="width: 100px; height: 100px"
-                  :src="url"
+                  v-for="imgId in item.imgFileIds.split(',')"
+                  :key="imgId"
+                  style="width: 100px; height: 100px;margin-right:20px"
+                  :src="'/'+item.filePrefix + imgId"
                   :preview-src-list="srcList"
                 />
               </div>
               <div class="margin-top-size-nomal text-color-grey tool-bar">
-                <span style="cursor:pointer" @click.stop="showTag(item.id,index)">
+                <span style="cursor:pointer" class="margin-right-size-large" @click.stop="showTag(item.id,index)">
                   <i class="icon-msg" />
                   <span>{{ item.commentNum == null ? 0 : item.commentNum }}</span>
                 </span>
-                <span v-if="item.userHasLike" style="cursor:pointer" @click="likeArticle(item.id,index,0)">
-                  <i class="el-icon-s-help" />
+                <span v-if="item.userHasLike" style="cursor:pointer" class="margin-right-size-large" @click="likeArticle(item.id,index,0)">
+                  <i class="icon-zan-shixin red" />
                   <span>{{ item.likeNum == null ? 0 : item.likeNum }}</span>
                 </span>
-
-                <span v-else style="cursor:pointer" @click="likeArticle(item.id,index,1)">
-                  <i class="el-icon-help" />
+                <span v-else style="cursor:pointer" class="margin-right-size-large" @click="likeArticle(item.id,index,1)">
+                  <i class="icon-zan" />
                   <span>{{ item.likeNum == null ? 0 : item.likeNum }}</span>
                 </span>
                 <span v-if="item.userHasAttention" style="cursor:pointer" @click="attentionArticle(item.id,index,0)">
-                  <i class="el-icon-star-on" />
+                  <i class="icon-star-solid yellow" />
                   <span>取消收藏</span>
                 </span>
                 <span v-else style="cursor:pointer" @click="attentionArticle(item.id,index,1)">
-                  <i class="el-icon-star-off" />
+                  <i class="icon-star-hollow" />
                   <span>收藏</span>
                 </span>
               </div>
-              <div class="fa-more replay">
-                <transition name="el-fade-in-linear">
-                  <el-card v-show="tag[index]" ref="operate">
-                    <!-- <div class="top" /> -->
-                    <div style="display:flex">
-                      <el-col :span="2" class="mr-10">
-                        <el-avatar :src="userInfo.userAvator" />
-                      </el-col>
-                      <el-col :span="22">
-                        <el-input v-model="input" placeholder="请输入内容" />
-                      </el-col>
-                    </div>
-                    <div class="dss">
-                      <el-col :span="2">
-                        <div />
-                      </el-col>
-                      <el-col :span="22" class="dss">
-                        <el-checkbox v-model="checked">匿名评论</el-checkbox>
-                        <el-button type="primary" size="small" @click="sendComment(item.id,index)">发表</el-button>
-                      </el-col>
-                    </div>
-                    <div v-for="(comment,num) in commentList" :key="num" style="display:flex;" class="mt-10">
-                      <el-col :span="2" class="mr-10">
-                        <el-avatar :src="comment.imgUrl" />
-                      </el-col>
-                      <el-col :span="22">
-                        <div>
-                          <div>
-                            {{ comment.aliasName + ' : ' +comment.commentContent }}
-                          </div>
-                          <div class="dss text-color-grey">
-                            <span>{{ comment.createdDate }}</span>
-                            <div>
-                              <span style="cursor:pointer" @click="reflex(num)">回复</span>
-                              <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                              <span v-show="comment.userHasLike">
-                                <i class="el-icon-folder-checked" @click="likeComment(num,comment.id,0)" />
-                                <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
-                              </span>
-                              <span v-show="!comment.userHasLike">
-                                <i class="el-icon-folder" @click="likeComment(num,comment.id,1)" />
-                                <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
-                              </span>
-                            </div>
-                          </div>
-
-                        </div>
-                      </el-col>
-                    </div>
-                  </el-card>
-                </transition>
-              </div>
             </el-col>
           </el-row>
+          <div class="fa-more replay margin-top-size-nomal" style="margin-top: 20px; margin-left: -20px; margin-right: -20px;">
+            <transition name="el-fade-in-linear">
+              <el-card v-show="tag[index]" ref="operate" style="border: 0 none; box-shadow: non; box-shadow:inset 1px 3px 3px rgba(0,0,0,.05)">
+                <!-- <div class="top" /> -->
+                <div style="display:flex">
+                  <el-col :span="2" class="mr-10">
+                    <el-avatar :src="userInfo.userAvator" />
+                  </el-col>
+                  <el-col :span="22">
+                    <el-input v-model="input" placeholder="请输入内容" />
+                  </el-col>
+                </div>
+                <div class="dss">
+                  <el-col :span="2">
+                    <div />
+                  </el-col>
+                  <el-col :span="22" class="dss">
+                    <el-checkbox v-model="checked">匿名评论</el-checkbox>
+                    <el-button type="primary" size="small" @click="sendComment(item.id,index)">发表</el-button>
+                  </el-col>
+                </div>
+                <div v-for="(comment,num) in commentList" :key="num" class="margin-top-size-mix padding-top-size-mix replay-line" style="display:flex; ">
+                  <el-col :span="2" class="mr-10">
+                    <el-avatar :src="comment.imgUrl" />
+                  </el-col>
+                  <el-col :span="22">
+                    <div>
+                      <span class="color">{{ comment.aliasName }} </span>
+                      <span>: {{ comment.commentContent }}</span>
+                    </div>
+                    <div class="dss text-color-grey  margin-top-size-mix ">
+                      <span>{{ comment.createdDate }}</span>
+                      <div>
+                        <span style="cursor:pointer" @click="reflex(num)">回复</span>
+                        <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                        <span v-show="comment.userHasLike">
+                          <i class="el-icon-folder-checked" @click="likeComment(num,comment.id,0)" />
+                          <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
+                        </span>
+                        <span v-show="!comment.userHasLike">
+                          <i class="el-icon-folder" @click="likeComment(num,comment.id,1)" />
+                          <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
+                        </span>
+                      </div>
+                    </div>
+                  </el-col>
+                </div>
+              </el-card>
+            </transition>
+          </div>
           <el-divider />
         </div>
         <p v-if="loading" style="text-align:center">加载中...</p>
@@ -210,7 +210,7 @@ export default {
       hotArticles: [],
       pageContent: [],
       pageNumber: 1,
-      pageSize: 2,
+      pageSize: 4,
       recordNum: 0,
       myCount: {},
       commentList: [],
@@ -422,7 +422,6 @@ export default {
     },
     expand (index) {
       this.pageContent[index].expandOpen = true
-      window.console.log(index, this.pageContent[index].expandOpen)
     },
     retract (index) {
       this.pageContent[index].expandOpen = false
