@@ -3,12 +3,13 @@
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="内容管理" name="first">
         <manage ref="articleManage" />
-      </el-tab-pane>
-      <el-tab-pane v-if="isAdmin" label="版块管理" name="second">
-        <plateManage v-if="!isSet" ref="plateManage" @openPortal="openSetPortal" />
-        <portalSet v-else :id="id" @closePortal="closeSetPortal" />
-      </el-tab-pane>
-    </el-tabs>
+
+        <el-tab-pane v-if="isAdmin" label="版块管理" name="second">
+
+          <plateManage v-if="!isSet" ref="plateManage" @openPortal="openSetPortal" />
+          <portalSet v-else :id="id" @closePortal="closeSetPortal" />
+        </el-tab-pane>
+      </el-tab-pane></el-tabs>
   </section>
 </template>
 
@@ -16,7 +17,6 @@
 import manage from '@page/components/posts-manage'
 import plateManage from '@page/components/plate-manage'
 import portalSet from '@page/components/portal-set'
-// import { getPlatePage, getArticleList, deleteArticleById, articleTop, getPlateList } from '@/api/index'
 
 export default {
   components: {
@@ -35,7 +35,6 @@ export default {
   },
   mounted: function () {
     this.isAdmin = this.$store.state.header.adminState
-    window.console.log('super-manage', this.isAdmin)
   },
   methods: {
     handleClick (tab, event) {

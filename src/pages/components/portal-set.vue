@@ -48,7 +48,7 @@ export default {
     if (this.id !== '') {
       detailPlate({ id: this.id }).then(res => {
         this.form.plateName = res.plateName
-      // this.form.plateAdminJson = res.plateAdminJson
+        this.form.plateAdminJson = JSON.parse(res.plateAdminJson)
       })
     }
   },
@@ -64,14 +64,14 @@ export default {
       })
     },
     submit () {
-      const param = {
-        id: this.form.id,
+      const params = {
+        id: this.id,
         plateName: this.form.plateName,
         plateAdminJson: JSON.stringify(this.form.plateAdminJson)
       }
       // 提交表单 成功后返回列表
       if (this.id === '') {
-        savePlate(param).then(res => {
+        savePlate(params).then(res => {
           if (res) {
             this.$message({
               message: '添加成功',
@@ -83,10 +83,12 @@ export default {
               type: 'error'
             })
           }
-          this.$emit('closePortal')
+          setTimeout(() => {
+            this.$emit('closePortal')
+          }, 2000)
         })
       } else {
-        updatePlate(param).then(res => {
+        updatePlate(params).then(res => {
           if (res) {
             this.$message({
               message: '修改成功',
@@ -99,7 +101,9 @@ export default {
             })
           }
         })
-        this.$emit('closePortal')
+        setTimeout(() => {
+          this.$emit('closePortal')
+        }, 2000)
       }
     },
     cancal () {
