@@ -64,7 +64,8 @@ export default {
         articleContent: '',
         imgFileIds: '',
         fileIds: '',
-        anonymous: 0
+        anonymous: 0,
+        isPublish: 1
       },
       options: [],
       rules: {
@@ -90,7 +91,8 @@ export default {
           articleContent: '',
           imgFileIds: '',
           fileIds: '',
-          anonymous: 0
+          anonymous: 0,
+          isPublish: 1
         }
       }
     },
@@ -114,7 +116,8 @@ export default {
           articleContent: res.articleContent,
           imgFileIds: res.imgFileIds,
           fileIds: res.fileIds,
-          anonymous: res.anonymous
+          anonymous: res.anonymous,
+          isPublish: 1
         }
         this.form.anonymousState = this.form.anonymous === 1
       })
