@@ -79,7 +79,7 @@
           </el-row>
           <div class="fa-more replay margin-top-size-nomal" style="margin-top: 20px; margin-left: -20px; margin-right: -20px;">
             <transition name="el-fade-in-linear">
-              <el-card v-show="tag[index]" ref="operate" style="border: 0 none; box-shadow: none; box-shadow:inset 1px 3px 3px rgba(0,0,0,.05)">
+              <el-card v-show="tag[index]" ref="operate" style="border: 0 none; box-shadow: non; box-shadow:inset 1px 3px 3px rgba(0,0,0,.05)">
                 <!-- <div class="top" /> -->
                 <div style="display:flex">
                   <el-col :span="2" class="mr-10">
@@ -110,24 +110,16 @@
                     <div class="dss text-color-grey  margin-top-size-mix ">
                       <span>{{ comment.createdDate }}</span>
                       <div>
-                        <div>
-                          {{ comment.aliasName + ' : ' +comment.commentContent }}
-                        </div>
-                        <div class="dss text-color-grey">
-                          <span>{{ comment.createdDate }}</span>
-                          <div>
-                            <span style="cursor:pointer" @click="reflex(num)">回复</span>
-                            <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                            <span v-show="comment.userHasLike">
-                              <i class="el-icon-folder-checked" @click="likeComment(num,comment.id,0)" />
-                              <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
-                            </span>
-                            <span v-show="!comment.userHasLike">
-                              <i class="el-icon-folder" @click="likeComment(num,comment.id,1)" />
-                              <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
-                            </span>
-                          </div>
-                        </div>
+                        <span style="cursor:pointer" @click="reflex(num)">回复</span>
+                        <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                        <span v-show="comment.userHasLike">
+                          <i class="el-icon-folder-checked" @click="likeComment(num,comment.id,0)" />
+                          <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
+                        </span>
+                        <span v-show="!comment.userHasLike">
+                          <i class="el-icon-folder" @click="likeComment(num,comment.id,1)" />
+                          <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
+                        </span>
                       </div>
                     </div>
                   </el-col>
@@ -259,7 +251,6 @@ export default {
     }
   },
   created () {
-
   },
   mounted () {
     // 获取list
@@ -291,19 +282,16 @@ export default {
       this.recordNum = 0
       this.load()
     },
-
     getMyArticleCount () {
       getMyArticleCount().then(res => {
         this.myCount = res
       })
     },
-
     plateManagerList (plateId) {
       plateManagerList({ id: plateId }).then(res => {
         this.plateManager = res
       })
     },
-
     sendComment (articleId, index) {
       saveComment({ articleId: articleId, anonymous: (this.checked ? 1 : 0), commentContent: this.input }).then(res => {
         if (res) {
@@ -315,7 +303,6 @@ export default {
         }
       })
     },
-
     likeComment (index, commentId, flag) {
       likeComment({ index, commentId: commentId, flag: flag }).then(res => {
         if (res) {
@@ -332,7 +319,6 @@ export default {
         }
       })
     },
-
     // 预处理dropdown 将帖子id装入command
     beforeHandleCommand (index, articleId, topFlag, command) {
       return {
@@ -342,7 +328,6 @@ export default {
         topFlag: topFlag
       }
     },
-
     likeArticle (articleId, index, flag) {
       likeArticle({ articleId: articleId, flag: flag }).then(res => {
         if (!res) {
@@ -358,7 +343,6 @@ export default {
         }
       })
     },
-
     attentionArticle (articleId, index, flag) {
       attentionArticle({ id: articleId, flag: flag }).then(res => {
         if (!res) {
@@ -373,7 +357,6 @@ export default {
         this.getMyArticleCount()
       })
     },
-
     deleteArticle (index, articleId) {
       deleteArticle({ ids: arrayToStrWithOutComma(articleId.split(',')) }).then(res => {
         if (!res) {
@@ -384,7 +367,6 @@ export default {
         }
       })
     },
-
     topArticle (index, articleId, flag, topFlag) {
       topArticle({ id: articleId, flag: flag, topFlag: topFlag }).then(res => {
         if (!res) {
@@ -399,7 +381,6 @@ export default {
         }
       })
     },
-
     getCommentById (articleId) {
       commentList({ articleId: articleId, page: 1, pageSize: 1000 }).then(res => {
         for (let i = 0; i < res.records.length; i++) {
@@ -450,10 +431,8 @@ export default {
           }
         }
       })
-
       this.loading = false
     },
-
     choose (command) {
       const { href } = this.$router.resolve({ name: 'newArtical' })
       switch (command.command) {
@@ -490,7 +469,6 @@ export default {
   .item {
     margin-bottom: 18px;
   }
-
   .clearfix:before,
   .clearfix:after {
     display: table;
@@ -499,7 +477,6 @@ export default {
   .clearfix:after {
     clear: both
   }
-
   .box-card {
     width: 44%;
     margin: 20px 20%;
@@ -509,11 +486,9 @@ export default {
     align-items: center;
     justify-content: space-between;
   }
-
   .tool-bar{
     text-align: right;
   }
-
   .box-card-right1,.box-card-right2{
      position: fixed;
     top: 81px;
