@@ -31,11 +31,11 @@
       <el-form-item label="相关图片">
         <fileUp v-model="form.imgFileIds" accept="image/*" accept-tips="只能上传图片格式的文件" dir="dir" />
       </el-form-item>
-      <el-form-item label="附件">
-        <fileUp v-model="form.fileIds" dir="dir" />
-      </el-form-item>
       <el-form-item label="匿名发帖">
-        <el-checkbox v-model="form.anonymousState" @click="changeAnonymous" />
+        <el-checkbox
+          v-model="checked"
+          @change="changeAnonymous"
+        />
       </el-form-item>
     </el-form>
   </section>
@@ -57,6 +57,7 @@ export default {
   },
   data () {
     return {
+      checked: false,
       form: {
         id: '',
         articleTitle: '',
@@ -119,7 +120,7 @@ export default {
           anonymous: res.anonymous,
           articleIsPub: 1
         }
-        this.form.anonymousState = this.form.anonymous === 1
+        this.checked = this.form.anonymous === 1
       })
     }
   },
