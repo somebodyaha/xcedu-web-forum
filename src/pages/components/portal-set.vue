@@ -36,7 +36,8 @@ export default {
       roles: ['orgUser'],
       rules: {
         plateName: [
-          { required: true, message: '版块名称不能为空', trigger: 'blur' }
+          { required: true, message: '版块名称不能为空', trigger: 'blur' },
+          { min: 1, max: 20, message: '长度在 1 到 10 个字符', trigger: 'blur' }
         ],
         plateAdminJson: [
           { required: true, message: '请选择管理员', trigger: 'blur' }
@@ -83,9 +84,7 @@ export default {
               type: 'error'
             })
           }
-          setTimeout(() => {
-            this.$emit('closePortal')
-          }, 2000)
+          this.$emit('closePortal')
         })
       } else {
         updatePlate(params).then(res => {
@@ -101,9 +100,7 @@ export default {
             })
           }
         })
-        setTimeout(() => {
-          this.$emit('closePortal')
-        }, 2000)
+        this.$emit('closePortal')
       }
     },
     cancal () {
