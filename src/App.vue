@@ -18,5 +18,6 @@ export default {
 <style scoped>
 #app-forum{
     height: 100%;
+    overflow: auto;
 }
 </style>
