@@ -8,6 +8,11 @@ export function getUserInfo () {
   return axios.get('/api-base/users/userInfo')
 }
 
+// 上传附件
+export function uploadResource (data) {
+  return axios.post('/api-base/attachments/save', data)
+}
+
 // -------------------------用户信息接口------------------------
 export function getUserSetting () {
   return axios.get(prefix + '/advise/user/setting/getUserSetting')

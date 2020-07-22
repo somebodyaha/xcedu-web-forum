@@ -5,10 +5,10 @@
 // export default new Vuex.Store({
 //   modules: {}
 // })
-import Vue from 'vue'
-import Vuex from 'vuex'
+// import Vue from 'vue'
+// import Vuex from 'vuex'
 
-Vue.use(Vuex)
+// Vue.use(Vuex)
 
 // https://webpack.js.org/guides/dependency-management/#requirecontext
 const modulesFiles = require.context('./modules', false, /\.js$/)
