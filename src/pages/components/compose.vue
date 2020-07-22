@@ -41,7 +41,7 @@
   </section>
 </template>
 <script>
-import { createArticle, updateArticle, getNoPubArticle, getPlateList } from '@/api/index'
+import { getUserInfo, createArticle, updateArticle, getNoPubArticle, getPlateList } from '@/api/index'
 import fileUp from '@/component/fileUp'
 import editor from '@/component/editor'
 export default {
@@ -58,6 +58,7 @@ export default {
   data () {
     return {
       checked: false,
+      domainId: '',
       form: {
         id: '',
         articleTitle: '',
@@ -71,7 +72,8 @@ export default {
       options: [],
       rules: {
         articleTitle: [
-          { required: true, message: '请输入标题', trigger: 'blur' }
+          { required: true, message: '请输入标题', trigger: 'blur' },
+          { min: 1, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur' }
         ],
         plateId: [
           { required: true, message: '请选择所属版块', trigger: 'change' }
@@ -104,6 +106,9 @@ export default {
     }
   },
   mounted: function () {
+    getUserInfo().then(res => {
+      this.domainId = res.domainId
+    })
     getPlateList().then(res => {
       this.options = res
     })

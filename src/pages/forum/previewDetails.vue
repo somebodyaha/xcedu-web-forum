@@ -170,9 +170,9 @@ export default {
     deleteArticle () {
       deleteArticle({ ids: arrayToStrWithOutComma(this.article.id.split(',')) }).then(res => {
         if (!res) {
-          this.$message('删除失败，请稍后再试')
+          this.$message.error('删除失败，请稍后再试')
         } else {
-          this.$message('删除成功')
+          this.$message.success('删除成功')
           this.$router.push({ name: 'home' })
         }
       })
@@ -181,63 +181,63 @@ export default {
     topArticle (flag, topFlag) {
       topArticle({ id: this.article.id, flag: flag, topFlag: topFlag }).then(res => {
         if (!res) {
-          this.$message('操作失败，请稍后再试')
+          this.$message.error('操作失败，请稍后再试')
         } else {
           if (flag === 'forum') {
             this.article.forumTop = topFlag
           } else {
             this.article.plateTop = topFlag
           }
-          this.$message('操作成功')
+          this.$message.success('操作成功')
         }
       })
     },
     sendComment () {
       saveComment({ articleId: this.article.id, anonymous: (this.anonymous ? 1 : 0), commentContent: this.commentInput }).then(res => {
         if (res) {
-          this.$message('评论成功')
+          this.$message.success('评论成功')
           this.article.commentNum++
           this.comments.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚' })
         } else {
-          this.$message('评论保存失败')
+          this.$message.error('评论保存失败')
         }
       })
     },
     repSave (num) {
       if (!this.repInput) {
-        this.$message('请输入回复内容')
+        this.$message.error('请输入回复内容')
         return false
       }
       saveComment({ anonymous: (this.repChecked ? 1 : 0), commentContent: this.repInput, commentTopId: this.repTopId, commentId: this.repComId }).then(res => {
         if (res) {
-          this.$message('回复成功')
+          this.$message.success('回复成功')
           this.comments[num].commentVoList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentAliasName: this.repName })
           this.repChecked = false
           this.repInput = ''
         } else {
-          this.$message('回复保存失败')
+          this.$message.error('回复保存失败')
         }
       })
     },
     likeArticle (flag) {
       likeArticle({ articleId: this.article.id, flag: flag }).then(res => {
         if (!res) {
-          this.$message('操作失败')
+          this.$message.error('操作失败')
         } else if (flag === 0) {
           this.article.likeNum--
           this.article.userHasLike = false
-          this.$message('取消点赞成功')
+          this.$message.success('取消点赞成功')
         } else if (flag === 1) {
           this.article.likeNum++
           this.article.userHasLike = true
-          this.$message('点赞成功')
+          this.$message.success('点赞成功')
         }
       })
     },
     likeComment (index, commentId, flag) {
       likeComment({ index, commentId: commentId, flag: flag }).then(res => {
         if (res) {
-          this.$message('点赞成功')
+          this.$message.success('点赞成功')
           if (flag === 0) {
             this.comments[index].userHasLike = false
             this.comments[index].commentLikeNum--
@@ -246,20 +246,20 @@ export default {
             this.comments[index].commentLikeNum++
           }
         } else {
-          this.$message('点赞失败')
+          this.$message.error('点赞失败')
         }
       })
     },
     attentionArticle (flag) {
       attentionArticle({ id: this.article.id, flag: flag }).then(res => {
         if (!res) {
-          this.$message('收藏失败，请稍后再试')
+          this.$message.error('收藏失败，请稍后再试')
         } else if (flag === 0) {
           this.article.userHasAttention = false
-          this.$message('取消收藏成功')
+          this.$message.success('取消收藏成功')
         } else if (flag === 1) {
           this.article.userHasAttention = true
-          this.$message('收藏成功')
+          this.$message.success('收藏成功')
         }
       })
     },

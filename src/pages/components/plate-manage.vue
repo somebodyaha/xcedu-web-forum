@@ -163,10 +163,7 @@ export default {
         }).then(() => {
           deletePlateById({ id: row.id }).then(res => {
             if (res === 1) {
-              this.$message({
-                message: '删除成功',
-                type: 'success'
-              })
+              this.$message.success('删除成功')
               this.flushPlateList()
             } else if (res === 2) {
               this.dialogFormVisible = false

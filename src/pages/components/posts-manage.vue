@@ -162,8 +162,7 @@ export default {
       })
     },
     onEnterSearch () {
-      // eslint-disable-next-line no-console
-      console.log('111')
+      this.flushArticleList()
     },
     showAdvance () {
       this.advancedSearch = !this.advancedSearch
@@ -228,6 +227,9 @@ export default {
         })
         return
       }
+      window.console.log(this.multipleSelection)
+      window.console.log(this.arrayToStrWithOutComma(this.multipleSelection))
+
       const req = {
         ids: this.arrayToStrWithOutComma(this.multipleSelection)
       }
