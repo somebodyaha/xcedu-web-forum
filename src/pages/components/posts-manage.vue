@@ -48,8 +48,8 @@
               </div>
             </div>
             <div class="ds margin-top-size-nomal" style="margin-left: 55px">
-              <el-button type="primary" @click="retrieval">检索</el-button>
-              <el-button @click="cancel">取消</el-button>
+              <el-button type="primary" @click="retrieval">搜索</el-button>
+              <el-button @click="cancel">清除</el-button>
             </div>
           </div>
         </el-collapse-transition>
@@ -72,7 +72,7 @@
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="del">删除</el-dropdown-item>
                 <el-dropdown-item command="forumTop"><span v-show="scope.row.forumTop">取消</span>全论坛置顶</el-dropdown-item>
-                <el-dropdown-item command="plateTop"><span v-show="scope.row.plateTop">取消</span>板块置顶</el-dropdown-item>
+                <el-dropdown-item command="plateTop"><span v-show="scope.row.plateTop">取消</span>版块置顶</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
@@ -297,12 +297,12 @@ export default {
           })
         })
       } else {
-        let warningMsg = '此操作将把帖子板块置顶, 是否继续?'
+        let warningMsg = '此操作将把帖子版块置顶, 是否继续?'
         let successMsg = '置顶成功'
         let failureMsg = '置顶失败'
         let topFlag = 1
         if (row.plateTop === 1) {
-          warningMsg = '此操作将取消帖子板块置顶, 是否继续?'
+          warningMsg = '此操作将取消帖子版块置顶, 是否继续?'
           successMsg = '取消置顶成功'
           failureMsg = '取消置顶失败'
           topFlag = 0

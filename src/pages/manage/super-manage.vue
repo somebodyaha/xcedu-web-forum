@@ -3,13 +3,13 @@
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="内容管理" name="first">
         <manage ref="articleManage" />
-      </el-tab-pane>
-      <!-- <el-tab-pane v-if="isAdmin" label="板块管理" name="second"> -->
-      <el-tab-pane label="板块管理" name="second">
-        <plateManage v-if="!isSet" ref="plateManage" @openPortal="openSetPortal" />
-        <portalSet v-else :id="id" @closePortal="closeSetPortal" />
-      </el-tab-pane>
-    </el-tabs>
+
+        <el-tab-pane v-if="isAdmin" label="版块管理" name="second">
+
+          <plateManage v-if="!isSet" ref="plateManage" @openPortal="openSetPortal" />
+          <portalSet v-else :id="id" @closePortal="closeSetPortal" />
+        </el-tab-pane>
+      </el-tab-pane></el-tabs>
   </section>
 </template>
 

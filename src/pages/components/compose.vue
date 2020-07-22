@@ -15,8 +15,8 @@
           placeholder="标题"
         />
       </el-form-item>
-      <el-form-item label="所属板块" prop="plateId">
-        <el-select v-model="form.plateId" placeholder="所属板块" style="width: 100%;">
+      <el-form-item label="所属版块" prop="plateId">
+        <el-select v-model="form.plateId" placeholder="所属版块" style="width: 100%;">
           <el-option
             v-for="item in options"
             :key="item.id"
@@ -29,11 +29,11 @@
         <editor v-model="form.articleContent" />
       </el-form-item>
       <el-form-item label="相关图片">
-        <fileUp v-model="form.imgFileIds" accept="image/*" accept-tips="只能上传图片格式的文件" dir="dir" />
+        <fileUp v-model="form.imgFileIds" accept="image/*" accept-tips="只能上传图片格式的文件" :domain-id="domainId" dir="forum" />
       </el-form-item>
-      <el-form-item label="附件">
-        <fileUp v-model="form.fileIds" dir="dir" />
-      </el-form-item>
+      <!--el-form-item label="附件">
+        <fileUp v-model="form.fileIds" dir="forum" />
+      </el-form-item-->
       <el-form-item label="匿名发帖">
         <el-checkbox v-model="form.anonymousState" @click="changeAnonymous" />
       </el-form-item>
@@ -41,7 +41,7 @@
   </section>
 </template>
 <script>
-import { createArticle, updateArticle, getNoPubArticle, getPlateList } from '@/api/index'
+import { getUserInfo, createArticle, updateArticle, getNoPubArticle, getPlateList } from '@/api/index'
 import fileUp from '@/component/fileUp'
 import editor from '@/component/editor'
 export default {
@@ -57,6 +57,7 @@ export default {
   },
   data () {
     return {
+      domainId: '',
       form: {
         id: '',
         articleTitle: '',
@@ -73,7 +74,7 @@ export default {
           { required: true, message: '请输入标题', trigger: 'blur' }
         ],
         plateId: [
-          { required: true, message: '请选择所属板块', trigger: 'change' }
+          { required: true, message: '请选择所属版块', trigger: 'change' }
         ],
         articleContent: [
           { required: true, message: '请输入正文', trigger: 'blur' }
@@ -103,6 +104,9 @@ export default {
     }
   },
   mounted: function () {
+    getUserInfo().then(res => {
+      this.domainId = res.domainId
+    })
     getPlateList().then(res => {
       this.options = res
     })
