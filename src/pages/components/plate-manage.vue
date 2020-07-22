@@ -18,7 +18,7 @@
     </header>
     <div style="margin-top:20px">
       <el-table :data="tableData" style="width: 100%" @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="55px" />
+        <!-- <el-table-column type="selection" width="55px" /> -->
         <el-table-column fixed prop="plateName" label="版块名称" />
         <el-table-column prop="plateAdminName" label="版块管理员" />
         <el-table-column prop="createdName" label="发布人" />

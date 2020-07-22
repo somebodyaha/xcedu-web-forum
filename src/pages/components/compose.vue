@@ -131,7 +131,7 @@ export default {
   },
   methods: {
     changeAnonymous () {
-      this.form.anonymous = this.form.anonymousState ? 1 : 0
+      this.form.anonymous = this.checked ? 1 : 0
     },
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {

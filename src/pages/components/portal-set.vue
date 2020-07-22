@@ -84,9 +84,7 @@ export default {
               type: 'error'
             })
           }
-          setTimeout(() => {
-            this.$emit('closePortal')
-          }, 2000)
+          this.$emit('closePortal')
         })
       } else {
         updatePlate(params).then(res => {
@@ -102,9 +100,7 @@ export default {
             })
           }
         })
-        setTimeout(() => {
-          this.$emit('closePortal')
-        }, 2000)
+        this.$emit('closePortal')
       }
     },
     cancal () {
