@@ -33,8 +33,7 @@ export default {
     }
   },
   mounted: function () {
-    // this.isAdmin = this.$store.state.header.adminState
-    this.isAdmin = true
+    this.isAdmin = this.$store.state.header.adminState
   },
   methods: {
     handleClick (tab, event) {
