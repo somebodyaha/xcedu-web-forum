@@ -27,7 +27,7 @@
           </p>
           <p v-if="file.status === 'success'">
             <a :href="file.relativeUrl" class="color">下载</a>
-            <a :href="file.viewUrl" class="color">预览</a>
+            <a :href="file.relativeUrl" class="color">预览</a>
             <el-button type="text" @click="delFile(index)">删除</el-button>
           </p>
         </div>
@@ -37,7 +37,10 @@
   </section>
 </template>
 <script>
-import { axios } from '@xcedu/web-share'
+import { uploadResource } from '@/api/index'
+import OSS from 'ali-oss'
+import { v4 as uuidv4 } from 'uuid'
+let PATH = null
 export default {
   props: {
     // 是否一次可选择多个文件上传
@@ -53,7 +56,7 @@ export default {
     // 上传指定目录
     dir: {
       type: String,
-      default: ''
+      default: 'anonymous'
     },
     // 是否禁用
     disabled: {
@@ -73,14 +76,18 @@ export default {
     acceptTips: {
       type: String,
       default: ''
+    },
+    domainId: {
+      type: String,
+      default: ''
     }
   },
   data () {
     return {
+      client: null,
       // 文件展示列表
       fileList: [],
       // 当前上传的文件
-      fileObj: '',
       isMutiple: '',
       isShowList: '',
       isDisabled: '',
@@ -107,41 +114,37 @@ export default {
     },
     fileChange (file) {
       // 获取文件流
-      this.fileObj = file.raw
-    },
-    // 附件上传
-    fileUpLoad (file) {
-      const formData = new FormData()
-      formData.append('file', this.fileObj)
-      formData.append('dir', this.fileDir)
-      axios.post('/api-file/attachments/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        },
-        transformRequest: [function transformRequest (formData) {
-          return formData
-        }],
-        onUploadProgress: function (progressEvent) {
-          if (progressEvent.lengthComputable) {
-            const progress = parseInt((progressEvent.loaded / progressEvent.total) * 100).toFixed(0)
-            // 上传进度回调
-            file.onProgress({ percent: progress })
-          }
-        }
-      }).then(res => {
-        // 上传成功回调
-        file.onSuccess(res, file)
-      })
     },
     // 文件添加
     beforeUpload (file) {
-      const fileObj = {
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        uid: file.uid
+      if (file.name.indexOf('.') === -1) {
+        this.$message.error('禁止上传无格式的文件！')
+        return false
       }
-      this.fileList.push(fileObj)
+    },
+    // 附件上传
+    fileUpLoad (file) {
+      if (!PATH) {
+        PATH = this.domainId + '/' + (this.dir || 'anonymous') + '/'
+      }
+      if (!this.client) {
+        this.client = new OSS({
+          region: 'oss-cn-shenzhen',
+          accessKeyId: 'LTAI4G2nbEWcDi9djnDY8tvJ',
+          accessKeySecret: 'ZZN02tVv7BpJEhc5bWa2NlNIdL6Vvp',
+          bucket: 'gtyzfile'
+        })
+      }
+      const fileName = uuidv4().replace(/-/g, '') + file.file.name.substring(file.file.name.lastIndexOf('.'))
+      return this.client.multipartUpload(PATH + fileName, file.file, {
+        progress: function (p) {
+          file.onProgress({ percent: p * 100 })
+        }
+      }).then(function (res) {
+        file.onSuccess(res, file)
+      }).catch(err => {
+        window.console.log(err)
+      })
     },
     uploadProgress (event, file) {
       for (let i = 0; i < this.fileList.length; i++) {
@@ -151,13 +154,29 @@ export default {
       }
     },
     uploadOnSuccess (res, file) {
-      for (let i = 0; i < this.fileList.length; i++) {
-        if (file.uid === this.fileList[i].uid) {
-          this.$set(this.fileList[i], 'status', 'success')
-          this.$set(this.fileList[i], 'relativeUrl', res.relativeUrl)
-          this.$set(this.fileList[i], 'size', this.getFileSize(res.size))
-        }
+      if (!res) {
+        return
       }
+      const fileUuid = res.name.substring(res.name.lastIndexOf('/')).replace('/', '').replace(/\..*/, '')
+      uploadResource({
+        // contentType: 'string',
+        displayName: file.name,
+        // fileName: 'string',
+        fileSize: file.size,
+        id: fileUuid,
+        // link2: res.res.requestUrls[0],
+        relativePath: PATH
+        // suffixName: '.mp4'
+        // uploadIp: 'string'
+      }).then(res2 => {
+        for (let i = 0; i < this.fileList.length; i++) {
+          if (file.uid === this.fileList[i].uid) {
+            this.$set(this.fileList[i], 'status', 'success')
+            this.$set(this.fileList[i], 'relativeUrl', res2.url)
+            this.$set(this.fileList[i], 'size', this.getFileSize(file.size))
+          }
+        }
+      })
     },
     getFileSize (size) {
       if (size / 1024 < 1) {

@@ -16,9 +16,11 @@
   </section>
 </template>
 <script>
+import logo from '@page/components/logo'
 import newArticle from '@page/components/compose'
 export default {
   components: {
+    logo,
     newArticle
   },
   data () {

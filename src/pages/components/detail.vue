@@ -27,9 +27,9 @@
                   </span>
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'forum','a')">论坛置顶</el-dropdown-item>
-                    <el-dropdown-item v-show="item.userIsAdmin && item.plateTop == 0" :command="beforeHandleCommand(index,item.id,'plate','a')">板块置顶</el-dropdown-item>
+                    <el-dropdown-item v-show="item.userIsAdmin && item.plateTop == 0" :command="beforeHandleCommand(index,item.id,'plate','a')">版块置顶</el-dropdown-item>
                     <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 1" :command="beforeHandleCommand(index,item.id,'forum','b')">取消论坛置顶</el-dropdown-item>
-                    <el-dropdown-item v-show="item.userIsAdmin && item.plateTop == 1" :command="beforeHandleCommand(index,item.id,'plate','b')">取消板块置顶</el-dropdown-item>
+                    <el-dropdown-item v-show="item.userIsAdmin && item.plateTop == 1" :command="beforeHandleCommand(index,item.id,'plate','b')">取消版块置顶</el-dropdown-item>
                     <el-dropdown-item v-show="item.userIsAuthor" :command="beforeHandleCommand(index,item.id,'','c')">编辑</el-dropdown-item>
                     <el-dropdown-item :command="beforeHandleCommand(index,item.id,'','d')">删除</el-dropdown-item>
                   </el-dropdown-menu>
@@ -121,16 +121,41 @@
                     <div class="dss text-color-grey  margin-top-size-mix ">
                       <span>{{ comment.createdDate }}</span>
                       <div>
-                        <span style="cursor:pointer" @click="reflex(num)">回复</span>
+                        <span style="cursor:pointer" @click="reflex(comment.id,comment.aliasName,num)">回复</span>
                         <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
                         <span v-show="comment.userHasLike">
-                          <i class="el-icon-folder-checked" @click="likeComment(num,comment.id,0)" />
+                          <i class="icon-zan-shixin red" @click="likeComment(num,comment.id,0)" />
                           <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
                         </span>
                         <span v-show="!comment.userHasLike">
-                          <i class="el-icon-folder" @click="likeComment(num,comment.id,1)" />
+                          <i class="icon-zan" @click="likeComment(num,comment.id,1)" />
                           <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
                         </span>
+                      </div>
+                    </div>
+
+                    <div v-show="restore[num]">
+                      <div v-for="(reply,repIndex) in comment.commentVoList" :key="repIndex" style="margin-top:10px">
+                        <span class="color">{{ reply.aliasName }}</span>
+                        <span>回复</span>
+                        <span class="color">{{ reply.commentAliasName }}</span>
+                        <span> : </span>
+                        <span style="margin-left:10px">{{ reply.commentContent }}</span>
+                        <div class="text-color-grey" style="margin-top:5px">
+                          <span>{{ reply.createdDate }}</span>
+                          <span style="margin-left:10px;cursor:pointer" class="el-icon-chat-line-round" @click="repReply(reply.id,reply.commentTopId,reply.aliasName)" />
+                        </div>
+                      </div>
+                      <div style="display:flex">
+                        <el-col :span="24" style="margin-top:10px">
+                          <el-input v-model="repInput" :placeholder="'回复 ' + repName +' : '" />
+                        </el-col>
+                      </div>
+                      <div class="dss" style="margin-top:10px">
+                        <el-col :span="24" class="dss">
+                          <el-checkbox v-model="repChecked">匿名回复</el-checkbox>
+                          <el-button type="primary" size="small" @click="repSave(num)">回复</el-button>
+                        </el-col>
                       </div>
                     </div>
                   </el-col>
@@ -226,7 +251,12 @@ export default {
       plateId: '',
       isIndexPage: true,
       pageFlag: '',
-      plateManager: []
+      plateManager: [],
+      repChecked: false,
+      repInput: '',
+      repComId: '',
+      repTopId: '',
+      repName: ''
     }
   },
   computed: {
@@ -279,6 +309,7 @@ export default {
     document.removeEventListener('click', this.handleClick, false)
   },
   methods: {
+
     preViewDetails (id) {
       const { href } = this.$router.resolve({ name: 'previewDetails' })
       window.open(href + '?id=' + id, '_blank')
@@ -301,15 +332,39 @@ export default {
         this.plateManager = res
       })
     },
+    repReply (id, topId, repName) {
+      this.repComId = id
+      this.repTopId = topId
+      this.repName = repName
+    },
+    repSave (num) {
+      if (!this.repInput) {
+        this.$message('请输入回复内容')
+        return false
+      }
+      saveComment({ anonymous: (this.repChecked ? 1 : 0), commentContent: this.repInput, commentTopId: this.repTopId, commentId: this.repComId }).then(res => {
+        if (res) {
+          this.$message('回复成功')
+          this.commentList[num].commentVoList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentAliasName: this.repName })
+          this.repChecked = false
+          this.repInput = ''
+        } else {
+          this.$message('回复保存失败')
+        }
+      })
+    },
     sendComment (articleId, index) {
       saveComment({ articleId: articleId, anonymous: (this.checked ? 1 : 0), commentContent: this.input }).then(res => {
         if (res) {
           this.$message('评论成功')
           this.pageContent[index].commentNum++
+          this.commentList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚' })
           this.getMyArticleCount()
         } else {
           this.$message('评论保存失败')
         }
+        this.checked = false
+        this.input = ''
       })
     },
     likeComment (index, commentId, flag) {
@@ -451,7 +506,10 @@ export default {
       default:this.deleteArticle(command.index, command.articleId)
       }
     },
-    reflex (index) {
+    reflex (id, aliasName, index) {
+      this.repComId = id
+      this.repTopId = id
+      this.repName = aliasName
       // 循环对象 修改属性
       if (this.restore[index]) {
         this.search = ''
