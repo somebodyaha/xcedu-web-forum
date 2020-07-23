@@ -88,10 +88,8 @@ export default {
         ],
         plateId: [
           { required: true, message: '请选择所属版块', trigger: 'change' }
-        ],
-        articleContent: [
-          { required: true, message: '请输入正文', trigger: 'blur' }
         ]
+
       }
     }
   },
