@@ -342,6 +342,11 @@ export default {
       this.repTopId = topId
       this.repName = repName
     },
+    flushNoitceNum () {
+      getMesSummary().then(res => {
+        this.$store.commit('getNoticeNum', res.messageCount)
+      })
+    },
     repSave (num) {
       if (!this.repInput) {
         this.$message({
@@ -360,9 +365,7 @@ export default {
           this.repChecked = false
           this.repInput = ''
           // 回复时刷新通知数量
-          getMesSummary().then(res => {
-            this.$store.commit('getNoticeNum', res.messageCount)
-          })
+          this.flushNoitceNum()
         } else {
           this.$message({
             message: '回复保存失败',
@@ -386,9 +389,7 @@ export default {
           this.commentList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚' })
           this.getMyArticleCount()
           // 评论时刷新通知数量
-          getMesSummary().then(res => {
-            this.$store.commit('getNoticeNum', res.messageCount)
-          })
+          this.flushNoitceNum()
         } else {
           this.$message({
             message: '评论保存失败',
@@ -402,21 +403,22 @@ export default {
     likeComment (index, commentId, flag) {
       likeComment({ index, commentId: commentId, flag: flag }).then(res => {
         if (res) {
-          this.$message({
-            message: '点赞成功',
-            type: 'success'
-          })
+          let msg = ''
           if (flag === 0) {
+            msg = '取消点赞成功'
             this.commentList[index].userHasLike = false
             this.commentList[index].commentLikeNum--
           } else {
+            msg = '点赞成功'
             this.commentList[index].userHasLike = true
             this.commentList[index].commentLikeNum++
           }
-          // 点赞时刷新通知数量
-          getMesSummary().then(res => {
-            this.$store.commit('getNoticeNum', res.messageCount)
+          this.$message({
+            message: msg,
+            type: 'success'
           })
+          // 点赞时刷新通知数量
+          this.flushNoitceNum()
         } else {
           this.$message({
             message: '点赞失败',
@@ -448,6 +450,7 @@ export default {
             message: '取消点赞成功',
             type: 'success'
           })
+          this.flushNoitceNum()
         } else if (flag === 1) {
           this.pageContent[index].likeNum++
           this.pageContent[index].userHasLike = true
@@ -456,9 +459,7 @@ export default {
             type: 'success'
           })
           // 点赞时刷新通知数量
-          getMesSummary().then(res => {
-            this.$store.commit('getNoticeNum', res.messageCount)
-          })
+          this.flushNoitceNum()
         }
       })
     },
@@ -475,6 +476,7 @@ export default {
             message: '取消收藏成功',
             type: 'success'
           })
+          this.flushNoitceNum()
         } else if (flag === 1) {
           this.pageContent[index].userHasAttention = true
           this.$message({
@@ -482,9 +484,7 @@ export default {
             type: 'success'
           })
           // 收藏时刷新通知数量
-          getMesSummary().then(res => {
-            this.$store.commit('getNoticeNum', res.messageCount)
-          })
+          this.flushNoitceNum()
         }
         this.getMyArticleCount()
       })
