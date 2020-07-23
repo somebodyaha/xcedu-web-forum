@@ -9,7 +9,7 @@
           <template slot="title">更多</template>
           <el-menu-item v-for="foldPlate in foldPlateList" :key="foldPlate.id" :index="foldPlate.id">{{ foldPlate.plateName }}</el-menu-item>
         </el-submenu>
-        <el-menu-item index="-1"><a>管理</a></el-menu-item>
+        <el-menu-item v-if="isAdmin || userPlateList.length>0" index="-1"><a>管理</a></el-menu-item>
       </el-menu>
       <div>
         <el-button type="primary " @click="newArticle">内容发布</el-button>

@@ -38,15 +38,15 @@
               <div>
                 <div class="text-color-grey">{{ item.pubDate }}发布</div>
               </div>
-              <div class="margin-top-size-nomal">
+              <div class="margin-top-size-nomal" style="margin-top:10px">
                 <el-tag v-show="item.forumTop == 1 || item.plateTop == 1" type="danger" size="mini">置顶</el-tag>
                 <span style="font-weight:bold" class="size-large">{{ item.articleTitle }}</span>
               </div>
-              <div class="margin-top-size-small">
-                <span v-show="item.articleContentShort && item.articleContentShort.length>=50 && !item.expandOpen" v-html="item.articleContentShort" />
+              <div class="margin-top-size-small" style="line-height:24px;margin-top:10px">
+                <span v-show="item.articleContentShort && item.articleContentShort.length>=50 && !item.expandOpen" v-html="item.articleContentShort + ' ...'" />
                 <span v-show="(item.articleContentShort && item.articleContentShort.length<50) || item.expandOpen" v-html="item.articleContent" />
-                <span v-show="item.articleContentShort && item.articleContentShort.length>=50 && !item.expandOpen" class="color" style="cursor:pointer" @click="expand(index)">展开全文</span>
-                <span v-show="item.expandOpen" class="color" style="cursor:pointer" @click="retract(index)">收起全文</span>
+                <span v-show="item.articleContentShort && item.articleContentShort.length>=50 && !item.expandOpen" class="color" style="cursor:pointer;margin-left:5px" @click="expand(index)">展开全文</span>
+                <span v-show="item.expandOpen" class="color" style="cursor:pointer;margin-left:5px" @click="retract(index)">收起全文</span>
               </div>
               <div v-if="item.imgFileIds" class="margin-top-size-nomal">
                 <el-image
@@ -172,34 +172,34 @@
 
     <el-card v-if="!isIndexPage" class="box-card-right1 text-color-grey">
       <div slot="header" class="dss">
-        <div style="font-size:12px">管理员</div>
+        <div style="font-size:14px;color:#999">管理员</div>
       </div>
-      <div v-for="(manager,index) in plateManager" :key="index" class="text item bghover dss">
+      <div v-for="(manager,index) in plateManager" :key="index" class="text item bghover" style="display:flex;align-items:center">
         <el-avatar v-if="manager.userImgUrl" :src="manager.userImgUrl" />
         <div v-else style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
           {{ manager.userName.slice(manager.userName.length - 2 , manager.userName.length) }}
         </div>
-        <span>{{ manager.userName }}</span>
+        <span style="margin-left:10px">{{ manager.userName }}</span>
       </div>
     </el-card>
 
     <el-card v-if="isIndexPage" class="box-card-right1 text-color-grey">
-      <div class="text item bghover dss">
-        <div @click="getArticle('myPub')">
+      <div class="text item bghover dss" @click="getArticle('myPub')">
+        <div>
           <i class="icon-send text-color-grey" />
           <span>我发送的</span>
         </div>
         <el-tag type="info" size="small " class="bgfff">{{ myCount.publishCount }}</el-tag>
       </div>
-      <div class="text item bghover dss">
-        <div @click="getArticle('myComment')">
+      <div class="text item bghover dss" @click="getArticle('myComment')">
+        <div>
           <i class="el-icon-s-comment text-color-grey" />
           <span>我评论的</span>
         </div>
         <el-tag type="info" size="small " class="bgfff">{{ myCount.commentCount }}</el-tag>
       </div>
-      <div class="text item bghover dss">
-        <div @click="getArticle('myAttention')">
+      <div class="text item bghover dss" @click="getArticle('myAttention')">
+        <div>
           <i class="icon-star-solid text-color-grey" />
           <span>我关注的</span>
         </div>
@@ -213,7 +213,7 @@
       </div>
       <div v-for="(hotArticle,index) in hotArticles" :key="index" class="text item bghover dsshover">
         <div class="dss" @click="preViewDetails(hotArticle.id)">
-          <div v-html="hotArticle.articleTitle" />
+          <div v-html="hotArticle.articleTitle.length>10?hotArticle.articleTitle.slice(0,11)+'...':hotArticle.articleTitle" />
           <div> {{ hotArticle.readNum == null ? 0 : hotArticle.readNum }}次</div>
         </div>
       </div>
@@ -312,7 +312,7 @@ export default {
 
     preViewDetails (id) {
       const { href } = this.$router.resolve({ name: 'previewDetails' })
-      window.open(href + '?id=' + id, '_blank')
+      window.open(href + '?id=' + id, '_self')
     },
     getArticle (pageFlag) {
       this.pageContent = []
@@ -527,9 +527,12 @@ export default {
     showTag (articleId, index) {
       this.input = ''
       this.checked = false
+      Object.keys(this.restore).forEach((index) => {
+        this.restore[index] = false
+      })
+      this.$set(this.restore, index, false)
       // 循环对象 修改属性
       if (this.tag[index]) {
-        this.input = ''
         Object.keys(this.tag).forEach((index) => {
           this.tag[index] = false
         })
