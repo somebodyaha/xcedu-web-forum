@@ -10,14 +10,22 @@
 <script>
 import navbar from '@page/components/navbar'
 import { getMesSummary } from '@/api/index'
+function getParam (queryName) {
+  var reg = new RegExp('(^|&)' + queryName + '=([^&]*)(&|$)', 'i')
+  var r = window.location.search.substr(1).match(reg)
+  if (r !== null) {
+    return decodeURI(r[2])
+  } else {
+    return ''
+  }
+}
 export default {
   components: {
     navbar
   },
   beforeRouteEnter (to, from, next) {
     // window.localStorage.setItem('DirectHost', '192.168.20.144')
-    const tokenParams = window.location.search.replace(/\?.*token=(.+)(&.*|#.*)?$/, (w, l) => l)
-    const token = tokenParams.split('&')[0]
+    const token = getParam('token')
     if (token) {
       localStorage.setItem('token', token)
     } else {

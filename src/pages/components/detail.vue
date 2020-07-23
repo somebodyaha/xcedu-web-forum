@@ -222,7 +222,7 @@
 </template>
 
 <script>
-import { hotList, getArticleByPlate, getMyArticleCount, getUserSetting, commentList, saveComment, deleteArticle, attentionArticle, likeArticle, topArticle, plateManagerList, likeComment } from '@/api/index'
+import { hotList, getArticleByPlate, getMyArticleCount, getUserSetting, commentList, saveComment, deleteArticle, attentionArticle, likeArticle, topArticle, plateManagerList, likeComment, getMesSummary } from '@/api/index'
 import { arrayToStrWithOutComma } from '@/util/index'
 export default {
   data () {
@@ -339,29 +339,52 @@ export default {
     },
     repSave (num) {
       if (!this.repInput) {
-        this.$message.error('请输入回复内容')
+        this.$message({
+          message: '请输入回复内容',
+          type: 'warning'
+        })
         return false
       }
       saveComment({ anonymous: (this.repChecked ? 1 : 0), commentContent: this.repInput, commentTopId: this.repTopId, commentId: this.repComId }).then(res => {
         if (res) {
-          this.$message.success('回复成功')
+          this.$message({
+            message: '回复成功',
+            type: 'success'
+          })
           this.commentList[num].commentVoList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentAliasName: this.repName })
           this.repChecked = false
           this.repInput = ''
+          // 回复时刷新通知数量
+          getMesSummary().then(res => {
+            this.$store.commit('getNoticeNum', res.messageCount)
+          })
         } else {
-          this.$message.error('回复保存失败')
+          this.$message({
+            message: '回复保存失败',
+            type: 'error'
+          })
         }
       })
     },
     sendComment (articleId, index) {
       saveComment({ articleId: articleId, anonymous: (this.checked ? 1 : 0), commentContent: this.input }).then(res => {
         if (res) {
-          this.$message.success('评论成功')
+          this.$message({
+            message: '评论成功',
+            type: 'success'
+          })
           this.pageContent[index].commentNum++
           this.commentList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚' })
           this.getMyArticleCount()
+          // 评论时刷新通知数量
+          getMesSummary().then(res => {
+            this.$store.commit('getNoticeNum', res.messageCount)
+          })
         } else {
-          this.$message.error('评论保存失败')
+          this.$message({
+            message: '评论保存失败',
+            type: 'error'
+          })
         }
         this.checked = false
         this.input = ''
@@ -370,7 +393,10 @@ export default {
     likeComment (index, commentId, flag) {
       likeComment({ index, commentId: commentId, flag: flag }).then(res => {
         if (res) {
-          this.$message.success('点赞成功')
+          this.$message({
+            message: '点赞成功',
+            type: 'success'
+          })
           if (flag === 0) {
             this.commentList[index].userHasLike = false
             this.commentList[index].commentLikeNum--
@@ -378,8 +404,15 @@ export default {
             this.commentList[index].userHasLike = true
             this.commentList[index].commentLikeNum++
           }
+          // 点赞时刷新通知数量
+          getMesSummary().then(res => {
+            this.$store.commit('getNoticeNum', res.messageCount)
+          })
         } else {
-          this.$message.error('点赞失败')
+          this.$message({
+            message: '点赞失败',
+            type: 'error'
+          })
         }
       })
     },
@@ -395,28 +428,54 @@ export default {
     likeArticle (articleId, index, flag) {
       likeArticle({ articleId: articleId, flag: flag }).then(res => {
         if (!res) {
-          this.$message.error('操作失败')
+          this.$message({
+            message: '操作失败',
+            type: 'error'
+          })
         } else if (flag === 0) {
           this.pageContent[index].likeNum--
           this.pageContent[index].userHasLike = false
-          this.$message.success('取消点赞成功')
+          this.$message({
+            message: '取消点赞成功',
+            type: 'success'
+          })
         } else if (flag === 1) {
           this.pageContent[index].likeNum++
           this.pageContent[index].userHasLike = true
-          this.$message.success('点赞成功')
+          this.$message({
+            message: '点赞成功',
+            type: 'success'
+          })
+          // 点赞时刷新通知数量
+          getMesSummary().then(res => {
+            this.$store.commit('getNoticeNum', res.messageCount)
+          })
         }
       })
     },
     attentionArticle (articleId, index, flag) {
       attentionArticle({ id: articleId, flag: flag }).then(res => {
         if (!res) {
-          this.$message.error('收藏失败，请稍后再试')
+          this.$message({
+            message: '收藏失败，请稍后再试',
+            type: 'error'
+          })
         } else if (flag === 0) {
           this.pageContent[index].userHasAttention = false
-          this.$message.success('取消收藏成功')
+          this.$message({
+            message: '取消收藏成功',
+            type: 'success'
+          })
         } else if (flag === 1) {
           this.pageContent[index].userHasAttention = true
-          this.$message.success('收藏成功')
+          this.$message({
+            message: '收藏成功',
+            type: 'success'
+          })
+          // 收藏时刷新通知数量
+          getMesSummary().then(res => {
+            this.$store.commit('getNoticeNum', res.messageCount)
+          })
         }
         this.getMyArticleCount()
       })
@@ -424,24 +483,36 @@ export default {
     deleteArticle (index, articleId) {
       deleteArticle({ ids: arrayToStrWithOutComma(articleId.split(',')) }).then(res => {
         if (!res) {
-          this.$message.error('删除失败，请稍后再试')
+          this.$message({
+            message: '删除失败，请稍后再试',
+            type: 'error'
+          })
         } else {
           this.pageContent.splice(index, 1)
-          this.$message.success('删除成功')
+          this.$message({
+            message: '删除成功',
+            type: 'success'
+          })
         }
       })
     },
     topArticle (index, articleId, flag, topFlag) {
       topArticle({ id: articleId, flag: flag, topFlag: topFlag }).then(res => {
         if (!res) {
-          this.$message.error('操作失败，请稍后再试')
+          this.$message({
+            message: '操作失败，请稍后再试',
+            type: 'error'
+          })
         } else {
           if (flag === 'forum') {
             this.pageContent[index].forumTop = topFlag
           } else {
             this.pageContent[index].plateTop = topFlag
           }
-          this.$message.success('操作成功')
+          this.$message({
+            message: '操作成功',
+            type: 'success'
+          })
         }
       })
     },
