@@ -12,6 +12,7 @@
           v-model="form.articleTitle"
           type="textarea"
           :rows="3"
+          autofocus="true"
           placeholder="标题"
         />
       </el-form-item>
@@ -114,6 +115,9 @@ export default {
         this.submitForm('composeForm')
       }
     }
+  },
+  created: function () {
+
   },
   mounted: function () {
     getUserInfo().then(res => {
