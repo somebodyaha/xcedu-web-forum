@@ -44,6 +44,13 @@
 import { getUserInfo, createArticle, updateArticle, getNoPubArticle, getPlateList } from '@/api/index'
 import fileUp from '@/component/fileUp'
 import editor from '@/component/editor'
+function nameValidator (rule, value, callback) {
+  if (value.trim() === '') {
+    callback(new Error('请输入标题'))
+  } else {
+    callback()
+  }
+}
 export default {
   components: {
     fileUp,
@@ -73,7 +80,10 @@ export default {
       rules: {
         articleTitle: [
           { required: true, message: '请输入标题', trigger: 'blur' },
-          { min: 1, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur' }
+          { min: 1, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur' },
+          {
+            validator: nameValidator
+          }
         ],
         plateId: [
           { required: true, message: '请选择所属版块', trigger: 'change' }

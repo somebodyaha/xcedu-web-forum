@@ -2,11 +2,13 @@
   <section style="width: 840px; margin: 0 auto; background: #fff;margin-top:20px">
     <el-card>
       <div style="display:flex;align-items:center">
-        <img
-          style="width: 40px; height: 40px;object-fit:cover;margin-right:10px"
-          :src="article.imgUrl"
-        >
-        <span>{{ article.aliasName }}</span>
+        <el-avatar v-if="article.anonymous === 0 && article.imgUrl" :src="article.imgUrl" />
+        <div v-if="article.anonymous === 0 && !article.imgUrl" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
+          {{ article.aliasName.slice(article.aliasName.length - 2 , article.aliasName.length) }}
+        </div>
+        <el-avatar v-if="article.anonymous === 1" :src="require('@/assets/user.png')" />
+
+        <span style="margin-left:10px">{{ article.aliasName }}</span>
       </div>
       <div style="padding:10px;font-size:20px" v-html="article.articleTitle" />
       <div style="padding:10px;text-indent: 25px;line-height: 20px;" v-html="article.articleContent" />
@@ -193,6 +195,10 @@ export default {
       })
     },
     sendComment () {
+      if (!this.commentInput) {
+        this.$message.error('请输入评论内容')
+        return false
+      }
       saveComment({ articleId: this.article.id, anonymous: (this.anonymous ? 1 : 0), commentContent: this.commentInput }).then(res => {
         if (res) {
           this.$message.success('评论成功')

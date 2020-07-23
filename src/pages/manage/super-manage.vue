@@ -17,7 +17,7 @@
 import manage from '@page/components/posts-manage'
 import plateManage from '@page/components/plate-manage'
 import portalSet from '@page/components/portal-set'
-
+import { userManagePlate } from '@/api/index'
 export default {
   components: {
     manage,
@@ -33,8 +33,10 @@ export default {
       isAdmin: false
     }
   },
-  mounted: function () {
-    this.isAdmin = this.$store.state.header.adminState
+  created: function () {
+    userManagePlate().then(res => {
+      this.isAdmin = res.isAdmin
+    })
   },
   methods: {
     handleClick (tab, event) {
