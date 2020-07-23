@@ -26,8 +26,8 @@
                     <i class="el-icon-arrow-down el-icon--right" />
                   </span>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'forum','a')">论坛置顶</el-dropdown-item>
-                    <el-dropdown-item v-show="item.userIsAdmin && item.plateTop == 0" :command="beforeHandleCommand(index,item.id,'plate','a')">版块置顶</el-dropdown-item>
+                    <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 0 && item.plateTop ==0" :command="beforeHandleCommand(index,item.id,'forum','a')">论坛置顶</el-dropdown-item>
+                    <el-dropdown-item v-show="item.userIsAdmin && item.plateTop == 0 && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'plate','a')">版块置顶</el-dropdown-item>
                     <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 1" :command="beforeHandleCommand(index,item.id,'forum','b')">取消论坛置顶</el-dropdown-item>
                     <el-dropdown-item v-show="item.userIsAdmin && item.plateTop == 1" :command="beforeHandleCommand(index,item.id,'plate','b')">取消版块置顶</el-dropdown-item>
                     <el-dropdown-item v-show="item.userIsAuthor" :command="beforeHandleCommand(index,item.id,'','c')">编辑</el-dropdown-item>
@@ -211,12 +211,17 @@
         <span style="font-weight:bold;font-size:16px;color:#999">热门</span>
         <!-- <el-button style="float: right; padding: 3px 0;color:#3396FC" type="text">去论坛逛逛>></el-button> -->
       </div>
+
       <div v-for="(hotArticle,index) in hotArticles" :key="index" class="text item bghover dsshover">
-        <div class="dss" @click="preViewDetails(hotArticle.id)">
-          <div v-html="hotArticle.articleTitle.length>10?hotArticle.articleTitle.slice(0,11)+'...':hotArticle.articleTitle" />
-          <div> {{ hotArticle.readNum == null ? 0 : hotArticle.readNum }}次</div>
-        </div>
+        <el-tooltip effect="dark" :content="hotArticle.articleTitle" placement="top-start">
+          <div class="dss" @click="preViewDetails(hotArticle.id)">
+            <div v-html="hotArticle.articleTitle.length>10?hotArticle.articleTitle.slice(0,11)+'...':hotArticle.articleTitle" />
+            <div> {{ hotArticle.readNum == null ? 0 : hotArticle.readNum }}次</div>
+          </div>
+        </el-tooltip>
+
       </div>
+
     </el-card>
   </div>
 </template>
@@ -367,6 +372,10 @@ export default {
       })
     },
     sendComment (articleId, index) {
+      if (!this.input) {
+        this.$message.error('请输入评论内容')
+        return false
+      }
       saveComment({ articleId: articleId, anonymous: (this.checked ? 1 : 0), commentContent: this.input }).then(res => {
         if (res) {
           this.$message({
@@ -481,19 +490,24 @@ export default {
       })
     },
     deleteArticle (index, articleId) {
-      deleteArticle({ ids: arrayToStrWithOutComma(articleId.split(',')) }).then(res => {
-        if (!res) {
-          this.$message({
-            message: '删除失败，请稍后再试',
-            type: 'error'
-          })
-        } else {
-          this.pageContent.splice(index, 1)
-          this.$message({
-            message: '删除成功',
-            type: 'success'
-          })
-        }
+      this.$confirm('此操作将删除该帖子 , 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteArticle({ ids: arrayToStrWithOutComma(articleId.split(',')) }).then(res => {
+          if (!res) {
+            this.$message.error('删除失败，请稍后再试')
+          } else {
+            this.pageContent.splice(index, 1)
+            this.$message.success('删除成功')
+          }
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消'
+        })
       })
     },
     topArticle (index, articleId, flag, topFlag) {
