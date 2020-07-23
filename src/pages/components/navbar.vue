@@ -87,7 +87,6 @@ export default {
     userManagePlate().then(res => {
       this.isAdmin = res.isAdmin
       this.userPlateList = res.plateList
-      this.$store.commit('getAdminState', res.isAdmin)
     })
   },
   methods: {

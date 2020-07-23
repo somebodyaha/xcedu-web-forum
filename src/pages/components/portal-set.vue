@@ -17,7 +17,13 @@
 <script>
 import chooseUser from '@/component/chooseUser'
 import { savePlate, detailPlate, updatePlate } from '@/api/index'
-
+function nameValidator (rule, value, callback) {
+  if (value.trim() === '') {
+    callback(new Error('请输入板块名称'))
+  } else {
+    callback()
+  }
+}
 export default {
   name: 'PortalSet',
   components: {
@@ -37,7 +43,10 @@ export default {
       rules: {
         plateName: [
           { required: true, message: '版块名称不能为空', trigger: 'blur' },
-          { min: 1, max: 20, message: '长度在 1 到 10 个字符', trigger: 'blur' }
+          { min: 1, max: 10, message: '长度在 1 到 10 个字符', trigger: 'blur' },
+          {
+            validator: nameValidator
+          }
         ],
         plateAdminJson: [
           { required: true, message: '请选择管理员', trigger: 'blur' }

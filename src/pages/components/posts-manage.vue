@@ -252,12 +252,10 @@ export default {
           type: 'warning'
         }).then(() => {
           this.deleteArticle({ ids: row.id })
-        }).catch(err => {
-          // eslint-disable-next-line no-console
-          console.log(err)
+        }).catch(() => {
           this.$message({
             type: 'info',
-            message: err
+            message: '已取消'
           })
         })
       } else if (title === 'forumTop') {
@@ -290,12 +288,10 @@ export default {
               })
             }
           })
-        }).catch(err => {
-          // eslint-disable-next-line no-console
-          console.log(err)
+        }).catch(() => {
           this.$message({
             type: 'info',
-            message: '已取消操作'
+            message: '已取消'
           })
         })
       } else {
@@ -332,7 +328,7 @@ export default {
           .catch(() => {
             this.$message({
               type: 'info',
-              message: '已取消操作'
+              message: '已取消'
             })
           })
       }
