@@ -87,6 +87,7 @@ export default {
               message: '添加成功',
               type: 'success'
             })
+            this.$store.state.header.flushFlag++
           } else {
             this.$message({
               message: '添加失败',
@@ -102,6 +103,7 @@ export default {
               message: '修改成功',
               type: 'success'
             })
+            this.$store.state.header.flushFlag++
           } else {
             this.$message({
               message: '修改失败',
