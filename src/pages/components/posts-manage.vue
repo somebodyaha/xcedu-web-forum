@@ -117,7 +117,7 @@ export default {
       publish: '',
       publishDateRange: [],
       params: {
-        isManage: 1,
+        orderType: 2,
         articleTitle: '',
         articleAuthor: '',
         plateId: '',

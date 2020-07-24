@@ -53,27 +53,27 @@ export default {
         imgUrl: '',
         gender: 0
       }
+      // flag: this.$store.state.header
     }
   },
   computed: {
   // 使用对象展开运算符将 getter 混入 computed 对象中
     ...mapGetters([
       'noticeNum'
-    ])
+    ]),
+    flushFlag () {
+      return this.$store.state.header.flushFlag
+    }
+  },
+  watch: {
+    flushFlag () {
+      this.init()
+    }
+  },
+  created () {
+    this.init()
   },
   mounted () {
-    // 获取所有版块列表用于navbar
-    getPlateList({}).then(res => {
-      const showNum = 5
-      for (let i = 0; i < res.length; i++) {
-        if (i < showNum) {
-          this.showPlateList.push(res[i])
-        } else {
-          this.foldPlateList.push(res[i])
-        }
-        this.plateList.push(res[i])
-      }
-    })
     getUserSetting().then(res => {
       this.userInfo = {
         id: res.id,
@@ -90,7 +90,25 @@ export default {
     })
   },
   methods: {
+    init () {
+      // 获取所有版块列表用于navbar
+      this.showPlateList = []
+      this.foldPlateList = []
+      this.plateList = []
+      getPlateList({}).then(res => {
+        const showNum = 5
+        for (let i = 0; i < res.length; i++) {
+          if (i < showNum) {
+            this.showPlateList.push(res[i])
+          } else {
+            this.foldPlateList.push(res[i])
+          }
+          this.plateList.push(res[i])
+        }
+      })
+    },
     handleSelect (key, keyPath) {
+      window.console.log(key, keyPath)
       if (key === '-1') {
         this.$router.replace({
           path: '/mfs-forum/super-manage'

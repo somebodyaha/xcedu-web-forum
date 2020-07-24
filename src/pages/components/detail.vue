@@ -21,15 +21,23 @@
               <div class="dss">
                 <div class="margin-bottom-size-mini">{{ item.aliasName }}</div>
                 <!-- <div><i class="el-icon-arrow-down" /></div> -->
-                <el-dropdown v-if="item.userIsAdmin || item.userIsAuthor" trigger="click" @command="choose">
+                <el-dropdown v-if="item.userIsAdmin || item.userIsPlateAdmin || item.userIsAuthor" trigger="click" @command="choose">
                   <span class="el-dropdown-link">
                     <i class="el-icon-arrow-down el-icon--right" />
                   </span>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 0 && item.plateTop ==0" :command="beforeHandleCommand(index,item.id,'forum','a')">论坛置顶</el-dropdown-item>
-                    <el-dropdown-item v-show="item.userIsAdmin && item.plateTop == 0 && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'plate','a')">版块置顶</el-dropdown-item>
-                    <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 1" :command="beforeHandleCommand(index,item.id,'forum','b')">取消论坛置顶</el-dropdown-item>
-                    <el-dropdown-item v-show="item.userIsAdmin && item.plateTop == 1" :command="beforeHandleCommand(index,item.id,'plate','b')">取消版块置顶</el-dropdown-item>
+                    <template v-if="plateId == ''">
+                      <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'forum','a')">论坛置顶</el-dropdown-item>
+                      <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 1" :command="beforeHandleCommand(index,item.id,'forum','b')">取消论坛置顶</el-dropdown-item>
+                      <el-dropdown-item v-show="(item.userIsAdmin || item.userIsPlateAdmin) && item.plateTop == 0 && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'plate','a')">版块置顶</el-dropdown-item>
+                      <el-dropdown-item v-show="(item.userIsAdmin || item.userIsPlateAdmin) && item.plateTop == 1 && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'plate','b')">取消版块置顶</el-dropdown-item>
+                    </template>
+                    <template v-else>
+                      <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'forum','a')">论坛置顶</el-dropdown-item>
+                      <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 1" :command="beforeHandleCommand(index,item.id,'forum','b')">取消论坛置顶</el-dropdown-item>
+                      <el-dropdown-item v-show="(item.userIsAdmin || item.userIsPlateAdmin) && item.plateTop == 0" :command="beforeHandleCommand(index,item.id,'plate','a')">版块置顶</el-dropdown-item>
+                      <el-dropdown-item v-show="(item.userIsAdmin || item.userIsPlateAdmin) && item.plateTop == 1" :command="beforeHandleCommand(index,item.id,'plate','b')">取消版块置顶</el-dropdown-item>
+                    </template>
                     <el-dropdown-item v-show="item.userIsAuthor" :command="beforeHandleCommand(index,item.id,'','c')">编辑</el-dropdown-item>
                     <el-dropdown-item :command="beforeHandleCommand(index,item.id,'','d')">删除</el-dropdown-item>
                   </el-dropdown-menu>
@@ -39,7 +47,8 @@
                 <div class="text-color-grey">{{ item.pubDate }}发布</div>
               </div>
               <div class="margin-top-size-nomal" style="margin-top:10px">
-                <el-tag v-show="item.forumTop == 1 || item.plateTop == 1" type="danger" size="mini">置顶</el-tag>
+                <el-tag v-show="plateId == '' && item.forumTop == 1 " type="danger" size="mini">置顶</el-tag>
+                <el-tag v-show="plateId != '' && (item.forumTop == 1 || item.plateTop == 1)" type="danger" size="mini">置顶</el-tag>
                 <span style="font-weight:bold" class="size-large">{{ item.articleTitle }}</span>
               </div>
               <div class="margin-top-size-small" style="line-height:24px;margin-top:10px">
@@ -201,7 +210,7 @@
       <div class="text item bghover dss" @click="getArticle('myAttention')">
         <div>
           <i class="icon-star-solid text-color-grey" />
-          <span>我关注的</span>
+          <span>我收藏的</span>
         </div>
         <el-tag type="info" size="small " class="bgfff">{{ myCount.attentionCount }}</el-tag>
       </div>
@@ -283,6 +292,7 @@ export default {
       this.plateManager = []
       this.pageNumber = 1
       this.recordNum = 0
+
       if (plateId === '0') {
         this.isIndexPage = true
         this.plateId = ''
@@ -314,7 +324,6 @@ export default {
     document.removeEventListener('click', this.handleClick, false)
   },
   methods: {
-
     preViewDetails (id) {
       const { href } = this.$router.resolve({ name: 'previewDetails' })
       window.open(href + '?id=' + id, '_self')
@@ -575,7 +584,11 @@ export default {
     },
     load () {
       this.loading = true
-      getArticleByPlate({ plateId: this.plateId, page: this.pageNumber++, pageSize: this.pageSize, pageFlag: this.pageFlag }).then(res => {
+      let orderType = 0
+      if (this.plateId === '') {
+        orderType = 1
+      }
+      getArticleByPlate({ plateId: this.plateId, page: this.pageNumber++, pageSize: this.pageSize, pageFlag: this.pageFlag, orderType: orderType }).then(res => {
         this.nomoreState = this.recordNum >= res.totalRecords
         window.console.log(this.recordNum, this.nomoreState)
         if (!this.nomoreState) {

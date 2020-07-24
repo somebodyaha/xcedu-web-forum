@@ -165,6 +165,7 @@ export default {
             if (res === 1) {
               this.$message.success('删除成功')
               this.flushPlateList()
+              this.$store.state.header.flushFlag++
             } else if (res === 2) {
               this.dialogFormVisible = false
               // 该版块下还有帖子
@@ -172,7 +173,7 @@ export default {
               getPlateList().then(res => {
                 for (let i = 0; i < res.length; i++) {
                   if (res[i].id === row.id) {
-                    return
+                    continue
                   }
                   this.plateList.push(res[i])
                 }
@@ -187,11 +188,6 @@ export default {
                 type: 'error'
               })
             }
-          })
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消'
           })
         })
       } else {

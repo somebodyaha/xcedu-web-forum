@@ -1,7 +1,8 @@
 const state = {
   plateList: null,
   noticeNum: 0,
-  adminState: false
+  adminState: false,
+  flushFlag: 0
 }
 const getters = {
   value: state => state.value,
@@ -16,6 +17,9 @@ const mutations = {
   },
   getNoticeNum (state, newVal) {
     state.noticeNum = newVal
+  },
+  getFlushFlag (state, newVal) {
+    state.flushFlag = newVal
   }
 }
 const actions = {}
