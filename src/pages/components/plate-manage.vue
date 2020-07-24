@@ -45,7 +45,7 @@
           :current-page="params.page"
           :page-sizes="[10, 20, 50, 100]"
           :page-size="10"
-          layout="total, sizes, prev, pager, next, jumper"
+          layout="prev, pager, next, jumper, sizes, total"
           :total="totalRecords"
           background
           @size-change="handleSizeChange"
