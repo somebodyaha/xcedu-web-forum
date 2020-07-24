@@ -21,7 +21,7 @@
         images_upload_url: '/xcadmin/comp/attachment/upload',
         images_reuse_filename: true
       }"
-      @onKeyDown="editorChange"
+      @input="editorChange"
     />
   </section>
 </template>

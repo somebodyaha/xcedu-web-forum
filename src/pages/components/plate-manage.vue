@@ -188,12 +188,10 @@ export default {
               })
             }
           })
-        }).catch(err => {
-          // eslint-disable-next-line no-console
-          console.log(err)
+        }).catch(() => {
           this.$message({
             type: 'info',
-            message: err
+            message: '已取消'
           })
         })
       } else {

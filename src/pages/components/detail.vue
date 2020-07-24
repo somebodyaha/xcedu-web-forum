@@ -523,6 +523,9 @@ export default {
           } else {
             this.pageContent[index].plateTop = topFlag
           }
+          // let item =  this.pageContent[index];
+          //  this.pageContent.splice(index,1)
+          //  this.pageContent.unshift(item)
           this.$message({
             message: '操作成功',
             type: 'success'

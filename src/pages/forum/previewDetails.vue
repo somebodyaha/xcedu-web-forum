@@ -1,14 +1,18 @@
 <template>
   <section style="width: 840px; margin: 0 auto; background: #fff;margin-top:20px">
     <el-card>
-      <div style="display:flex;align-items:center">
-        <el-avatar v-if="article.anonymous === 0 && article.imgUrl" :src="article.imgUrl" />
-        <div v-if="article.anonymous === 0 && !article.imgUrl" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
-          {{ article.aliasName.slice(article.aliasName.length - 2 , article.aliasName.length) }}
+      <div style="display:flex;align-items:center;justify-content: space-between;">
+        <div style="display:flex;align-items:center;">
+          <el-avatar v-if="article.anonymous === 0 && article.imgUrl" :src="article.imgUrl" />
+          <div v-if="article.anonymous === 0 && !article.imgUrl" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
+            {{ article.aliasName.slice(article.aliasName.length - 2 , article.aliasName.length) }}
+          </div>
+          <el-avatar v-if="article.anonymous === 1" :src="require('@/assets/user.png')" />
+          <span style="margin-left:10px">{{ article.aliasName }}</span>
         </div>
-        <el-avatar v-if="article.anonymous === 1" :src="require('@/assets/user.png')" />
-
-        <span style="margin-left:10px">{{ article.aliasName }}</span>
+        <div>
+          <el-button type="default" @click="goBacktToHome">返回首页</el-button>
+        </div>
       </div>
       <div style="padding:10px;font-size:20px" v-html="article.articleTitle" />
       <div style="padding:10px;text-indent: 25px;line-height: 20px;" v-html="article.articleContent" />
@@ -179,7 +183,9 @@ export default {
         }
       })
     },
-
+    goBacktToHome () {
+      this.$router.push({ name: 'home' })
+    },
     topArticle (flag, topFlag) {
       topArticle({ id: this.article.id, flag: flag, topFlag: topFlag }).then(res => {
         if (!res) {
