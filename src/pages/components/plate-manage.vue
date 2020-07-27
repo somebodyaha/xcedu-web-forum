@@ -19,8 +19,8 @@
     <div style="margin-top:20px">
       <el-table :data="tableData" style="width: 100%" @selection-change="handleSelectionChange">
         <!-- <el-table-column type="selection" width="55px" /> -->
-        <el-table-column fixed prop="plateName" label="版块名称" />
-        <el-table-column prop="plateAdminName" label="版块管理员" />
+        <el-table-column fixed prop="plateName" min-width="120px" label="版块名称" />
+        <el-table-column prop="plateAdminName" min-width="250px" label="版块管理员" />
         <el-table-column prop="createdName" label="发布人" />
         <el-table-column prop="createdDate" label="创建时间" min-width="150px" />
         <el-table-column label="操作" width="80px" fixed="right">
