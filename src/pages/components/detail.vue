@@ -2,7 +2,7 @@
   <div class="home infinite-list-wrapper" style="overflow:auto">
     <el-card class="box-card">
       <div slot="header" class="dss">
-        <div style="font-size:16px">最新动态</div>
+        <div style="font-size:16px">{{ this.$route.query.plateName?this.$route.query.plateName+"动态":'最新动态' }}</div>
       </div>
       <div v-infinite-scroll="load" class="list" infinite-scroll-disabled="disabled">
         <div v-for="(item,index) in pageContent" :key="index" class="text item list-item">
@@ -285,14 +285,11 @@ export default {
     $route (to, from) {
       this.nomoreState = false
       this.pageFlag = ''
-      // eslint-disable-next-line no-console
-      console.log(to)
       const plateId = to.query.index
       this.pageContent = []
       this.plateManager = []
       this.pageNumber = 1
       this.recordNum = 0
-
       if (plateId === '0') {
         this.isIndexPage = true
         this.plateId = ''
@@ -588,7 +585,13 @@ export default {
       if (this.plateId === '') {
         orderType = 1
       }
-      getArticleByPlate({ plateId: this.plateId, page: this.pageNumber++, pageSize: this.pageSize, pageFlag: this.pageFlag, orderType: orderType }).then(res => {
+      // 切换到管理监听不到  通过路由参数获取plateId
+      if (this.$route.query.index === '0') {
+        this.plateId = ''
+      } else {
+        this.plateId = this.$route.query.index
+      }
+      getArticleByPlate({ plateId: this.plateId, page: this.pageNumber++, pageSize: this.pageSize, pageFlag: this.pageFlag, orderType: orderType, isReadArticle: 1 }).then(res => {
         this.nomoreState = this.recordNum >= res.totalRecords
         window.console.log(this.recordNum, this.nomoreState)
         if (!this.nomoreState) {
@@ -727,5 +730,8 @@ export default {
   }
   .infinite-list-wrapper{
     height: 100%;
+  }
+  .active{
+    color:#3396fc;
   }
 </style>
