@@ -170,7 +170,7 @@ const baseConf = (env = 'production') => ({
       }]
     }, {
       test: /\.vue$/,
-      // exclude: [/node_module/],
+      exclude: [/node_module/],
       use: [{
         loader: 'cache-loader',
         options: {
