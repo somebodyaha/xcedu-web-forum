@@ -156,7 +156,7 @@ export default {
     },
     choose (title, row) {
       if (title === 'del') {
-        this.$confirm('此操作将删除该帖子 , 是否继续?', '提示', {
+        this.$confirm('此操作将删除该版块 , 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
