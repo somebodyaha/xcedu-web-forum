@@ -581,15 +581,15 @@ export default {
     },
     load () {
       this.loading = true
-      let orderType = 0
-      if (this.plateId === '') {
-        orderType = 1
-      }
       // 切换到管理监听不到  通过路由参数获取plateId
-      if (this.$route.query.index === '0') {
+      if (this.$route.query.index === '0' || !this.$route.query.index) {
         this.plateId = ''
       } else {
         this.plateId = this.$route.query.index
+      }
+      let orderType = 0
+      if (this.plateId === '') {
+        orderType = 1
       }
       getArticleByPlate({ plateId: this.plateId, page: this.pageNumber++, pageSize: this.pageSize, pageFlag: this.pageFlag, orderType: orderType, isReadArticle: 1 }).then(res => {
         this.nomoreState = this.recordNum >= res.totalRecords
