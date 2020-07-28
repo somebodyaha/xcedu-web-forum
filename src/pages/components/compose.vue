@@ -51,13 +51,6 @@ function nameValidator (rule, value, callback) {
     callback()
   }
 }
-function articleContentValidator (rule, value, callback) {
-  if (value.trim() === '') {
-    callback(new Error('帖子内容不能为空'))
-  } else {
-    callback()
-  }
-}
 export default {
   components: {
     fileUp,
@@ -96,8 +89,7 @@ export default {
           { required: true, message: '请选择所属版块', trigger: 'change' }
         ],
         articleContent: [
-          { required: true, message: '标题不能为空', trigger: 'blur' },
-          { validator: articleContentValidator }
+          { required: true, message: '内容不能为空', trigger: 'blur' }
         ]
 
       }

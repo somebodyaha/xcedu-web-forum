@@ -4,10 +4,10 @@
       <logo />
       <el-menu :default-active="activeIndex" class="margin-lr-auto main-menu" mode="horizontal" @select="handleSelect">
         <el-menu-item index="0">首页</el-menu-item>
-        <el-menu-item v-for="plate in showPlateList" :key="plate.id" :index="plate">{{ plate.plateName }}</el-menu-item>
+        <el-menu-item v-for="plate in showPlateList" :key="plate.id" :index="plate.id" :platename="plate.plateName">{{ plate.plateName }}</el-menu-item>
         <el-submenu v-if="foldPlateList.length != 0" index="2">
           <template slot="title">更多</template>
-          <el-menu-item v-for="foldPlate in foldPlateList" :key="foldPlate.id" :index="foldPlate">{{ foldPlate.plateName }}</el-menu-item>
+          <el-menu-item v-for="foldPlate in foldPlateList" :key="foldPlate.id" :index="foldPlate.id" :platename="foldPlate.plateName">{{ foldPlate.plateName }}</el-menu-item>
         </el-submenu>
         <el-menu-item v-if="isAdmin || userPlateList.length>0" index="-1"><a>管理</a></el-menu-item>
       </el-menu>
@@ -39,7 +39,7 @@ export default {
   data () {
     return {
       locationPath: '',
-      activeIndex: '0',
+      activeIndex: this.$route.query.index ? this.$route.query.index : '0',
       showPlateList: [],
       plateList: [],
       foldPlateList: [],
@@ -107,18 +107,21 @@ export default {
         }
       })
     },
-    handleSelect (key, keyPath) {
-      window.console.log(key, keyPath)
+    handleSelect (key, keyPath, e) {
+      window.console.log(key, keyPath, e.$attrs)
       if (key === '-1') {
         this.$router.replace({
-          path: '/mfs-forum/super-manage'
+          path: '/mfs-forum/super-manage',
+          query: {
+            index: key
+          }
         })
       } else {
         this.$router.replace({
           path: '/mfs-forum/home/newest',
           query: {
-            index: key.id,
-            plateName: key.plateName
+            index: key,
+            plateName: e.$attrs.platename
           }
         })
       }
