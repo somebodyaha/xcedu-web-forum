@@ -2,7 +2,7 @@
   <div class="home infinite-list-wrapper" style="overflow:auto">
     <el-card class="box-card">
       <div slot="header" class="dss">
-        <div style="font-size:16px">最新动态</div>
+        <div style="font-size:16px">{{ this.$route.query.plateName?this.$route.query.plateName+"动态":'最新动态' }}</div>
       </div>
       <div v-infinite-scroll="load" class="list" infinite-scroll-disabled="disabled">
         <div v-for="(item,index) in pageContent" :key="index" class="text item list-item">
@@ -21,15 +21,23 @@
               <div class="dss">
                 <div class="margin-bottom-size-mini">{{ item.aliasName }}</div>
                 <!-- <div><i class="el-icon-arrow-down" /></div> -->
-                <el-dropdown v-if="item.userIsAdmin || item.userIsAuthor" trigger="click" @command="choose">
+                <el-dropdown v-if="item.userIsAdmin || item.userIsPlateAdmin || item.userIsAuthor" trigger="click" @command="choose">
                   <span class="el-dropdown-link">
                     <i class="el-icon-arrow-down el-icon--right" />
                   </span>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 0 && item.plateTop ==0" :command="beforeHandleCommand(index,item.id,'forum','a')">论坛置顶</el-dropdown-item>
-                    <el-dropdown-item v-show="item.userIsAdmin && item.plateTop == 0 && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'plate','a')">版块置顶</el-dropdown-item>
-                    <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 1" :command="beforeHandleCommand(index,item.id,'forum','b')">取消论坛置顶</el-dropdown-item>
-                    <el-dropdown-item v-show="item.userIsAdmin && item.plateTop == 1" :command="beforeHandleCommand(index,item.id,'plate','b')">取消版块置顶</el-dropdown-item>
+                    <template v-if="plateId == ''">
+                      <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'forum','a')">论坛置顶</el-dropdown-item>
+                      <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 1" :command="beforeHandleCommand(index,item.id,'forum','b')">取消论坛置顶</el-dropdown-item>
+                      <el-dropdown-item v-show="(item.userIsAdmin || item.userIsPlateAdmin) && item.plateTop == 0 && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'plate','a')">版块置顶</el-dropdown-item>
+                      <el-dropdown-item v-show="(item.userIsAdmin || item.userIsPlateAdmin) && item.plateTop == 1 && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'plate','b')">取消版块置顶</el-dropdown-item>
+                    </template>
+                    <template v-else>
+                      <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'forum','a')">论坛置顶</el-dropdown-item>
+                      <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 1" :command="beforeHandleCommand(index,item.id,'forum','b')">取消论坛置顶</el-dropdown-item>
+                      <el-dropdown-item v-show="(item.userIsAdmin || item.userIsPlateAdmin) && item.plateTop == 0" :command="beforeHandleCommand(index,item.id,'plate','a')">版块置顶</el-dropdown-item>
+                      <el-dropdown-item v-show="(item.userIsAdmin || item.userIsPlateAdmin) && item.plateTop == 1" :command="beforeHandleCommand(index,item.id,'plate','b')">取消版块置顶</el-dropdown-item>
+                    </template>
                     <el-dropdown-item v-show="item.userIsAuthor" :command="beforeHandleCommand(index,item.id,'','c')">编辑</el-dropdown-item>
                     <el-dropdown-item :command="beforeHandleCommand(index,item.id,'','d')">删除</el-dropdown-item>
                   </el-dropdown-menu>
@@ -39,7 +47,8 @@
                 <div class="text-color-grey">{{ item.pubDate }}发布</div>
               </div>
               <div class="margin-top-size-nomal" style="margin-top:10px">
-                <el-tag v-show="item.forumTop == 1 || item.plateTop == 1" type="danger" size="mini">置顶</el-tag>
+                <el-tag v-show="plateId == '' && item.forumTop == 1 " type="danger" size="mini">置顶</el-tag>
+                <el-tag v-show="plateId != '' && (item.forumTop == 1 || item.plateTop == 1)" type="danger" size="mini">置顶</el-tag>
                 <span style="font-weight:bold" class="size-large">{{ item.articleTitle }}</span>
               </div>
               <div class="margin-top-size-small" style="line-height:24px;margin-top:10px">
@@ -201,7 +210,7 @@
       <div class="text item bghover dss" @click="getArticle('myAttention')">
         <div>
           <i class="icon-star-solid text-color-grey" />
-          <span>我关注的</span>
+          <span>我收藏的</span>
         </div>
         <el-tag type="info" size="small " class="bgfff">{{ myCount.attentionCount }}</el-tag>
       </div>
@@ -276,8 +285,6 @@ export default {
     $route (to, from) {
       this.nomoreState = false
       this.pageFlag = ''
-      // eslint-disable-next-line no-console
-      console.log(to)
       const plateId = to.query.index
       this.pageContent = []
       this.plateManager = []
@@ -314,7 +321,6 @@ export default {
     document.removeEventListener('click', this.handleClick, false)
   },
   methods: {
-
     preViewDetails (id) {
       const { href } = this.$router.resolve({ name: 'previewDetails' })
       window.open(href + '?id=' + id, '_self')
@@ -342,6 +348,11 @@ export default {
       this.repTopId = topId
       this.repName = repName
     },
+    flushNoitceNum () {
+      getMesSummary().then(res => {
+        this.$store.commit('getNoticeNum', res.messageCount)
+      })
+    },
     repSave (num) {
       if (!this.repInput) {
         this.$message({
@@ -360,9 +371,7 @@ export default {
           this.repChecked = false
           this.repInput = ''
           // 回复时刷新通知数量
-          getMesSummary().then(res => {
-            this.$store.commit('getNoticeNum', res.messageCount)
-          })
+          this.flushNoitceNum()
         } else {
           this.$message({
             message: '回复保存失败',
@@ -386,9 +395,7 @@ export default {
           this.commentList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚' })
           this.getMyArticleCount()
           // 评论时刷新通知数量
-          getMesSummary().then(res => {
-            this.$store.commit('getNoticeNum', res.messageCount)
-          })
+          this.flushNoitceNum()
         } else {
           this.$message({
             message: '评论保存失败',
@@ -402,21 +409,22 @@ export default {
     likeComment (index, commentId, flag) {
       likeComment({ index, commentId: commentId, flag: flag }).then(res => {
         if (res) {
-          this.$message({
-            message: '点赞成功',
-            type: 'success'
-          })
+          let msg = ''
           if (flag === 0) {
+            msg = '取消点赞成功'
             this.commentList[index].userHasLike = false
             this.commentList[index].commentLikeNum--
           } else {
+            msg = '点赞成功'
             this.commentList[index].userHasLike = true
             this.commentList[index].commentLikeNum++
           }
-          // 点赞时刷新通知数量
-          getMesSummary().then(res => {
-            this.$store.commit('getNoticeNum', res.messageCount)
+          this.$message({
+            message: msg,
+            type: 'success'
           })
+          // 点赞时刷新通知数量
+          this.flushNoitceNum()
         } else {
           this.$message({
             message: '点赞失败',
@@ -448,6 +456,7 @@ export default {
             message: '取消点赞成功',
             type: 'success'
           })
+          this.flushNoitceNum()
         } else if (flag === 1) {
           this.pageContent[index].likeNum++
           this.pageContent[index].userHasLike = true
@@ -456,9 +465,7 @@ export default {
             type: 'success'
           })
           // 点赞时刷新通知数量
-          getMesSummary().then(res => {
-            this.$store.commit('getNoticeNum', res.messageCount)
-          })
+          this.flushNoitceNum()
         }
       })
     },
@@ -475,6 +482,7 @@ export default {
             message: '取消收藏成功',
             type: 'success'
           })
+          this.flushNoitceNum()
         } else if (flag === 1) {
           this.pageContent[index].userHasAttention = true
           this.$message({
@@ -482,9 +490,7 @@ export default {
             type: 'success'
           })
           // 收藏时刷新通知数量
-          getMesSummary().then(res => {
-            this.$store.commit('getNoticeNum', res.messageCount)
-          })
+          this.flushNoitceNum()
         }
         this.getMyArticleCount()
       })
@@ -575,7 +581,17 @@ export default {
     },
     load () {
       this.loading = true
-      getArticleByPlate({ plateId: this.plateId, page: this.pageNumber++, pageSize: this.pageSize, pageFlag: this.pageFlag }).then(res => {
+      let orderType = 0
+      if (this.plateId === '') {
+        orderType = 1
+      }
+      // 切换到管理监听不到  通过路由参数获取plateId
+      if (this.$route.query.index === '0') {
+        this.plateId = ''
+      } else {
+        this.plateId = this.$route.query.index
+      }
+      getArticleByPlate({ plateId: this.plateId, page: this.pageNumber++, pageSize: this.pageSize, pageFlag: this.pageFlag, orderType: orderType, isReadArticle: 1 }).then(res => {
         this.nomoreState = this.recordNum >= res.totalRecords
         window.console.log(this.recordNum, this.nomoreState)
         if (!this.nomoreState) {
@@ -714,5 +730,8 @@ export default {
   }
   .infinite-list-wrapper{
     height: 100%;
+  }
+  .active{
+    color:#3396fc;
   }
 </style>

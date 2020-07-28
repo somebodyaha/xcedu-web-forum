@@ -4,10 +4,10 @@
       <logo />
       <el-menu :default-active="activeIndex" class="margin-lr-auto main-menu" mode="horizontal" @select="handleSelect">
         <el-menu-item index="0">首页</el-menu-item>
-        <el-menu-item v-for="plate in showPlateList" :key="plate.id" :index="plate.id">{{ plate.plateName }}</el-menu-item>
+        <el-menu-item v-for="plate in showPlateList" :key="plate.id" :index="plate">{{ plate.plateName }}</el-menu-item>
         <el-submenu v-if="foldPlateList.length != 0" index="2">
           <template slot="title">更多</template>
-          <el-menu-item v-for="foldPlate in foldPlateList" :key="foldPlate.id" :index="foldPlate.id">{{ foldPlate.plateName }}</el-menu-item>
+          <el-menu-item v-for="foldPlate in foldPlateList" :key="foldPlate.id" :index="foldPlate">{{ foldPlate.plateName }}</el-menu-item>
         </el-submenu>
         <el-menu-item v-if="isAdmin || userPlateList.length>0" index="-1"><a>管理</a></el-menu-item>
       </el-menu>
@@ -53,27 +53,27 @@ export default {
         imgUrl: '',
         gender: 0
       }
+      // flag: this.$store.state.header
     }
   },
   computed: {
   // 使用对象展开运算符将 getter 混入 computed 对象中
     ...mapGetters([
       'noticeNum'
-    ])
+    ]),
+    flushFlag () {
+      return this.$store.state.header.flushFlag
+    }
+  },
+  watch: {
+    flushFlag () {
+      this.init()
+    }
+  },
+  created () {
+    this.init()
   },
   mounted () {
-    // 获取所有版块列表用于navbar
-    getPlateList({}).then(res => {
-      const showNum = 5
-      for (let i = 0; i < res.length; i++) {
-        if (i < showNum) {
-          this.showPlateList.push(res[i])
-        } else {
-          this.foldPlateList.push(res[i])
-        }
-        this.plateList.push(res[i])
-      }
-    })
     getUserSetting().then(res => {
       this.userInfo = {
         id: res.id,
@@ -90,18 +90,35 @@ export default {
     })
   },
   methods: {
+    init () {
+      // 获取所有版块列表用于navbar
+      this.showPlateList = []
+      this.foldPlateList = []
+      this.plateList = []
+      getPlateList({}).then(res => {
+        const showNum = 5
+        for (let i = 0; i < res.length; i++) {
+          if (i < showNum) {
+            this.showPlateList.push(res[i])
+          } else {
+            this.foldPlateList.push(res[i])
+          }
+          this.plateList.push(res[i])
+        }
+      })
+    },
     handleSelect (key, keyPath) {
+      window.console.log(key, keyPath)
       if (key === '-1') {
         this.$router.replace({
           path: '/mfs-forum/super-manage'
         })
       } else {
-        // eslint-disable-next-line no-console
-        console.log(key, keyPath)
         this.$router.replace({
           path: '/mfs-forum/home/newest',
           query: {
-            index: key
+            index: key.id,
+            plateName: key.plateName
           }
         })
       }

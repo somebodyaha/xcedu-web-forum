@@ -83,7 +83,7 @@
           :current-page="params.page"
           :page-sizes="[10, 20, 50, 100]"
           :page-size="10"
-          layout="total, sizes, prev, pager, next, jumper"
+          layout="prev, pager, next, jumper, sizes, total"
           :total="totalRecords"
           background
           @size-change="handleSizeChange"
@@ -117,6 +117,7 @@ export default {
       publish: '',
       publishDateRange: [],
       params: {
+        orderType: 2,
         articleTitle: '',
         articleAuthor: '',
         plateId: '',
@@ -223,17 +224,20 @@ export default {
       if (this.multipleSelection.length === 0) {
         this.$message({
           message: '未选中数据',
-          type: 'info'
+          type: 'warning'
         })
         return
       }
-      window.console.log(this.multipleSelection)
-      window.console.log(this.arrayToStrWithOutComma(this.multipleSelection))
-
-      const req = {
-        ids: this.arrayToStrWithOutComma(this.multipleSelection)
-      }
-      this.deleteArticle(req)
+      this.$confirm('此操作将删除选中的帖子, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const req = {
+          ids: this.arrayToStrWithOutComma(this.multipleSelection)
+        }
+        this.deleteArticle(req)
+      })
     },
     // 切换页码
     handleSizeChange (val) {
@@ -252,11 +256,6 @@ export default {
           type: 'warning'
         }).then(() => {
           this.deleteArticle({ ids: row.id })
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消'
-          })
         })
       } else if (title === 'forumTop') {
         let warningMsg = '此操作将把帖子全论坛置顶, 是否继续?'
@@ -287,11 +286,6 @@ export default {
                 type: 'error'
               })
             }
-          })
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消'
           })
         })
       } else {
@@ -325,12 +319,6 @@ export default {
             }
           })
         })
-          .catch(() => {
-            this.$message({
-              type: 'info',
-              message: '已取消'
-            })
-          })
       }
     },
     submit (formName) {

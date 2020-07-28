@@ -10,10 +10,9 @@
       <el-form-item label="标题" prop="articleTitle">
         <el-input
           v-model="form.articleTitle"
-          type="textarea"
-          :rows="3"
+          type="input"
           autofocus="true"
-          placeholder="标题"
+          placeholder="标题（1~20个字符）"
         />
       </el-form-item>
       <el-form-item label="所属版块" prop="plateId">
@@ -47,7 +46,14 @@ import fileUp from '@/component/fileUp'
 import editor from '@/component/editor'
 function nameValidator (rule, value, callback) {
   if (value.trim() === '') {
-    callback(new Error('请输入标题'))
+    callback(new Error('标题不能为空'))
+  } else {
+    callback()
+  }
+}
+function articleContentValidator (rule, value, callback) {
+  if (value.trim() === '') {
+    callback(new Error('帖子内容不能为空'))
   } else {
     callback()
   }
@@ -80,7 +86,7 @@ export default {
       options: [],
       rules: {
         articleTitle: [
-          { required: true, message: '请输入标题', trigger: 'blur' },
+          { required: true, message: '标题不能为空', trigger: 'blur' },
           { min: 1, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur' },
           {
             validator: nameValidator
@@ -88,6 +94,10 @@ export default {
         ],
         plateId: [
           { required: true, message: '请选择所属版块', trigger: 'change' }
+        ],
+        articleContent: [
+          { required: true, message: '标题不能为空', trigger: 'blur' },
+          { validator: articleContentValidator }
         ]
 
       }
@@ -172,3 +182,9 @@ export default {
   }
 }
 </script>
+<style scoped>
+ .el-select-dropdown__item:hover{
+  background: #3396fc;
+  color: #fff ;
+}
+</style>
