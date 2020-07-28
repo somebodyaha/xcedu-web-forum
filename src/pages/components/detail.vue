@@ -130,7 +130,7 @@
                     <div class="dss text-color-grey  margin-top-size-mix ">
                       <span>{{ comment.createdDate }}</span>
                       <div>
-                        <span style="cursor:pointer" @click="reflex(comment.id,comment.aliasName,num)">回复</span>
+                        <span style="cursor:pointer" @click="reflex(comment.id,comment.aliasName,num)">回复（{{ comment.commentVoList.length }}）</span>
                         <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
                         <span v-show="comment.userHasLike">
                           <i class="icon-zan-shixin red" @click="likeComment(num,comment.id,0)" />
@@ -290,7 +290,7 @@ export default {
       this.plateManager = []
       this.pageNumber = 1
       this.recordNum = 0
-      if (plateId === '0') {
+      if (plateId === undefined || plateId === '') {
         this.isIndexPage = true
         this.plateId = ''
       } else {
