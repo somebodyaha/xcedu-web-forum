@@ -598,7 +598,6 @@ export default {
       }
       getArticleByPlate({ plateId: this.plateId, page: this.pageNumber++, pageSize: this.pageSize, pageFlag: this.pageFlag, orderType: orderType, isReadArticle: 1 }).then(res => {
         this.nomoreState = this.recordNum >= res.totalRecords
-        window.console.log(this.recordNum, this.nomoreState)
         if (!this.nomoreState) {
           for (let i = 0; i < res.records.length; i++) {
             res.records[i].expandOpen = false
