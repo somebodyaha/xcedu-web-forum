@@ -13,6 +13,10 @@ export function uploadResource (data) {
   return axios.post('/api-base/attachments/save', data)
 }
 
+export function loadDetailBatchByIds (params) {
+  return axios.get('/api-base/attachments/infoList', { params })
+}
+
 // -------------------------用户信息接口------------------------
 export function getUserSetting () {
   return axios.get(prefix + '/advise/user/setting/getUserSetting')

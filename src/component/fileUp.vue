@@ -5,14 +5,11 @@
       action=""
       :accept="fileAccept"
       :multiple="isMutiple"
-      :file-list="fileList"
       :show-file-list="isShowList"
       :disabled="isDisabled"
       :before-upload="beforeUpload"
       :http-request="fileUpLoad"
       :on-change="fileChange"
-      :on-progress="uploadProgress"
-      :on-success="uploadOnSuccess"
     >
       <el-button type="primary" size="small">上传<i class="el-icon-upload el-icon--right" /></el-button>
     </el-upload>
@@ -22,27 +19,31 @@
         <img src="@/assets/excel.png" alt="">
         <div>
           <p>
-            <span>{{ file.name }}</span>
-            <strong>{{ file.size }}</strong>
+            <span>{{ file.displayName }}</span>
+            <strong>{{ getFileSize(file.fileSize) }}</strong>
           </p>
-          <p v-if="file.status === 'success'">
-            <a :href="file.relativeUrl" class="color">下载</a>
-            <a :href="file.relativeUrl" class="color">预览</a>
+          <p v-if="file.status !== 'ready'">
+            <a :href="file.url" class="color">下载</a>
+            <a :href="file.url" class="color">预览</a>
             <el-button type="text" @click="delFile(index)">删除</el-button>
           </p>
         </div>
-        <span v-if="file.progress !== '100'" :style="{ width: file.progress + '%' }" class="file-process-bar" />
+        <span v-if="file.progress !== -1" :style="{ width: file.progress + '%' }" class="file-process-bar" />
       </div>
     </div>
   </section>
 </template>
 <script>
-import { uploadResource } from '@/api/index'
+import { uploadResource, loadDetailBatchByIds } from '@/api/index'
 import OSS from 'ali-oss'
 import { v4 as uuidv4 } from 'uuid'
 let PATH = null
 export default {
   props: {
+    value: {
+      type: String,
+      default: ''
+    },
     // 是否一次可选择多个文件上传
     mutiple: {
       type: Boolean,
@@ -95,6 +96,48 @@ export default {
       fileAccept: ''
     }
   },
+  watch: {
+    value: {
+      immediate: true,
+      handler: function (val) {
+        if (val) {
+          var list = val.split(',')
+          var needRefresh = false
+          if (list.length !== this.fileList.length) {
+            needRefresh = true
+          }
+          if (!needRefresh) {
+            for (var i = 0; i < list.length; i++) {
+              var hasFound = false
+              for (var j = 0; j < this.fileList.length; j++) {
+                if (list[i] === this.fileList[j]) {
+                  hasFound = true
+                  break
+                }
+              }
+              if (!hasFound) {
+                needRefresh = true
+                break
+              }
+            }
+          }
+          if (needRefresh) {
+            loadDetailBatchByIds({ idList: val }).then(data => {
+              for (var i = 0; i < data.length; i++) {
+                data[i].status = 'success'
+                data[i].progress = -1
+              }
+              this.fileList = data
+            })
+          }
+        } else {
+          if (this.fileList.length) {
+            this.fileList = []
+          }
+        }
+      }
+    }
+  },
   mounted: function () {
     this.isMutiple = this.mutiple
     this.isShowList = this.showList
@@ -112,7 +155,7 @@ export default {
         this.fileList.splice(index, 1)
       })
     },
-    fileChange (file) {
+    fileChange (file, fileList) {
       // 获取文件流
     },
     // 文件添加
@@ -123,7 +166,7 @@ export default {
       }
     },
     // 附件上传
-    fileUpLoad (file) {
+    fileUpLoad (http) {
       if (!PATH) {
         PATH = this.domainId + '/' + (this.dir || 'anonymous') + '/'
       }
@@ -135,47 +178,40 @@ export default {
           bucket: 'gtyzfile'
         })
       }
-      const fileName = uuidv4().replace(/-/g, '') + file.file.name.substring(file.file.name.lastIndexOf('.'))
-      return this.client.multipartUpload(PATH + fileName, file.file, {
-        progress: function (p) {
-          file.onProgress({ percent: p * 100 })
+      const id = uuidv4().replace(/-/g, '')
+      const rawFile = http.file
+      const file = {
+        displayName: rawFile.name,
+        fileSize: rawFile.size,
+        id: id,
+        url: '',
+        status: 'ready',
+        progress: 0
+      }
+      this.fileList.push(file)
+      const fileName = id + rawFile.name.substring(rawFile.name.lastIndexOf('.'))
+      return this.client.multipartUpload(PATH + fileName, rawFile, {
+        progress: p => {
+          file.progress = p * 100
         }
-      }).then(function (res) {
-        file.onSuccess(res, file)
+      }).then(res => {
+        this.uploadOnSuccess(res, file)
       }).catch(err => {
         window.console.log(err)
       })
     },
-    uploadProgress (event, file) {
-      for (let i = 0; i < this.fileList.length; i++) {
-        if (file.uid === this.fileList[i].uid) {
-          this.$set(this.fileList[i], 'progress', event.percent)
-        }
-      }
-    },
     uploadOnSuccess (res, file) {
-      if (!res) {
-        return
-      }
-      const fileUuid = res.name.substring(res.name.lastIndexOf('/')).replace('/', '').replace(/\..*/, '')
+      console.log('uploadOnSuccess', res, file)
       uploadResource({
-        // contentType: 'string',
         displayName: file.name,
-        // fileName: 'string',
         fileSize: file.size,
-        id: fileUuid,
-        // link2: res.res.requestUrls[0],
+        id: file.id,
         relativePath: PATH
-        // suffixName: '.mp4'
-        // uploadIp: 'string'
       }).then(res2 => {
-        for (let i = 0; i < this.fileList.length; i++) {
-          if (file.uid === this.fileList[i].uid) {
-            this.$set(this.fileList[i], 'status', 'success')
-            this.$set(this.fileList[i], 'relativeUrl', res2.url)
-            this.$set(this.fileList[i], 'size', this.getFileSize(file.size))
-          }
-        }
+        file.url = res2.url
+        file.status = 'success'
+        file.progress = -1
+        this.$emit('input', this.value ? this.value + ',' + file.id : file.id)
       })
     },
     getFileSize (size) {
