@@ -293,7 +293,7 @@ export default {
       this.plateManager = []
       this.pageNumber = 1
       this.recordNum = 0
-      if (plateId === '0') {
+      if (plateId === undefined || plateId === '') {
         this.isIndexPage = true
         this.plateId = ''
       } else {
