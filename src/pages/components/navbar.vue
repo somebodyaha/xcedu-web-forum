@@ -13,7 +13,7 @@
       </el-menu>
       <div>
         <el-button type="primary " @click="newArticle">内容发布</el-button>
-        <el-badge :value="noticeNum" class="item" style="cursor:pointer">
+        <el-badge :value="noticeNum==0?'':noticeNum" class="item" style="cursor:pointer">
           <i class="el-icon-bell size-large-xx" @click="directNotice " />
         </el-badge>
         <user />
@@ -108,13 +108,16 @@ export default {
       })
     },
     handleSelect (key, keyPath, e) {
-      window.console.log(key, keyPath, e.$attrs)
       if (key === '-1') {
         this.$router.replace({
           path: '/mfs-forum/super-manage',
           query: {
             index: key
           }
+        })
+      } else if (key === '0') {
+        this.$router.replace({
+          path: '/mfs-forum/home/newest'
         })
       } else {
         this.$router.replace({

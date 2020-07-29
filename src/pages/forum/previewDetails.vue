@@ -30,19 +30,19 @@
         <div>
           <span v-show="!article.userHasLike" class="operate" @click="likeArticle(1)">
             <i class="icon-zan" />
-            点赞({{ article.likeNum }})
+            点赞（{{ article.likeNum }}）
           </span>
           <span v-show="article.userHasLike" class="operate" @click="likeArticle(0)">
             <i class="icon-zan-shixin red" />
-            取消点赞({{ article.likeNum }})
+            取消点赞（{{ article.likeNum }}）
           </span>
           <span v-show="!article.userHasAttention" class="operate" @click="attentionArticle(1)">
             <i class="icon-star-hollow" />
-            收藏({{ article.attentionNum }})
+            收藏（{{ article.attentionNum }}）
           </span>
           <span v-show="article.userHasAttention" class="operate" @click="attentionArticle(0)">
             <i class="icon-star-solid yellow" />
-            取消收藏({{ article.attentionNum }})
+            取消收藏（{{ article.attentionNum }}）
           </span>
         </div>
       </div>
@@ -86,7 +86,7 @@
                 <div class="dss text-color-grey  margin-top-size-mix ">
                   <span>{{ comment.createdDate }}</span>
                   <div>
-                    <span style="cursor:pointer" @click="reflex(comment.id,comment.aliasName,num)">回复</span>
+                    <span style="cursor:pointer" @click="reflex(comment.id,comment.aliasName,num)">回复（{{ comment.commentVoList.length }}）</span>
                     <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
                     <span v-show="comment.userHasLike">
                       <i class="icon-zan-shixin red" @click="likeComment(num,comment.id,0)" />
@@ -209,7 +209,8 @@ export default {
         if (res) {
           this.$message.success('评论成功')
           this.article.commentNum++
-          this.comments.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚' })
+          this.comments.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentVoList: [] })
+          this.commentInput = ''
         } else {
           this.$message.error('评论保存失败')
         }

@@ -47,7 +47,7 @@ module.exports = {
     }],
     'indent': ['error', 2],
     'quotes': ['error', 'single'],
-    'no-console': [process.env.NODE_ENV === 'production' ? 'error' : 'warn', { allow: ['warn'] }],
+    'no-console': [process.env.NODE_ENV === 'production' ? 'error' : 'off', { allow: ['warn'] }],
     'no-empty': 2,
     'no-eq-null': 2,
     'no-new': 0,

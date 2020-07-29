@@ -15,7 +15,7 @@
   </section>
 </template>
 <script>
-import chooseUser from '@/component/chooseUser'
+// import chooseUser from '@/component/chooseUser'
 import { savePlate, detailPlate, updatePlate } from '@/api/index'
 function nameValidator (rule, value, callback) {
   if (value.trim() === '') {
@@ -26,9 +26,6 @@ function nameValidator (rule, value, callback) {
 }
 export default {
   name: 'PortalSet',
-  components: {
-    chooseUser
-  },
   props: {
     id: { type: String, default: '' }
   },

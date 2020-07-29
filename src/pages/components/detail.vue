@@ -40,7 +40,7 @@
                       <el-dropdown-item v-show="(item.userIsAdmin || item.userIsPlateAdmin) && item.plateTop == 1" :command="beforeHandleCommand(index,item.id,'plate','b')">取消版块置顶</el-dropdown-item>
                     </template>
                     <el-dropdown-item v-show="item.userIsAuthor" :command="beforeHandleCommand(index,item.id,'','c')">编辑</el-dropdown-item>
-                    <el-dropdown-item :command="beforeHandleCommand(index,item.id,'','d')">删除</el-dropdown-item>
+                    <el-dropdown-item v-show="item.userIsAdmin || item.userIsPlateAdmin|| item.userIsAuthor" :command="beforeHandleCommand(index,item.id,'','d')">删除</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
               </div>
@@ -293,7 +293,7 @@ export default {
       this.plateManager = []
       this.pageNumber = 1
       this.recordNum = 0
-      if (plateId === '0') {
+      if (plateId === undefined || plateId === '') {
         this.isIndexPage = true
         this.plateId = ''
       } else {

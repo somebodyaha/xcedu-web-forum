@@ -80,7 +80,7 @@ export default {
       rules: {
         articleTitle: [
           { required: true, message: '标题不能为空', trigger: 'blur' },
-          { min: 1, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur' },
+          { min: 1, max: 30, message: '长度在 1 到 30 个字符', trigger: 'blur' },
           {
             validator: nameValidator
           }
@@ -127,21 +127,19 @@ export default {
       this.options = res
     })
     const id = this.$route.query.id
-    if (id) {
-      getNoPubArticle(id).then(res => {
-        this.form = {
-          id: res.id,
-          articleTitle: res.articleTitle,
-          plateId: res.plateId,
-          articleContent: res.articleContent,
-          imgFileIds: res.imgFileIds,
-          fileIds: res.fileIds,
-          anonymous: res.anonymous,
-          articleIsPub: 1
-        }
-        this.checked = this.form.anonymous === 1
-      })
-    }
+    getNoPubArticle(id === undefined ? '' : id).then(res => {
+      this.form = {
+        id: res.id,
+        articleTitle: res.articleTitle,
+        plateId: res.plateId,
+        articleContent: res.articleContent,
+        imgFileIds: res.imgFileIds,
+        fileIds: res.fileIds,
+        anonymous: res.anonymous === null ? 0 : res.anonymous,
+        articleIsPub: 1
+      }
+      this.checked = this.form.anonymous === 1
+    })
   },
   methods: {
     changeAnonymous () {
