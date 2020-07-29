@@ -107,7 +107,7 @@ export default {
         }
       })
     },
-    handleSelect (key, keyPath) {
+    handleSelect (key, keyPath, e) {
       if (key === '-1') {
         this.$router.replace({
           path: '/mfs-forum/super-manage',
