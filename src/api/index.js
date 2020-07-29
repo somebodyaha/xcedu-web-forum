@@ -2,8 +2,7 @@ import { axios } from '@xcedu/web-share'
 
 // 测试环境需要在请求url前加前缀
 const prefix = '/api-personalized'
-// const prefix = 'http://127.0.0.1:8089'
-// const prefix = 'http://127.0.0.1:8080'
+// const prefix = ''
 
 export function getUserInfo () {
   return axios.get('/api-base/users/userInfo')

@@ -86,7 +86,7 @@ export default {
           }
         ],
         plateId: [
-          { required: true, message: '请选择所属版块', trigger: 'change' }
+          { required: true, message: '请选择所属版块', trigger: 'blur' }
         ],
         articleContent: [
           { required: true, message: '内容不能为空', trigger: 'blur' }
