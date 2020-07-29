@@ -80,13 +80,13 @@ export default {
       rules: {
         articleTitle: [
           { required: true, message: '标题不能为空', trigger: 'blur' },
-          { min: 1, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur' },
+          { min: 1, max: 30, message: '长度在 1 到 30 个字符', trigger: 'blur' },
           {
             validator: nameValidator
           }
         ],
         plateId: [
-          { required: true, message: '请选择所属版块', trigger: 'change' }
+          { required: true, message: '请选择所属版块', trigger: 'blur' }
         ],
         articleContent: [
           { required: true, message: '内容不能为空', trigger: 'blur' }

@@ -108,13 +108,16 @@ export default {
       })
     },
     handleSelect (key, keyPath, e) {
-      window.console.log(key, keyPath, e.$attrs)
       if (key === '-1') {
         this.$router.replace({
           path: '/mfs-forum/super-manage',
           query: {
             index: key
           }
+        })
+      } else if (key === '0') {
+        this.$router.replace({
+          path: '/mfs-forum/home/newest'
         })
       } else {
         this.$router.replace({
