@@ -8,7 +8,11 @@
             {{ article.aliasName.slice(article.aliasName.length - 2 , article.aliasName.length) }}
           </div>
           <el-avatar v-if="article.anonymous === 1" :src="require('@/assets/user.png')" />
-          <span style="margin-left:10px">{{ article.aliasName }}</span>
+          <div>
+            <div style="margin-left:10px">{{ article.aliasName }}</div>
+            <div style="margin-left: 10px;margin-top:5px;">{{ article.pubDate }}</div>
+          </div>
+
         </div>
         <div>
           <el-button type="default" @click="goBacktToHome">返回首页</el-button>

@@ -30,12 +30,8 @@
                     <template v-if="plateId == ''">
                       <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'forum','a')">论坛置顶</el-dropdown-item>
                       <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 1" :command="beforeHandleCommand(index,item.id,'forum','b')">取消论坛置顶</el-dropdown-item>
-                      <el-dropdown-item v-show="(item.userIsAdmin || item.userIsPlateAdmin) && item.plateTop == 0 && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'plate','a')">版块置顶</el-dropdown-item>
-                      <el-dropdown-item v-show="(item.userIsAdmin || item.userIsPlateAdmin) && item.plateTop == 1 && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'plate','b')">取消版块置顶</el-dropdown-item>
                     </template>
                     <template v-else>
-                      <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'forum','a')">论坛置顶</el-dropdown-item>
-                      <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 1" :command="beforeHandleCommand(index,item.id,'forum','b')">取消论坛置顶</el-dropdown-item>
                       <el-dropdown-item v-show="(item.userIsAdmin || item.userIsPlateAdmin) && item.plateTop == 0" :command="beforeHandleCommand(index,item.id,'plate','a')">版块置顶</el-dropdown-item>
                       <el-dropdown-item v-show="(item.userIsAdmin || item.userIsPlateAdmin) && item.plateTop == 1" :command="beforeHandleCommand(index,item.id,'plate','b')">取消版块置顶</el-dropdown-item>
                     </template>
@@ -63,8 +59,7 @@
                   v-for="imgId in item.imgFileIds.split(',')"
                   :key="imgId"
                   style="width: 100px; height: 100px;margin-right:20px"
-                  :src="'/'+item.filePrefix + imgId"
-                  :preview-src-list="srcList"
+                  :src="'/api/v1/'+item.filePrefix + imgId + '&=access_token' + accessToken"
                 />
               </div>
               <div class="margin-top-size-nomal text-color-grey tool-bar">
@@ -247,6 +242,7 @@ export default {
         userAliasName: '',
         trueName: ''
       },
+      accessToken: localStorage.getItem('token'),
       url: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
       srcList: [],
       input: '',
@@ -372,7 +368,7 @@ export default {
             message: '回复成功',
             type: 'success'
           })
-          this.commentList[num].commentVoList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentAliasName: this.repName })
+          this.commentList[num].commentVoList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentAliasName: this.repName, imgUrl: this.userInfo.userAvator })
           this.repChecked = false
           this.repInput = ''
           // 回复时刷新通知数量
@@ -397,10 +393,11 @@ export default {
             type: 'success'
           })
           this.pageContent[index].commentNum++
-          this.commentList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚' })
+          this.commentList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentVoList: [], imgUrl: this.userInfo.userAvator })
           this.getMyArticleCount()
           // 评论时刷新通知数量
           this.flushNoitceNum()
+          this.input = ''
         } else {
           this.$message({
             message: '评论保存失败',
@@ -408,7 +405,6 @@ export default {
           })
         }
         this.checked = false
-        this.input = ''
       })
     },
     likeComment (index, commentId, flag) {
@@ -549,7 +545,6 @@ export default {
         for (let i = 0; i < res.records.length; i++) {
           this.commentList.push(res.records[i])
         }
-        window.console.log(this.commentList)
       })
     },
     showTag (articleId, index) {
