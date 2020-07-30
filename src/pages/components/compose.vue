@@ -29,7 +29,12 @@
         <editor v-model="form.articleContent" />
       </el-form-item>
       <el-form-item label="相关图片">
-        <fileUp v-model="form.imgFileIds" accept="image/*" accept-tips="只能上传图片格式的文件" dir="dir" />
+        <fileUp
+          v-model="form.imgFileIds"
+          upload-type="image"
+          :domain-id="domainId"
+          dir="forum"
+        />
       </el-form-item>
       <el-form-item label="匿名发帖">
         <el-checkbox
@@ -45,7 +50,7 @@ import { getUserInfo, createArticle, updateArticle, getNoPubArticle, getPlateLis
 import fileUp from '@/component/fileUp'
 import editor from '@/component/editor'
 function nameValidator (rule, value, callback) {
-  if (value.trim() === '') {
+  if (!value || value.trim() === '') {
     callback(new Error('标题不能为空'))
   } else {
     callback()
