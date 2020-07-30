@@ -1,6 +1,7 @@
 <template>
-  <section>
+  <section class="xc-file-up">
     <el-upload
+      v-if="!readonly"
       class="upload-demo"
       action=""
       :accept="fileAccept"
@@ -13,23 +14,38 @@
     >
       <el-button type="primary" size="small">上传<i class="el-icon-upload el-icon--right" /></el-button>
     </el-upload>
-    <em class="size-small">{{ acceptTips }}</em>
+    <em v-if="!readonly" class="size-small">{{ tip }}</em>
     <div class="file-container">
-      <div v-for="(file, index) in fileList" :key="file.id">
-        <img src="@/assets/excel.png" alt="">
-        <div>
-          <p>
-            <span>{{ file.displayName }}</span>
-            <strong>{{ getFileSize(file.fileSize) }}</strong>
-          </p>
-          <p v-if="file.status !== 'ready'">
-            <a :href="file.url" class="color">下载</a>
-            <a :href="file.url" class="color">预览</a>
-            <el-button type="text" @click="delFile(index)">删除</el-button>
-          </p>
+      <template v-if="uploadType === 'file'">
+        <div v-for="(file, index) in fileList" :key="file.id" class="file-item">
+          <img src="@/assets/file/unknown.png">
+          <div class="file-info">
+            <p>
+              <span :title="file.displayName">{{ file.displayName }}</span>
+              <strong>{{ getFileSize(file.fileSize) }}</strong>
+            </p>
+            <p v-if="file.status !== 'ready'">
+              <a :href="file.url" class="color">下载</a>
+              <a :href="file.url" class="color">预览</a>
+              <a v-if="!readonly" href="javascript:void(0)" class="color" @click="delFile(index)">删除</a>
+            </p>
+          </div>
+          <span v-if="file.progress !== -1" :style="{ width: file.progress + '%' }" class="file-process-bar" />
         </div>
-        <span v-if="file.progress !== -1" :style="{ width: file.progress + '%' }" class="file-process-bar" />
-      </div>
+      </template>
+      <template v-else>
+        <div v-for="(file, index) in fileList" :key="file.id" class="image-item">
+          <el-image ref="imageBox" :src="file.url" :preview-src-list="[file.url]" />
+          <div class="image-info">
+            <div v-if="file.status !== 'ready'">
+              <a :href="file.url" class="color">下载</a>
+              <a href="javascript:void(0)" class="color" @click="previewImage(index)">预览</a>
+              <a v-if="!readonly" href="javascript:void(0)" class="color" @click="delFile(index)">删除</a>
+            </div>
+          </div>
+          <span v-if="file.progress !== -1" :style="{ width: file.progress + '%' }" class="file-process-bar" />
+        </div>
+      </template>
     </div>
   </section>
 </template>
@@ -43,6 +59,10 @@ export default {
     value: {
       type: String,
       default: ''
+    },
+    uploadType: {
+      type: String,
+      default: 'file'
     },
     // 是否一次可选择多个文件上传
     mutiple: {
@@ -81,6 +101,11 @@ export default {
     domainId: {
       type: String,
       default: ''
+    },
+    // 如果附件不可修改 则不显示删除按钮 以及上传附件按钮
+    readonly: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -94,6 +119,15 @@ export default {
       isDisabled: '',
       fileDir: '',
       fileAccept: ''
+    }
+  },
+  computed: {
+    tip: function () {
+      if (!this.acceptTips && this.uploadType === 'image') {
+        return '只能上传图片格式的文件'
+      } else {
+        return this.acceptTips
+      }
     }
   },
   watch: {
@@ -110,7 +144,7 @@ export default {
             for (var i = 0; i < list.length; i++) {
               var hasFound = false
               for (var j = 0; j < this.fileList.length; j++) {
-                if (list[i] === this.fileList[j]) {
+                if (list[i] === this.fileList[j].id) {
                   hasFound = true
                   break
                 }
@@ -143,7 +177,7 @@ export default {
     this.isShowList = this.showList
     this.isDisabled = this.disabled
     this.fileDir = this.dir
-    this.fileAccept = this.accept
+    this.fileAccept = (!this.accept && this.uploadType === 'image') ? 'image/*' : this.accept
   },
   methods: {
     delFile (index) {
@@ -153,6 +187,11 @@ export default {
         type: 'warning'
       }).then(() => {
         this.fileList.splice(index, 1)
+        var value = []
+        for (var i = 0; i < this.fileList.length; i++) {
+          value.push(this.fileList[i].id)
+        }
+        this.$emit('input', value.join(','))
       })
     },
     fileChange (file, fileList) {
@@ -202,12 +241,12 @@ export default {
     },
     uploadOnSuccess (res, file) {
       uploadResource({
-        displayName: file.name,
-        fileSize: file.size,
+        displayName: file.displayName,
+        fileSize: file.fileSize,
         id: file.id,
         relativePath: PATH
       }).then(res2 => {
-        file.url = res2.url
+        file.url = res.res.requestUrls[0]
         file.status = 'success'
         file.progress = -1
         this.$emit('input', this.value ? this.value + ',' + file.id : file.id)
@@ -246,7 +285,49 @@ export default {
       } else if (type === 'application/x-ppt' || type === 'application/vnd.ms-powerpoint' || type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
         return 'ppt.png'
       }
+    },
+    previewImage (index) {
+      this.$refs.imageBox[index].clickHandler()
     }
   }
 }
 </script>
+<style lang="scss" scoped>
+  .xc-file-up {
+    line-height: 23px;
+    .file-container {
+      .file-item {
+        padding: 8px;
+        img {
+          width: 46px;
+          height: 46px;
+          margin-right: 8px;
+        }
+        .file-info {
+          width: 280px;
+        }
+      }
+      .image-item {
+        position: relative;
+        float: left;
+        width: 94px;
+        height: 94px;
+        border: 1px solid #eee;
+        margin: 10px 110px 10px 0;
+        /deep/ .el-image {
+          width: 100%;
+          height: 100%;
+        }
+        .image-info {
+          position: absolute;
+          left: 103px;
+          bottom: 0;
+          white-space: nowrap;
+        }
+        .file-process-bar {
+          bottom: -3px;
+        }
+      }
+    }
+  }
+</style>

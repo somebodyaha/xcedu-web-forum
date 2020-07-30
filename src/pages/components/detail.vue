@@ -55,12 +55,7 @@
                 <span v-show="item.expandOpen" class="color" style="cursor:pointer;margin-left:5px" @click="retract(index)">收起全文</span>
               </div>
               <div v-if="item.imgFileIds" class="margin-top-size-nomal">
-                <el-image
-                  v-for="imgId in item.imgFileIds.split(',')"
-                  :key="imgId"
-                  style="width: 100px; height: 100px;margin-right:20px"
-                  :src="'/api/v1/'+item.filePrefix + imgId + '&=access_token' + accessToken"
-                />
+                <fileUp :value="item.imgFileIds" upload-type="image" readonly />
               </div>
               <div class="margin-top-size-nomal text-color-grey tool-bar">
                 <span style="cursor:pointer" class="margin-right-size-large" @click.stop="showTag(item.id,index)">
@@ -234,7 +229,11 @@
 <script>
 import { hotList, getArticleByPlate, getMyArticleCount, getUserSetting, commentList, saveComment, deleteArticle, attentionArticle, likeArticle, topArticle, plateManagerList, likeComment, getMesSummary } from '@/api/index'
 import { arrayToStrWithOutComma } from '@/util/index'
+import fileUp from '@/component/fileUp'
 export default {
+  components: {
+    fileUp
+  },
   data () {
     return {
       userInfo: {
@@ -242,7 +241,6 @@ export default {
         userAliasName: '',
         trueName: ''
       },
-      accessToken: localStorage.getItem('token'),
       url: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
       srcList: [],
       input: '',
