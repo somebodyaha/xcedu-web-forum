@@ -201,7 +201,6 @@ export default {
       })
     },
     uploadOnSuccess (res, file) {
-      console.log('uploadOnSuccess', res, file)
       uploadResource({
         displayName: file.name,
         fileSize: file.size,

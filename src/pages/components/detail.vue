@@ -2,7 +2,8 @@
   <div class="home infinite-list-wrapper" style="overflow:auto">
     <el-card class="box-card">
       <div slot="header" class="dss">
-        <div style="font-size:16px">{{ this.$route.query.plateName?this.$route.query.plateName+"动态":'最新动态' }}</div>
+        <div v-if="!myClick" style="font-size:16px">{{ this.$route.query.plateName?this.$route.query.plateName+"动态":'最新动态' }}</div>
+        <div v-else style="font-size:16px">{{ myClick }}</div>
       </div>
       <div v-infinite-scroll="load" class="list" infinite-scroll-disabled="disabled">
         <div v-for="(item,index) in pageContent" :key="index" class="text item list-item">
@@ -35,7 +36,7 @@
                       <el-dropdown-item v-show="(item.userIsAdmin || item.userIsPlateAdmin) && item.plateTop == 1" :command="beforeHandleCommand(index,item.id,'plate','b')">取消版块置顶</el-dropdown-item>
                     </template>
                     <el-dropdown-item v-show="item.userIsAuthor" :command="beforeHandleCommand(index,item.id,'','c')">编辑</el-dropdown-item>
-                    <el-dropdown-item :command="beforeHandleCommand(index,item.id,'','d')">删除</el-dropdown-item>
+                    <el-dropdown-item v-show="item.userIsAdmin || item.userIsPlateAdmin|| item.userIsAuthor" :command="beforeHandleCommand(index,item.id,'','d')">删除</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
               </div>
@@ -125,7 +126,7 @@
                     <div class="dss text-color-grey  margin-top-size-mix ">
                       <span>{{ comment.createdDate }}</span>
                       <div>
-                        <span style="cursor:pointer" @click="reflex(comment.id,comment.aliasName,num)">回复（{{ comment.commentVoList.length }}）</span>
+                        <span style="cursor:pointer" @click="reflex(comment.id,comment.aliasName,num)">回复({{ comment.commentVoList.length }})</span>
                         <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
                         <span v-show="comment.userHasLike">
                           <i class="icon-zan-shixin red" @click="likeComment(num,comment.id,0)" />
@@ -188,24 +189,24 @@
     </el-card>
 
     <el-card v-if="isIndexPage" class="box-card-right1 text-color-grey">
-      <div class="text item bghover dss" @click="getArticle('myPub')">
+      <div class="text item bghover dss" @click="getArticle('myPub',$event)">
         <div>
           <i class="icon-send text-color-grey" />
-          <span>我发送的</span>
+          <span id="myPub">我发送的</span>
         </div>
         <el-tag type="info" size="small " class="bgfff">{{ myCount.publishCount }}</el-tag>
       </div>
-      <div class="text item bghover dss" @click="getArticle('myComment')">
+      <div class="text item bghover dss" @click="getArticle('myComment',$event)">
         <div>
           <i class="el-icon-s-comment text-color-grey" />
-          <span>我评论的</span>
+          <span id="myComment">我评论的</span>
         </div>
         <el-tag type="info" size="small " class="bgfff">{{ myCount.commentCount }}</el-tag>
       </div>
-      <div class="text item bghover dss" @click="getArticle('myAttention')">
+      <div class="text item bghover dss" @click="getArticle('myAttention',$event)">
         <div>
           <i class="icon-star-solid text-color-grey" />
-          <span>我收藏的</span>
+          <span id="myAttention">我收藏的</span>
         </div>
         <el-tag type="info" size="small " class="bgfff">{{ myCount.attentionCount }}</el-tag>
       </div>
@@ -266,7 +267,8 @@ export default {
       repInput: '',
       repComId: '',
       repTopId: '',
-      repName: ''
+      repName: '',
+      myClick: ''
     }
   },
   computed: {
@@ -279,6 +281,7 @@ export default {
   },
   watch: {
     $route (to, from) {
+      this.myClick = ''
       this.nomoreState = false
       this.pageFlag = ''
       const plateId = to.query.index
@@ -298,6 +301,7 @@ export default {
     }
   },
   created () {
+
   },
   mounted () {
     // 获取list
@@ -322,6 +326,7 @@ export default {
       window.open(href + '?id=' + id, '_self')
     },
     getArticle (pageFlag) {
+      this.myClick = document.getElementById(pageFlag).innerHTML
       this.pageContent = []
       this.pageFlag = pageFlag
       this.nomoreState = false
@@ -595,8 +600,8 @@ export default {
             this.recordNum++
           }
         }
+        this.loading = false
       })
-      this.loading = false
     },
     choose (command) {
       const { href } = this.$router.resolve({ name: 'newArtical' })

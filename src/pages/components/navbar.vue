@@ -13,7 +13,7 @@
       </el-menu>
       <div>
         <el-button type="primary " @click="newArticle">内容发布</el-button>
-        <el-badge :value="noticeNum" class="item" style="cursor:pointer">
+        <el-badge :value="noticeNum==0?'':noticeNum" class="item" style="cursor:pointer">
           <i class="el-icon-bell size-large-xx" @click="directNotice " />
         </el-badge>
         <user />
