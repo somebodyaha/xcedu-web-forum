@@ -10,7 +10,7 @@
           <el-row>
             <el-col :span="2">
               <div>
-                <el-avatar v-if="item.anonymous === 0 && item.imgUrl" :src="item.imgUrl" />
+                <el-avatar v-if="item.anonymous === 0 && item.imgUrl" :src="'/api/v1' + item.imgUrl + '&access_token=' + accessToken" />
                 <div v-if="item.anonymous === 0 && !item.imgUrl" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
                   {{ item.aliasName.slice(item.aliasName.length - 2 , item.aliasName.length) }}
                 </div>
@@ -241,6 +241,7 @@ export default {
         userAliasName: '',
         trueName: ''
       },
+      accessToken: localStorage.getItem('token'),
       url: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
       srcList: [],
       input: '',

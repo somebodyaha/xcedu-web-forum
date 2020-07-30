@@ -3,9 +3,9 @@
     <el-card>
       <div style="display:flex;align-items:center;justify-content: space-between;">
         <div style="display:flex;align-items:center;">
-          <el-avatar v-if="article.anonymous === 0 && article.imgUrl" :src="article.imgUrl" />
-          <div v-if="article.anonymous === 0 && !article.imgUrl" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
-            {{ article.aliasName.slice(article.aliasName.length - 2 , article.aliasName.length) }}
+          <el-avatar v-if="article.anonymous === 0 && article.imgUrl" :src="'/api/v1/' + article.imgUrl + '&access_token=' + accessToken" />
+          <div v-if="article.anonymous === 0 && !article.imgUrl && article.aliasName" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
+            {{ article.aliasName.slice(-2) }}
           </div>
           <el-avatar v-if="article.anonymous === 1" :src="require('@/assets/user.png')" />
           <div>
@@ -56,9 +56,9 @@
             <!-- <div class="top" /> -->
             <div style="display:flex">
               <el-col :span="2" class="mr-10">
-                <el-avatar v-if="userInfo.userAvator" :src="userInfo.userAvator" />
-                <div v-else style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
-                  {{ userInfo.userName.slice(userInfo.userName.length - 2 , userInfo.userName.length) }}
+                <el-avatar v-if="userInfo.userAvator" :src="'/api/v1/'+userInfo.userAvator+'&access_token=' + accessToken" />
+                <div v-if="userInfo.userName && !userInfo.userAvator" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
+                  {{ userInfo.userName.slice(-2) }}
                 </div>
               </el-col>
               <el-col :span="22">
@@ -76,9 +76,9 @@
             </div>
             <div v-for="(comment,num) in comments" :key="num" class="margin-top-size-mix padding-top-size-mix replay-line" style="display:flex; ">
               <el-col :span="2" class="mr-10">
-                <el-avatar v-if="comment.anonymous === 0 && comment.imgUrl" :src="comment.imgUrl" />
-                <div v-if="comment.anonymous === 0 && !comment.imgUrl" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
-                  {{ comment.aliasName.slice(comment.aliasName.length - 2 , comment.aliasName.length) }}
+                <el-avatar v-if="comment.anonymous === 0 && comment.imgUrl" :src="'/api/v1/'+comment.imgUrl+'&access_token=' + accessToken" />
+                <div v-if="comment.anonymous === 0 && !comment.imgUrl && comment.aliasName" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
+                  {{ comment.aliasName.slice(-2) }}
                 </div>
                 <el-avatar v-if="comment.anonymous === 1" :src="require('@/assets/user.png')" />
               </el-col>
@@ -145,6 +145,7 @@ export default {
       article: {
 
       },
+      accessToken: localStorage.getItem('token'),
       restore: {},
       anonymous: false,
       commentInput: '',
@@ -213,7 +214,7 @@ export default {
         if (res) {
           this.$message.success('评论成功')
           this.article.commentNum++
-          this.comments.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentVoList: [] })
+          this.comments.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentVoList: [], imgUrl: this.userInfo.userAvator })
           this.commentInput = ''
         } else {
           this.$message.error('评论保存失败')
@@ -228,7 +229,7 @@ export default {
       saveComment({ anonymous: (this.repChecked ? 1 : 0), commentContent: this.repInput, commentTopId: this.repTopId, commentId: this.repComId }).then(res => {
         if (res) {
           this.$message.success('回复成功')
-          this.comments[num].commentVoList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentAliasName: this.repName })
+          this.comments[num].commentVoList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentAliasName: this.repName, imgUrl: this.userInfo.userAvator })
           this.repChecked = false
           this.repInput = ''
         } else {
