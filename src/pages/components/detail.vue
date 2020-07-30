@@ -10,7 +10,7 @@
           <el-row>
             <el-col :span="2">
               <div>
-                <el-avatar v-if="item.anonymous === 0 && item.imgUrl" :src="item.imgUrl" />
+                <el-avatar v-if="item.anonymous === 0 && item.imgUrl" :src="'/api/v1' + item.imgUrl + '&access_token=' + accessToken" />
                 <div v-if="item.anonymous === 0 && !item.imgUrl" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
                   {{ item.aliasName.slice(item.aliasName.length - 2 , item.aliasName.length) }}
                 </div>
@@ -59,7 +59,7 @@
                   v-for="imgId in item.imgFileIds.split(',')"
                   :key="imgId"
                   style="width: 100px; height: 100px;margin-right:20px"
-                  :src="'/api/v1/'+item.filePrefix + imgId + '&=access_token' + accessToken"
+                  :src="'/api/v1/'+item.filePrefix + imgId + '&access_token=' + accessToken"
                 />
               </div>
               <div class="margin-top-size-nomal text-color-grey tool-bar">
