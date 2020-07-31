@@ -12,7 +12,7 @@
           v-model="form.articleTitle"
           type="input"
           autofocus="true"
-          placeholder="标题（1~20个字符）"
+          placeholder="标题（1~30个字符）"
         />
       </el-form-item>
       <el-form-item label="所属版块" prop="plateId">
