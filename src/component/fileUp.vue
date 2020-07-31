@@ -25,7 +25,7 @@
               <strong>{{ getFileSize(file.fileSize) }}</strong>
             </p>
             <p v-if="file.status !== 'ready'">
-              <a :href="file.url" class="color">下载</a>
+              <a href="javascript:void(0)" class="color" @click="download(file)">下载</a>
               <a :href="file.url" class="color">预览</a>
               <a v-if="!readonly" href="javascript:void(0)" class="color" @click="delFile(index)">删除</a>
             </p>
@@ -38,7 +38,7 @@
           <el-image ref="imageBox" :src="file.url" :preview-src-list="[file.url]" />
           <div class="image-info">
             <div v-if="file.status !== 'ready'">
-              <a :href="file.url" class="color">下载</a>
+              <a href="javascript:void(0)" class="color" @click="download(file)">下载</a>
               <a href="javascript:void(0)" class="color" @click="previewImage(index)">预览</a>
               <a v-if="!readonly" href="javascript:void(0)" class="color" @click="delFile(index)">删除</a>
             </div>
@@ -51,6 +51,7 @@
 </template>
 <script>
 import { uploadResource, loadDetailBatchByIds } from '@/api/index'
+import { downloadAttachment } from '@/util/index'
 import OSS from 'ali-oss'
 import { v4 as uuidv4 } from 'uuid'
 let PATH = null
@@ -179,9 +180,16 @@ export default {
     this.fileDir = this.dir
     this.fileAccept = (!this.accept && this.uploadType === 'image') ? 'image/*' : this.accept
   },
+  beforeDestroy () {
+    this.fileList.forEach(file => {
+      if (file.url && file.url.indexOf('blob:') === 0) {
+        URL.revokeObjectURL(file.url)
+      }
+    })
+  },
   methods: {
     delFile (index) {
-      this.$confirm('是否确认删除该附件', '', {
+      this.$confirm('是否确认删除该' + (this.uploadType === 'image' ? '图片' : '附件'), '', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -223,7 +231,7 @@ export default {
         displayName: rawFile.name,
         fileSize: rawFile.size,
         id: id,
-        url: '',
+        url: URL.createObjectURL(rawFile),
         status: 'ready',
         progress: 0
       }
@@ -246,7 +254,6 @@ export default {
         id: file.id,
         relativePath: PATH
       }).then(res2 => {
-        file.url = res.res.requestUrls[0]
         file.status = 'success'
         file.progress = -1
         this.$emit('input', this.value ? this.value + ',' + file.id : file.id)
@@ -288,6 +295,9 @@ export default {
     },
     previewImage (index) {
       this.$refs.imageBox[index].clickHandler()
+    },
+    download (file) {
+      downloadAttachment(file.url, file.displayName)
     }
   }
 }

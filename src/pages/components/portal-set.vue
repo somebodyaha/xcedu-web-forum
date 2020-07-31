@@ -26,7 +26,7 @@
 import { savePlate, detailPlate, updatePlate, getChooseUserDataByParams, getSearchListByValue } from '@/api/index'
 function nameValidator (rule, value, callback) {
   if (value.trim() === '') {
-    callback(new Error('请输入板块名称'))
+    callback(new Error('版块名称不能为空'))
   } else {
     callback()
   }
