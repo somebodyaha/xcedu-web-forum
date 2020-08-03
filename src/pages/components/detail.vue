@@ -506,6 +506,7 @@ export default {
             this.$message.error('删除失败，请稍后再试')
           } else {
             this.pageContent.splice(index, 1)
+            this.getMyArticleCount()
             this.$message.success('删除成功')
           }
         })
