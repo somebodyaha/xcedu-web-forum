@@ -29,7 +29,7 @@
         <editor v-model="form.articleContent" />
       </el-form-item>
       <el-form-item label="相关图片">
-        <fileUp
+        <FileUp
           v-model="form.imgFileIds"
           upload-type="image"
           :domain-id="domainId"
@@ -47,7 +47,7 @@
 </template>
 <script>
 import { getUserInfo, createArticle, updateArticle, getNoPubArticle, getPlateList } from '@/api/index'
-import fileUp from '@/component/fileUp'
+// import fileUp from '@/component/fileUp'
 import editor from '@/component/editor'
 function nameValidator (rule, value, callback) {
   if (!value || value.trim() === '') {
@@ -58,7 +58,7 @@ function nameValidator (rule, value, callback) {
 }
 export default {
   components: {
-    fileUp,
+    // fileUp,
     editor
   },
   props: {

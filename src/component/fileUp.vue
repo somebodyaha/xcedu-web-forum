@@ -15,7 +15,7 @@
       <el-button type="primary" size="small">上传<i class="el-icon-upload el-icon--right" /></el-button>
     </el-upload>
     <em v-if="!readonly" class="size-small">{{ tip }}</em>
-    <div class="file-container">
+    <div class="file-container el-row">
       <template v-if="uploadType === 'file'">
         <div v-for="(file, index) in fileList" :key="file.id" class="file-item">
           <img src="@/assets/file/unknown.png">
@@ -189,7 +189,7 @@ export default {
   },
   methods: {
     delFile (index) {
-      this.$confirm('是否确认删除该' + (this.uploadType === 'image' ? '图片' : '附件'), '', {
+      this.$confirm('是否确认删除该' + (this.uploadType === 'image' ? '图片？' : '附件？'), '', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
