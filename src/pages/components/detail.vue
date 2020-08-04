@@ -86,7 +86,7 @@
                 <!-- <div class="top" /> -->
                 <div style="display:flex">
                   <el-col :span="2" class="mr-10">
-                    <el-avatar v-if="userInfo.userAvator" :src="userInfo.userAvator" />
+                    <el-avatar v-if="userInfo.userAvator" :src="'/api/v1/' + userInfo.userAvator + '&access_token=' + accessToken" />
                     <div v-else style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
                       {{ userInfo.userName.slice(userInfo.userName.length - 2 , userInfo.userName.length) }}
                     </div>
@@ -106,7 +106,7 @@
                 </div>
                 <div v-for="(comment,num) in commentList" :key="num" class="margin-top-size-mix padding-top-size-mix replay-line" style="display:flex; ">
                   <el-col :span="2" class="mr-10">
-                    <el-avatar v-if="comment.anonymous === 0 && comment.imgUrl" :src="comment.imgUrl" />
+                    <el-avatar v-if="comment.anonymous === 0 && comment.imgUrl" :src="'/api/v1/' + comment.imgUrl + '&access_token=' + accessToken" />
                     <div v-if="comment.anonymous === 0 && !comment.imgUrl" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
                       {{ comment.aliasName.slice(comment.aliasName.length - 2 , comment.aliasName.length) }}
                     </div>
@@ -174,7 +174,7 @@
         <div style="font-size:14px;color:#999">管理员</div>
       </div>
       <div v-for="(manager,index) in plateManager" :key="index" class="text item bghover" style="display:flex;align-items:center">
-        <el-avatar v-if="manager.userImgUrl" :src="manager.userImgUrl" />
+        <el-avatar v-if="manager.userImgUrl" :src="'/api/v1/' + manager.userImgUrl + '&access_token=' + accessToken" />
         <div v-else style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
           {{ manager.userName.slice(manager.userName.length - 2 , manager.userName.length) }}
         </div>
