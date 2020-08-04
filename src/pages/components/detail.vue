@@ -15,7 +15,6 @@
                   {{ item.aliasName.slice(item.aliasName.length - 2 , item.aliasName.length) }}
                 </div>
                 <el-avatar v-if="item.anonymous === 1" :src="require('@/assets/user.png')" />
-
               </div>
             </el-col>
             <el-col :span="22">
@@ -83,7 +82,7 @@
           </el-row>
           <div class="fa-more replay margin-top-size-nomal" style="margin-top: 20px; margin-left: -20px; margin-right: -20px;">
             <transition name="el-fade-in-linear">
-              <el-card v-show="tag[index]" ref="operate" style="border: 0 none; box-shadow: non; box-shadow:inset 1px 3px 3px rgba(0,0,0,.05)">
+              <el-card v-show="tag[index]" ref="operate" style="border: 0 none; box-shadow:inset 1px 3px 3px rgba(0,0,0,.05)">
                 <!-- <div class="top" /> -->
                 <div style="display:flex">
                   <el-col :span="2" class="mr-10">
