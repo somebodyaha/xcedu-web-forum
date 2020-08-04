@@ -592,14 +592,12 @@ export default {
         orderType = 1
       }
       getArticleByPlate({ plateId: this.plateId, page: this.pageNumber++, pageSize: this.pageSize, pageFlag: this.pageFlag, orderType: orderType, isReadArticle: 1 }).then(res => {
-        this.nomoreState = this.recordNum >= res.totalRecords
-        if (!this.nomoreState) {
-          for (let i = 0; i < res.records.length; i++) {
-            res.records[i].expandOpen = false
-            this.pageContent.push(res.records[i])
-            this.recordNum++
-          }
+        for (let i = 0; i < res.records.length; i++) {
+          res.records[i].expandOpen = false
+          this.pageContent.push(res.records[i])
+          this.recordNum++
         }
+        this.nomoreState = this.recordNum >= res.totalRecords
         this.loading = false
       })
     },
