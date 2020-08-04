@@ -186,22 +186,22 @@
     <el-card v-if="isIndexPage" class="box-card-right1 text-color-grey">
       <div class="text item bghover dss" @click="getArticle('myPub',$event)">
         <div>
-          <i class="icon-send text-color-grey" />
-          <span id="myPub">我发送的</span>
+          <i class="icon-send" :class="myClick === '我发送的' ? 'color' : 'text-color-grey'" />
+          <span id="myPub" :class="myClick === '我发送的' ? 'color' : ''">我发送的</span>
         </div>
         <el-tag type="info" size="small " class="bgfff">{{ myCount.publishCount }}</el-tag>
       </div>
       <div class="text item bghover dss" @click="getArticle('myComment',$event)">
         <div>
-          <i class="el-icon-s-comment text-color-grey" />
-          <span id="myComment">我评论的</span>
+          <i class="el-icon-s-comment" :class="myClick === '我评论的' ? 'color' : 'text-color-grey'" />
+          <span id="myComment" :class="myClick === '我评论的' ? 'color' : ''">我评论的</span>
         </div>
         <el-tag type="info" size="small " class="bgfff">{{ myCount.commentCount }}</el-tag>
       </div>
       <div class="text item bghover dss" @click="getArticle('myAttention',$event)">
         <div>
-          <i class="icon-star-solid text-color-grey" />
-          <span id="myAttention">我收藏的</span>
+          <i class="icon-star-solid" :class="myClick === '我收藏的' ? 'color' : 'text-color-grey'" />
+          <span id="myAttention" :class="myClick === '我收藏的' ? 'color' : ''">我收藏的</span>
         </div>
         <el-tag type="info" size="small " class="bgfff">{{ myCount.attentionCount }}</el-tag>
       </div>
@@ -506,6 +506,7 @@ export default {
             this.$message.error('删除失败，请稍后再试')
           } else {
             this.pageContent.splice(index, 1)
+            this.getMyArticleCount()
             this.$message.success('删除成功')
           }
         })
