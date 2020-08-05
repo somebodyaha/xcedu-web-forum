@@ -2,7 +2,7 @@ import { axios } from '@xcedu/web-share'
 
 // 测试环境需要在请求url前加前缀
 const prefix = '/api-personalized'
-// const prefix = 'http://127.0.0.1:8089'
+// const prefix = ''
 
 export function getUserInfo () {
   return axios.get('/api-base/users/userInfo')
@@ -11,6 +11,10 @@ export function getUserInfo () {
 // 上传附件
 export function uploadResource (data) {
   return axios.post('/api-base/attachments/save', data)
+}
+
+export function loadDetailBatchByIds (params) {
+  return axios.get('/api-base/attachments/infoList', { params })
 }
 
 // -------------------------用户信息接口------------------------
@@ -149,7 +153,7 @@ export function getArticleList (params) {
 }
 // 通过id删除帖子
 export function deleteArticleById (params) {
-  return axios.delete(prefix + '/advise/article', { params: params })
+  return axios.delete(prefix + '/advise/article/deleteById', { params: params })
 }
 // 将文章置顶
 export function articleTop (params) {
@@ -171,7 +175,7 @@ export function getChooseUserDataByParams (params) {
   return axios.get('/api-base/rangeScopes', { params })
 }
 // 选人输入
-export function gettSearchListByValue (params) {
+export function getSearchListByValue (params) {
   return axios.get('/api-base/rangeScopes?type=search', { params })
 }
 

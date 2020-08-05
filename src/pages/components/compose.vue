@@ -10,9 +10,9 @@
       <el-form-item label="标题" prop="articleTitle">
         <el-input
           v-model="form.articleTitle"
-          type="textarea"
-          :rows="3"
-          placeholder="标题"
+          type="input"
+          autofocus="true"
+          placeholder="标题（1~30个字符）"
         />
       </el-form-item>
       <el-form-item label="所属版块" prop="plateId">
@@ -29,7 +29,12 @@
         <editor v-model="form.articleContent" />
       </el-form-item>
       <el-form-item label="相关图片">
-        <fileUp v-model="form.imgFileIds" accept="image/*" accept-tips="只能上传图片格式的文件" dir="dir" />
+        <FileUp
+          v-model="form.imgFileIds"
+          upload-type="image"
+          :domain-id="domainId"
+          dir="forum"
+        />
       </el-form-item>
       <el-form-item label="匿名发帖">
         <el-checkbox
@@ -42,11 +47,18 @@
 </template>
 <script>
 import { getUserInfo, createArticle, updateArticle, getNoPubArticle, getPlateList } from '@/api/index'
-import fileUp from '@/component/fileUp'
+// import fileUp from '@/component/fileUp'
 import editor from '@/component/editor'
+function nameValidator (rule, value, callback) {
+  if (!value || value.trim() === '') {
+    callback(new Error('标题不能为空'))
+  } else {
+    callback()
+  }
+}
 export default {
   components: {
-    fileUp,
+    // fileUp,
     editor
   },
   props: {
@@ -72,15 +84,19 @@ export default {
       options: [],
       rules: {
         articleTitle: [
-          { required: true, message: '请输入标题', trigger: 'blur' },
-          { min: 1, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur' }
+          { required: true, message: '标题不能为空', trigger: 'blur' },
+          { min: 1, max: 30, message: '长度在 1 到 30 个字符', trigger: 'blur' },
+          {
+            validator: nameValidator, trigger: 'blur'
+          }
         ],
         plateId: [
-          { required: true, message: '请选择所属版块', trigger: 'change' }
+          { required: true, message: '请选择所属版块', trigger: 'blur' }
         ],
         articleContent: [
-          { required: true, message: '请输入正文', trigger: 'blur' }
+          { required: true, message: '内容不能为空', trigger: 'blur' }
         ]
+
       }
     }
   },
@@ -105,6 +121,9 @@ export default {
       }
     }
   },
+  created: function () {
+
+  },
   mounted: function () {
     getUserInfo().then(res => {
       this.domainId = res.domainId
@@ -113,21 +132,19 @@ export default {
       this.options = res
     })
     const id = this.$route.query.id
-    if (id) {
-      getNoPubArticle(id).then(res => {
-        this.form = {
-          id: res.id,
-          articleTitle: res.articleTitle,
-          plateId: res.plateId,
-          articleContent: res.articleContent,
-          imgFileIds: res.imgFileIds,
-          fileIds: res.fileIds,
-          anonymous: res.anonymous,
-          articleIsPub: 1
-        }
-        this.checked = this.form.anonymous === 1
-      })
-    }
+    getNoPubArticle(id === undefined ? '' : id).then(res => {
+      this.form = {
+        id: res.id,
+        articleTitle: res.articleTitle,
+        plateId: res.plateId,
+        articleContent: res.articleContent,
+        imgFileIds: res.imgFileIds,
+        fileIds: res.fileIds,
+        anonymous: res.anonymous === null ? 0 : res.anonymous,
+        articleIsPub: 1
+      }
+      this.checked = this.form.anonymous === 1
+    })
   },
   methods: {
     changeAnonymous () {
@@ -160,3 +177,9 @@ export default {
   }
 }
 </script>
+<style scoped>
+ .el-select-dropdown__item:hover{
+  background: #3396fc;
+  color: #fff ;
+}
+</style>

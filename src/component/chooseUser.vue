@@ -193,7 +193,7 @@ export default {
       const arr = []
       const selectArr = this.selectedArr
       for (let i = 0; i < selectArr.length; i++) {
-        arr.push(selectArr[i].name + '<' + (selectArr[i].orgName ? selectArr[i].orgName : '无') + '>')
+        arr.push(selectArr[i].name + (selectArr[i].orgName ? '<' + selectArr[i].orgName + '>' : ''))
       }
       return arr
     },

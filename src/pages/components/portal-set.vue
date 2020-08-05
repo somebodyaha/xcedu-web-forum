@@ -2,10 +2,17 @@
   <section class="padding-left-size-nomal padding-right-size-nomal padding-bottom-size-large">
     <el-form ref="numberValidateForm" :model="form" :rules="rules" size="medium">
       <el-form-item label="版块名称" :label-width="formLabelWidth" prop="plateName">
-        <el-input v-model="form.plateName" />
+        <el-input v-model="form.plateName" placeholder="板块名称（1~10个字符）" />
       </el-form-item>
       <el-form-item label="管理员" :label-width="formLabelWidth" prop="plateAdminJson">
-        <chooseUser ref="manager" v-model="form.plateAdminJson" :allow-write="false" :select-role="roles" />
+        <chooseUser
+          ref="manager"
+          v-model="form.plateAdminJson"
+          :allow-write="false"
+          :select-role="roles"
+          :get-user="getUser"
+          :get-search-list="getSearchList"
+        />
       </el-form-item>
     </el-form>
     <span slot="footer" style="padding-left: 120px">
@@ -15,14 +22,17 @@
   </section>
 </template>
 <script>
-import chooseUser from '@/component/chooseUser'
-import { savePlate, detailPlate, updatePlate } from '@/api/index'
-
+// import chooseUser from '@/component/chooseUser'
+import { savePlate, detailPlate, updatePlate, getChooseUserDataByParams, getSearchListByValue } from '@/api/index'
+function nameValidator (rule, value, callback) {
+  if (value.trim() === '') {
+    callback(new Error('版块名称不能为空'))
+  } else {
+    callback()
+  }
+}
 export default {
   name: 'PortalSet',
-  components: {
-    chooseUser
-  },
   props: {
     id: { type: String, default: '' }
   },
@@ -37,7 +47,10 @@ export default {
       rules: {
         plateName: [
           { required: true, message: '版块名称不能为空', trigger: 'blur' },
-          { min: 1, max: 20, message: '长度在 1 到 10 个字符', trigger: 'blur' }
+          { min: 1, max: 10, message: '长度在 1 到 10 个字符', trigger: 'blur' },
+          {
+            validator: nameValidator
+          }
         ],
         plateAdminJson: [
           { required: true, message: '请选择管理员', trigger: 'blur' }
@@ -54,6 +67,8 @@ export default {
     }
   },
   methods: {
+    getUser: getChooseUserDataByParams,
+    getSearchList: getSearchListByValue,
     saveForm (formName) {
       // 校验表单
       this.$refs[formName].validate((valid) => {
@@ -78,6 +93,7 @@ export default {
               message: '添加成功',
               type: 'success'
             })
+            this.$store.state.header.flushFlag++
           } else {
             this.$message({
               message: '添加失败',
@@ -93,14 +109,15 @@ export default {
               message: '修改成功',
               type: 'success'
             })
+            this.$store.state.header.flushFlag++
           } else {
             this.$message({
               message: '修改失败',
               type: 'error'
             })
           }
+          this.$emit('closePortal')
         })
-        this.$emit('closePortal')
       }
     },
     cancal () {

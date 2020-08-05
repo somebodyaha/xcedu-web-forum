@@ -1,48 +1,70 @@
 <template>
-  <section>
+  <section class="xc-file-up">
     <el-upload
+      v-if="!readonly"
       class="upload-demo"
       action=""
       :accept="fileAccept"
       :multiple="isMutiple"
-      :file-list="fileList"
       :show-file-list="isShowList"
       :disabled="isDisabled"
       :before-upload="beforeUpload"
       :http-request="fileUpLoad"
       :on-change="fileChange"
-      :on-progress="uploadProgress"
-      :on-success="uploadOnSuccess"
     >
       <el-button type="primary" size="small">上传<i class="el-icon-upload el-icon--right" /></el-button>
     </el-upload>
-    <em class="size-small">{{ acceptTips }}</em>
-    <div class="file-container">
-      <div v-for="(file, index) in fileList" :key="file.id">
-        <img src="@/assets/excel.png" alt="">
-        <div>
-          <p>
-            <span>{{ file.name }}</span>
-            <strong>{{ file.size }}</strong>
-          </p>
-          <p v-if="file.status === 'success'">
-            <a :href="file.relativeUrl" class="color">下载</a>
-            <a :href="file.relativeUrl" class="color">预览</a>
-            <el-button type="text" @click="delFile(index)">删除</el-button>
-          </p>
+    <em v-if="!readonly" class="size-small">{{ tip }}</em>
+    <div class="file-container el-row">
+      <template v-if="uploadType === 'file'">
+        <div v-for="(file, index) in fileList" :key="file.id" class="file-item">
+          <img src="@/assets/file/unknown.png">
+          <div class="file-info">
+            <p>
+              <span :title="file.displayName">{{ file.displayName }}</span>
+              <strong>{{ getFileSize(file.fileSize) }}</strong>
+            </p>
+            <p v-if="file.status !== 'ready'">
+              <a href="javascript:void(0)" class="color" @click="download(file)">下载</a>
+              <a :href="file.url" class="color">预览</a>
+              <a v-if="!readonly" href="javascript:void(0)" class="color" @click="delFile(index)">删除</a>
+            </p>
+          </div>
+          <span v-if="file.progress !== -1" :style="{ width: file.progress + '%' }" class="file-process-bar" />
         </div>
-        <span v-if="file.progress !== '100'" :style="{ width: file.progress + '%' }" class="file-process-bar" />
-      </div>
+      </template>
+      <template v-else>
+        <div v-for="(file, index) in fileList" :key="file.id" class="image-item">
+          <el-image ref="imageBox" :src="file.url" :preview-src-list="[file.url]" />
+          <div class="image-info">
+            <div v-if="file.status !== 'ready'">
+              <a href="javascript:void(0)" class="color" @click="download(file)">下载</a>
+              <a href="javascript:void(0)" class="color" @click="previewImage(index)">预览</a>
+              <a v-if="!readonly" href="javascript:void(0)" class="color" @click="delFile(index)">删除</a>
+            </div>
+          </div>
+          <span v-if="file.progress !== -1" :style="{ width: file.progress + '%' }" class="file-process-bar" />
+        </div>
+      </template>
     </div>
   </section>
 </template>
 <script>
-import { uploadResource } from '@/api/index'
+import { uploadResource, loadDetailBatchByIds } from '@/api/index'
+import { downloadAttachment } from '@/util/index'
 import OSS from 'ali-oss'
 import { v4 as uuidv4 } from 'uuid'
 let PATH = null
 export default {
   props: {
+    value: {
+      type: String,
+      default: ''
+    },
+    uploadType: {
+      type: String,
+      default: 'file'
+    },
     // 是否一次可选择多个文件上传
     mutiple: {
       type: Boolean,
@@ -80,6 +102,11 @@ export default {
     domainId: {
       type: String,
       default: ''
+    },
+    // 如果附件不可修改 则不显示删除按钮 以及上传附件按钮
+    readonly: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -95,24 +122,98 @@ export default {
       fileAccept: ''
     }
   },
+  computed: {
+    tip: function () {
+      if (!this.acceptTips && this.uploadType === 'image') {
+        return '只能上传图片格式的文件'
+      } else {
+        return this.acceptTips
+      }
+    }
+  },
+  watch: {
+    value: {
+      immediate: true,
+      handler: function (val) {
+        if (val) {
+          var list = val.split(',')
+          var needRefresh = false
+          if (list.length !== this.fileList.length) {
+            needRefresh = true
+          }
+          if (!needRefresh) {
+            for (var i = 0; i < list.length; i++) {
+              var hasFound = false
+              for (var j = 0; j < this.fileList.length; j++) {
+                if (list[i] === this.fileList[j].id) {
+                  hasFound = true
+                  break
+                }
+              }
+              if (!hasFound) {
+                needRefresh = true
+                break
+              }
+            }
+          }
+          if (needRefresh) {
+            loadDetailBatchByIds({ idList: val }).then(data => {
+              for (var i = 0; i < data.length; i++) {
+                data[i].status = 'success'
+                data[i].progress = -1
+              }
+              this.fileList = data
+            })
+          }
+        } else {
+          if (this.fileList.length) {
+            this.fileList = []
+          }
+        }
+      }
+    }
+  },
   mounted: function () {
     this.isMutiple = this.mutiple
     this.isShowList = this.showList
     this.isDisabled = this.disabled
     this.fileDir = this.dir
-    this.fileAccept = this.accept
+    this.fileAccept = (!this.accept && this.uploadType === 'image') ? 'image/*' : this.accept
+  },
+  beforeDestroy () {
+    this.fileList.forEach(file => {
+      if (file.url && file.url.indexOf('blob:') === 0) {
+        URL.revokeObjectURL(file.url)
+      }
+    })
   },
   methods: {
+    getClient () {
+      if (!this.client) {
+        this.client = new OSS({
+          region: 'oss-cn-shenzhen',
+          accessKeyId: 'LTAI4G2nbEWcDi9djnDY8tvJ',
+          accessKeySecret: 'ZZN02tVv7BpJEhc5bWa2NlNIdL6Vvp',
+          bucket: 'gtyzfile'
+        })
+      }
+      return this.client
+    },
     delFile (index) {
-      this.$confirm('是否确认删除该附件', '', {
+      this.$confirm('是否确认删除该' + (this.uploadType === 'image' ? '图片？' : '附件？'), '', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
         this.fileList.splice(index, 1)
+        var value = []
+        for (var i = 0; i < this.fileList.length; i++) {
+          value.push(this.fileList[i].id)
+        }
+        this.$emit('input', value.join(','))
       })
     },
-    fileChange (file) {
+    fileChange (file, fileList) {
       // 获取文件流
     },
     // 文件添加
@@ -123,59 +224,42 @@ export default {
       }
     },
     // 附件上传
-    fileUpLoad (file) {
+    fileUpLoad (http) {
       if (!PATH) {
         PATH = this.domainId + '/' + (this.dir || 'anonymous') + '/'
       }
-      if (!this.client) {
-        this.client = new OSS({
-          region: 'oss-cn-shenzhen',
-          accessKeyId: 'LTAI4G2nbEWcDi9djnDY8tvJ',
-          accessKeySecret: 'ZZN02tVv7BpJEhc5bWa2NlNIdL6Vvp',
-          bucket: 'gtyzfile'
-        })
+      const id = uuidv4().replace(/-/g, '')
+      const rawFile = http.file
+      const file = {
+        displayName: rawFile.name,
+        fileSize: rawFile.size,
+        id: id,
+        url: URL.createObjectURL(rawFile),
+        status: 'ready',
+        progress: 0
       }
-      const fileName = uuidv4().replace(/-/g, '') + file.file.name.substring(file.file.name.lastIndexOf('.'))
-      return this.client.multipartUpload(PATH + fileName, file.file, {
-        progress: function (p) {
-          file.onProgress({ percent: p * 100 })
+      this.fileList.push(file)
+      const fileName = id + rawFile.name.substring(rawFile.name.lastIndexOf('.'))
+      this.getClient().multipartUpload(PATH + fileName, rawFile, {
+        progress: p => {
+          file.progress = p * 100
         }
-      }).then(function (res) {
-        file.onSuccess(res, file)
+      }).then(res => {
+        this.uploadOnSuccess(res, file)
       }).catch(err => {
         window.console.log(err)
       })
     },
-    uploadProgress (event, file) {
-      for (let i = 0; i < this.fileList.length; i++) {
-        if (file.uid === this.fileList[i].uid) {
-          this.$set(this.fileList[i], 'progress', event.percent)
-        }
-      }
-    },
     uploadOnSuccess (res, file) {
-      if (!res) {
-        return
-      }
-      const fileUuid = res.name.substring(res.name.lastIndexOf('/')).replace('/', '').replace(/\..*/, '')
       uploadResource({
-        // contentType: 'string',
-        displayName: file.name,
-        // fileName: 'string',
-        fileSize: file.size,
-        id: fileUuid,
-        // link2: res.res.requestUrls[0],
+        displayName: file.displayName,
+        fileSize: file.fileSize,
+        id: file.id,
         relativePath: PATH
-        // suffixName: '.mp4'
-        // uploadIp: 'string'
       }).then(res2 => {
-        for (let i = 0; i < this.fileList.length; i++) {
-          if (file.uid === this.fileList[i].uid) {
-            this.$set(this.fileList[i], 'status', 'success')
-            this.$set(this.fileList[i], 'relativeUrl', res2.url)
-            this.$set(this.fileList[i], 'size', this.getFileSize(file.size))
-          }
-        }
+        file.status = 'success'
+        file.progress = -1
+        this.$emit('input', this.value ? this.value + ',' + file.id : file.id)
       })
     },
     getFileSize (size) {
@@ -211,7 +295,61 @@ export default {
       } else if (type === 'application/x-ppt' || type === 'application/vnd.ms-powerpoint' || type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
         return 'ppt.png'
       }
+    },
+    previewImage (index) {
+      this.$refs.imageBox[index].clickHandler()
+    },
+    download (file) {
+      if (file.url.indexOf('blob:') === 0) {
+        downloadAttachment(file.url, file.displayName)
+      } else {
+        const result = this.getClient().signatureUrl(file.url.replace(/.*\.com\//, ''), {
+          response: {
+            'content-disposition': 'attachment; filename="' + file.displayName + '"'
+          }
+        })
+        window.location = result
+      }
     }
   }
 }
 </script>
+<style lang="scss" scoped>
+  .xc-file-up {
+    line-height: 23px;
+    .file-container {
+      .file-item {
+        padding: 8px;
+        img {
+          width: 46px;
+          height: 46px;
+          margin-right: 8px;
+        }
+        .file-info {
+          width: 280px;
+        }
+      }
+      .image-item {
+        position: relative;
+        float: left;
+        width: 94px;
+        height: 94px;
+        border: 1px solid #eee;
+        margin: 10px 110px 10px 0;
+        /deep/ .el-image {
+          width: 100%;
+          height: 100%;
+        }
+        .image-info {
+          position: absolute;
+          left: 103px;
+          bottom: 0;
+          white-space: nowrap;
+        }
+        .file-process-bar {
+          bottom: -3px;
+        }
+      }
+    }
+  }
+</style>

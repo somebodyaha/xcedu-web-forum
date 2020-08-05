@@ -2,36 +2,40 @@
   <div class="home infinite-list-wrapper" style="overflow:auto">
     <el-card class="box-card">
       <div slot="header" class="dss">
-        <div style="font-size:16px">最新动态</div>
+        <div v-if="!myClick" style="font-size:16px">{{ this.$route.query.plateName?this.$route.query.plateName+"动态":'最新动态' }}</div>
+        <div v-else style="font-size:16px">{{ myClick }}</div>
       </div>
       <div v-infinite-scroll="load" class="list" infinite-scroll-disabled="disabled">
         <div v-for="(item,index) in pageContent" :key="index" class="text item list-item">
           <el-row>
             <el-col :span="2">
               <div>
-                <el-avatar v-if="item.anonymous === 0 && item.imgUrl" :src="item.imgUrl" />
+                <el-avatar v-if="item.anonymous === 0 && item.imgUrl" :src="'/api/v1/' + item.imgUrl + '&access_token=' + accessToken" />
                 <div v-if="item.anonymous === 0 && !item.imgUrl" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
                   {{ item.aliasName.slice(item.aliasName.length - 2 , item.aliasName.length) }}
                 </div>
                 <el-avatar v-if="item.anonymous === 1" :src="require('@/assets/user.png')" />
-
               </div>
             </el-col>
             <el-col :span="22">
               <div class="dss">
                 <div class="margin-bottom-size-mini">{{ item.aliasName }}</div>
                 <!-- <div><i class="el-icon-arrow-down" /></div> -->
-                <el-dropdown v-if="item.userIsAdmin || item.userIsAuthor" trigger="click" @command="choose">
+                <el-dropdown v-if="item.userIsAdmin || item.userIsPlateAdmin || item.userIsAuthor" trigger="click" @command="choose">
                   <span class="el-dropdown-link">
                     <i class="el-icon-arrow-down el-icon--right" />
                   </span>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'forum','a')">论坛置顶</el-dropdown-item>
-                    <el-dropdown-item v-show="item.userIsAdmin && item.plateTop == 0" :command="beforeHandleCommand(index,item.id,'plate','a')">版块置顶</el-dropdown-item>
-                    <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 1" :command="beforeHandleCommand(index,item.id,'forum','b')">取消论坛置顶</el-dropdown-item>
-                    <el-dropdown-item v-show="item.userIsAdmin && item.plateTop == 1" :command="beforeHandleCommand(index,item.id,'plate','b')">取消版块置顶</el-dropdown-item>
+                    <template v-if="plateId == ''">
+                      <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'forum','a')">论坛置顶</el-dropdown-item>
+                      <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 1" :command="beforeHandleCommand(index,item.id,'forum','b')">取消论坛置顶</el-dropdown-item>
+                    </template>
+                    <template v-else>
+                      <el-dropdown-item v-show="(item.userIsAdmin || item.userIsPlateAdmin) && item.plateTop == 0" :command="beforeHandleCommand(index,item.id,'plate','a')">版块置顶</el-dropdown-item>
+                      <el-dropdown-item v-show="(item.userIsAdmin || item.userIsPlateAdmin) && item.plateTop == 1" :command="beforeHandleCommand(index,item.id,'plate','b')">取消版块置顶</el-dropdown-item>
+                    </template>
                     <el-dropdown-item v-show="item.userIsAuthor" :command="beforeHandleCommand(index,item.id,'','c')">编辑</el-dropdown-item>
-                    <el-dropdown-item :command="beforeHandleCommand(index,item.id,'','d')">删除</el-dropdown-item>
+                    <el-dropdown-item v-show="item.userIsAdmin || item.userIsPlateAdmin|| item.userIsAuthor" :command="beforeHandleCommand(index,item.id,'','d')">删除</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
               </div>
@@ -39,23 +43,18 @@
                 <div class="text-color-grey">{{ item.pubDate }}发布</div>
               </div>
               <div class="margin-top-size-nomal" style="margin-top:10px">
-                <el-tag v-show="item.forumTop == 1 || item.plateTop == 1" type="danger" size="mini">置顶</el-tag>
+                <el-tag v-show="plateId == '' && item.forumTop == 1 " type="danger" size="mini">置顶</el-tag>
+                <el-tag v-show="plateId != '' && (item.forumTop == 1 || item.plateTop == 1)" type="danger" size="mini">置顶</el-tag>
                 <span style="font-weight:bold" class="size-large">{{ item.articleTitle }}</span>
               </div>
               <div class="margin-top-size-small" style="line-height:24px;margin-top:10px">
                 <span v-show="item.articleContentShort && item.articleContentShort.length>=50 && !item.expandOpen" v-html="item.articleContentShort + ' ...'" />
-                <span v-show="(item.articleContentShort && item.articleContentShort.length<50) || item.expandOpen" v-html="item.articleContent" />
+                <span v-show="(item.articleContentShort!==null && item.articleContentShort.length<50) || item.expandOpen" v-html="item.articleContent" />
                 <span v-show="item.articleContentShort && item.articleContentShort.length>=50 && !item.expandOpen" class="color" style="cursor:pointer;margin-left:5px" @click="expand(index)">展开全文</span>
                 <span v-show="item.expandOpen" class="color" style="cursor:pointer;margin-left:5px" @click="retract(index)">收起全文</span>
               </div>
               <div v-if="item.imgFileIds" class="margin-top-size-nomal">
-                <el-image
-                  v-for="imgId in item.imgFileIds.split(',')"
-                  :key="imgId"
-                  style="width: 100px; height: 100px;margin-right:20px"
-                  :src="'/'+item.filePrefix + imgId"
-                  :preview-src-list="srcList"
-                />
+                <fileUp :value="item.imgFileIds" upload-type="image" readonly />
               </div>
               <div class="margin-top-size-nomal text-color-grey tool-bar">
                 <span style="cursor:pointer" class="margin-right-size-large" @click.stop="showTag(item.id,index)">
@@ -83,11 +82,11 @@
           </el-row>
           <div class="fa-more replay margin-top-size-nomal" style="margin-top: 20px; margin-left: -20px; margin-right: -20px;">
             <transition name="el-fade-in-linear">
-              <el-card v-show="tag[index]" ref="operate" style="border: 0 none; box-shadow: non; box-shadow:inset 1px 3px 3px rgba(0,0,0,.05)">
+              <el-card v-show="tag[index]" ref="operate" style="border: 0 none; box-shadow:inset 1px 3px 3px rgba(0,0,0,.05)">
                 <!-- <div class="top" /> -->
                 <div style="display:flex">
                   <el-col :span="2" class="mr-10">
-                    <el-avatar v-if="userInfo.userAvator" :src="userInfo.userAvator" />
+                    <el-avatar v-if="userInfo.userAvator" :src="'/api/v1/' + userInfo.userAvator + '&access_token=' + accessToken" />
                     <div v-else style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
                       {{ userInfo.userName.slice(userInfo.userName.length - 2 , userInfo.userName.length) }}
                     </div>
@@ -107,7 +106,7 @@
                 </div>
                 <div v-for="(comment,num) in commentList" :key="num" class="margin-top-size-mix padding-top-size-mix replay-line" style="display:flex; ">
                   <el-col :span="2" class="mr-10">
-                    <el-avatar v-if="comment.anonymous === 0 && comment.imgUrl" :src="comment.imgUrl" />
+                    <el-avatar v-if="comment.anonymous === 0 && comment.imgUrl" :src="'/api/v1/' + comment.imgUrl + '&access_token=' + accessToken" />
                     <div v-if="comment.anonymous === 0 && !comment.imgUrl" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
                       {{ comment.aliasName.slice(comment.aliasName.length - 2 , comment.aliasName.length) }}
                     </div>
@@ -121,7 +120,7 @@
                     <div class="dss text-color-grey  margin-top-size-mix ">
                       <span>{{ comment.createdDate }}</span>
                       <div>
-                        <span style="cursor:pointer" @click="reflex(comment.id,comment.aliasName,num)">回复</span>
+                        <span style="cursor:pointer" @click="reflex(comment.id,comment.aliasName,num)">回复({{ comment.commentVoList.length }})</span>
                         <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
                         <span v-show="comment.userHasLike">
                           <i class="icon-zan-shixin red" @click="likeComment(num,comment.id,0)" />
@@ -175,7 +174,7 @@
         <div style="font-size:14px;color:#999">管理员</div>
       </div>
       <div v-for="(manager,index) in plateManager" :key="index" class="text item bghover" style="display:flex;align-items:center">
-        <el-avatar v-if="manager.userImgUrl" :src="manager.userImgUrl" />
+        <el-avatar v-if="manager.userImgUrl" :src="'/api/v1/' + manager.userImgUrl + '&access_token=' + accessToken" />
         <div v-else style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
           {{ manager.userName.slice(manager.userName.length - 2 , manager.userName.length) }}
         </div>
@@ -184,24 +183,24 @@
     </el-card>
 
     <el-card v-if="isIndexPage" class="box-card-right1 text-color-grey">
-      <div class="text item bghover dss" @click="getArticle('myPub')">
+      <div class="text item bghover dss" @click="getArticle('myPub',$event)">
         <div>
-          <i class="icon-send text-color-grey" />
-          <span>我发送的</span>
+          <i class="icon-send" :class="myClick === '我发送的' ? 'color' : 'text-color-grey'" />
+          <span id="myPub" :class="myClick === '我发送的' ? 'color' : ''">我发送的</span>
         </div>
         <el-tag type="info" size="small " class="bgfff">{{ myCount.publishCount }}</el-tag>
       </div>
-      <div class="text item bghover dss" @click="getArticle('myComment')">
+      <div class="text item bghover dss" @click="getArticle('myComment',$event)">
         <div>
-          <i class="el-icon-s-comment text-color-grey" />
-          <span>我评论的</span>
+          <i class="el-icon-s-comment" :class="myClick === '我评论的' ? 'color' : 'text-color-grey'" />
+          <span id="myComment" :class="myClick === '我评论的' ? 'color' : ''">我评论的</span>
         </div>
         <el-tag type="info" size="small " class="bgfff">{{ myCount.commentCount }}</el-tag>
       </div>
-      <div class="text item bghover dss" @click="getArticle('myAttention')">
+      <div class="text item bghover dss" @click="getArticle('myAttention',$event)">
         <div>
-          <i class="icon-star-solid text-color-grey" />
-          <span>我关注的</span>
+          <i class="icon-star-solid" :class="myClick === '我收藏的' ? 'color' : 'text-color-grey'" />
+          <span id="myAttention" :class="myClick === '我收藏的' ? 'color' : ''">我收藏的</span>
         </div>
         <el-tag type="info" size="small " class="bgfff">{{ myCount.attentionCount }}</el-tag>
       </div>
@@ -211,12 +210,17 @@
         <span style="font-weight:bold;font-size:16px;color:#999">热门</span>
         <!-- <el-button style="float: right; padding: 3px 0;color:#3396FC" type="text">去论坛逛逛>></el-button> -->
       </div>
+
       <div v-for="(hotArticle,index) in hotArticles" :key="index" class="text item bghover dsshover">
-        <div class="dss" @click="preViewDetails(hotArticle.id)">
-          <div v-html="hotArticle.articleTitle.length>10?hotArticle.articleTitle.slice(0,11)+'...':hotArticle.articleTitle" />
-          <div> {{ hotArticle.readNum == null ? 0 : hotArticle.readNum }}次</div>
-        </div>
+        <el-tooltip effect="dark" :content="hotArticle.articleTitle" placement="top-start">
+          <div class="dss" @click="preViewDetails(hotArticle.id)">
+            <div v-html="hotArticle.articleTitle.length>10?hotArticle.articleTitle.slice(0,11)+'...':hotArticle.articleTitle" />
+            <div> {{ hotArticle.readNum == null ? 0 : hotArticle.readNum }}次</div>
+          </div>
+        </el-tooltip>
+
       </div>
+
     </el-card>
   </div>
 </template>
@@ -224,7 +228,11 @@
 <script>
 import { hotList, getArticleByPlate, getMyArticleCount, getUserSetting, commentList, saveComment, deleteArticle, attentionArticle, likeArticle, topArticle, plateManagerList, likeComment, getMesSummary } from '@/api/index'
 import { arrayToStrWithOutComma } from '@/util/index'
+import fileUp from '@/component/fileUp'
 export default {
+  components: {
+    fileUp
+  },
   data () {
     return {
       userInfo: {
@@ -232,6 +240,7 @@ export default {
         userAliasName: '',
         trueName: ''
       },
+      accessToken: localStorage.getItem('token'),
       url: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
       srcList: [],
       input: '',
@@ -256,7 +265,8 @@ export default {
       repInput: '',
       repComId: '',
       repTopId: '',
-      repName: ''
+      repName: '',
+      myClick: ''
     }
   },
   computed: {
@@ -269,16 +279,15 @@ export default {
   },
   watch: {
     $route (to, from) {
+      this.myClick = ''
       this.nomoreState = false
       this.pageFlag = ''
-      // eslint-disable-next-line no-console
-      console.log(to)
       const plateId = to.query.index
       this.pageContent = []
       this.plateManager = []
       this.pageNumber = 1
       this.recordNum = 0
-      if (plateId === '0') {
+      if (plateId === undefined || plateId === '') {
         this.isIndexPage = true
         this.plateId = ''
       } else {
@@ -290,6 +299,7 @@ export default {
     }
   },
   created () {
+
   },
   mounted () {
     // 获取list
@@ -309,12 +319,12 @@ export default {
     document.removeEventListener('click', this.handleClick, false)
   },
   methods: {
-
     preViewDetails (id) {
       const { href } = this.$router.resolve({ name: 'previewDetails' })
       window.open(href + '?id=' + id, '_self')
     },
     getArticle (pageFlag) {
+      this.myClick = document.getElementById(pageFlag).innerHTML
       this.pageContent = []
       this.pageFlag = pageFlag
       this.nomoreState = false
@@ -337,6 +347,11 @@ export default {
       this.repTopId = topId
       this.repName = repName
     },
+    flushNoitceNum () {
+      getMesSummary().then(res => {
+        this.$store.commit('getNoticeNum', res.messageCount)
+      })
+    },
     repSave (num) {
       if (!this.repInput) {
         this.$message({
@@ -351,13 +366,11 @@ export default {
             message: '回复成功',
             type: 'success'
           })
-          this.commentList[num].commentVoList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentAliasName: this.repName })
+          this.commentList[num].commentVoList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentAliasName: this.repName, imgUrl: this.userInfo.userAvator })
           this.repChecked = false
           this.repInput = ''
           // 回复时刷新通知数量
-          getMesSummary().then(res => {
-            this.$store.commit('getNoticeNum', res.messageCount)
-          })
+          this.flushNoitceNum()
         } else {
           this.$message({
             message: '回复保存失败',
@@ -367,6 +380,10 @@ export default {
       })
     },
     sendComment (articleId, index) {
+      if (!this.input) {
+        this.$message.error('请输入评论内容')
+        return false
+      }
       saveComment({ articleId: articleId, anonymous: (this.checked ? 1 : 0), commentContent: this.input }).then(res => {
         if (res) {
           this.$message({
@@ -374,12 +391,11 @@ export default {
             type: 'success'
           })
           this.pageContent[index].commentNum++
-          this.commentList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚' })
+          this.commentList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentVoList: [], imgUrl: this.userInfo.userAvator })
           this.getMyArticleCount()
           // 评论时刷新通知数量
-          getMesSummary().then(res => {
-            this.$store.commit('getNoticeNum', res.messageCount)
-          })
+          this.flushNoitceNum()
+          this.input = ''
         } else {
           this.$message({
             message: '评论保存失败',
@@ -387,27 +403,27 @@ export default {
           })
         }
         this.checked = false
-        this.input = ''
       })
     },
     likeComment (index, commentId, flag) {
       likeComment({ index, commentId: commentId, flag: flag }).then(res => {
         if (res) {
-          this.$message({
-            message: '点赞成功',
-            type: 'success'
-          })
+          let msg = ''
           if (flag === 0) {
+            msg = '取消点赞成功'
             this.commentList[index].userHasLike = false
             this.commentList[index].commentLikeNum--
           } else {
+            msg = '点赞成功'
             this.commentList[index].userHasLike = true
             this.commentList[index].commentLikeNum++
           }
-          // 点赞时刷新通知数量
-          getMesSummary().then(res => {
-            this.$store.commit('getNoticeNum', res.messageCount)
+          this.$message({
+            message: msg,
+            type: 'success'
           })
+          // 点赞时刷新通知数量
+          this.flushNoitceNum()
         } else {
           this.$message({
             message: '点赞失败',
@@ -439,6 +455,7 @@ export default {
             message: '取消点赞成功',
             type: 'success'
           })
+          this.flushNoitceNum()
         } else if (flag === 1) {
           this.pageContent[index].likeNum++
           this.pageContent[index].userHasLike = true
@@ -447,9 +464,7 @@ export default {
             type: 'success'
           })
           // 点赞时刷新通知数量
-          getMesSummary().then(res => {
-            this.$store.commit('getNoticeNum', res.messageCount)
-          })
+          this.flushNoitceNum()
         }
       })
     },
@@ -466,6 +481,7 @@ export default {
             message: '取消收藏成功',
             type: 'success'
           })
+          this.flushNoitceNum()
         } else if (flag === 1) {
           this.pageContent[index].userHasAttention = true
           this.$message({
@@ -473,27 +489,31 @@ export default {
             type: 'success'
           })
           // 收藏时刷新通知数量
-          getMesSummary().then(res => {
-            this.$store.commit('getNoticeNum', res.messageCount)
-          })
+          this.flushNoitceNum()
         }
         this.getMyArticleCount()
       })
     },
     deleteArticle (index, articleId) {
-      deleteArticle({ ids: arrayToStrWithOutComma(articleId.split(',')) }).then(res => {
-        if (!res) {
-          this.$message({
-            message: '删除失败，请稍后再试',
-            type: 'error'
-          })
-        } else {
-          this.pageContent.splice(index, 1)
-          this.$message({
-            message: '删除成功',
-            type: 'success'
-          })
-        }
+      this.$confirm('此操作将删除该帖子 , 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteArticle({ ids: arrayToStrWithOutComma(articleId.split(',')) }).then(res => {
+          if (!res) {
+            this.$message.error('删除失败，请稍后再试')
+          } else {
+            this.pageContent.splice(index, 1)
+            this.getMyArticleCount()
+            this.$message.success('删除成功')
+          }
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消'
+        })
       })
     },
     topArticle (index, articleId, flag, topFlag) {
@@ -509,6 +529,9 @@ export default {
           } else {
             this.pageContent[index].plateTop = topFlag
           }
+          // let item =  this.pageContent[index];
+          //  this.pageContent.splice(index,1)
+          //  this.pageContent.unshift(item)
           this.$message({
             message: '操作成功',
             type: 'success'
@@ -521,7 +544,6 @@ export default {
         for (let i = 0; i < res.records.length; i++) {
           this.commentList.push(res.records[i])
         }
-        window.console.log(this.commentList)
       })
     },
     showTag (articleId, index) {
@@ -558,18 +580,25 @@ export default {
     },
     load () {
       this.loading = true
-      getArticleByPlate({ plateId: this.plateId, page: this.pageNumber++, pageSize: this.pageSize, pageFlag: this.pageFlag }).then(res => {
-        this.nomoreState = this.recordNum >= res.totalRecords
-        window.console.log(this.recordNum, this.nomoreState)
-        if (!this.nomoreState) {
-          for (let i = 0; i < res.records.length; i++) {
-            res.records[i].expandOpen = false
-            this.pageContent.push(res.records[i])
-            this.recordNum++
-          }
+      // 切换到管理监听不到  通过路由参数获取plateId
+      if (this.$route.query.index === '0' || !this.$route.query.index) {
+        this.plateId = ''
+      } else {
+        this.plateId = this.$route.query.index
+      }
+      let orderType = 0
+      if (this.plateId === '') {
+        orderType = 1
+      }
+      getArticleByPlate({ plateId: this.plateId, page: this.pageNumber++, pageSize: this.pageSize, pageFlag: this.pageFlag, orderType: orderType, isReadArticle: 1 }).then(res => {
+        for (let i = 0; i < res.records.length; i++) {
+          res.records[i].expandOpen = false
+          this.pageContent.push(res.records[i])
+          this.recordNum++
         }
+        this.nomoreState = this.recordNum >= res.totalRecords
+        this.loading = false
       })
-      this.loading = false
     },
     choose (command) {
       const { href } = this.$router.resolve({ name: 'newArtical' })
@@ -697,5 +726,8 @@ export default {
   }
   .infinite-list-wrapper{
     height: 100%;
+  }
+  .active{
+    color:#3396fc;
   }
 </style>

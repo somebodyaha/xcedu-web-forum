@@ -1,12 +1,22 @@
 <template>
   <section style="width: 840px; margin: 0 auto; background: #fff;margin-top:20px">
     <el-card>
-      <div style="display:flex;align-items:center">
-        <img
-          style="width: 40px; height: 40px;object-fit:cover;margin-right:10px"
-          :src="article.imgUrl"
-        >
-        <span>{{ article.aliasName }}</span>
+      <div style="display:flex;align-items:center;justify-content: space-between;">
+        <div style="display:flex;align-items:center;">
+          <el-avatar v-if="article.anonymous === 0 && article.imgUrl" :src="'/api/v1/' + article.imgUrl + '&access_token=' + accessToken" />
+          <div v-if="article.anonymous === 0 && !article.imgUrl && article.aliasName" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
+            {{ article.aliasName.slice(-2) }}
+          </div>
+          <el-avatar v-if="article.anonymous === 1" :src="require('@/assets/user.png')" />
+          <div>
+            <div style="margin-left:10px">{{ article.aliasName }}</div>
+            <div style="margin-left: 10px;margin-top:5px;">{{ article.pubDate }}</div>
+          </div>
+
+        </div>
+        <div>
+          <el-button type="default" @click="goBacktToHome">返回首页</el-button>
+        </div>
       </div>
       <div style="padding:10px;font-size:20px" v-html="article.articleTitle" />
       <div style="padding:10px;text-indent: 25px;line-height: 20px;" v-html="article.articleContent" />
@@ -14,7 +24,7 @@
 
       <div style="display:flex;justify-content:space-between;padding:10px;">
         <div style="color:#3396fc">
-          <span v-show="article.userIsAdmin" class="operate" @click="edit">编辑</span>
+          <!-- <span v-show="article.userIsAdmin" class="operate" @click="edit">编辑</span> -->
           <span v-show="article.userIsAdmin||article.userIsAuthor" class="operate" @click="deleteArticle">删除</span>
           <span v-show="article.userIsAdmin && article.forumTop === 0" class="operate" @click="topArticle('forum',1)">全论坛置顶</span>
           <span v-show="article.userIsAdmin && article.forumTop === 1" class="operate" @click="topArticle('forum',0)">取消论坛置顶</span>
@@ -24,19 +34,19 @@
         <div>
           <span v-show="!article.userHasLike" class="operate" @click="likeArticle(1)">
             <i class="icon-zan" />
-            点赞
+            点赞（{{ article.likeNum }}）
           </span>
           <span v-show="article.userHasLike" class="operate" @click="likeArticle(0)">
             <i class="icon-zan-shixin red" />
-            取消点赞
+            取消点赞（{{ article.likeNum }}）
           </span>
           <span v-show="!article.userHasAttention" class="operate" @click="attentionArticle(1)">
             <i class="icon-star-hollow" />
-            收藏
+            收藏（{{ article.attentionNum }}）
           </span>
           <span v-show="article.userHasAttention" class="operate" @click="attentionArticle(0)">
             <i class="icon-star-solid yellow" />
-            取消收藏
+            取消收藏（{{ article.attentionNum }}）
           </span>
         </div>
       </div>
@@ -46,9 +56,9 @@
             <!-- <div class="top" /> -->
             <div style="display:flex">
               <el-col :span="2" class="mr-10">
-                <el-avatar v-if="userInfo.userAvator" :src="userInfo.userAvator" />
-                <div v-else style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
-                  {{ userInfo.userName.slice(userInfo.userName.length - 2 , userInfo.userName.length) }}
+                <el-avatar v-if="userInfo.userAvator" :src="'/api/v1/'+userInfo.userAvator+'&access_token=' + accessToken" />
+                <div v-if="userInfo.userName && !userInfo.userAvator" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
+                  {{ userInfo.userName.slice(-2) }}
                 </div>
               </el-col>
               <el-col :span="22">
@@ -66,9 +76,9 @@
             </div>
             <div v-for="(comment,num) in comments" :key="num" class="margin-top-size-mix padding-top-size-mix replay-line" style="display:flex; ">
               <el-col :span="2" class="mr-10">
-                <el-avatar v-if="comment.anonymous === 0 && comment.imgUrl" :src="comment.imgUrl" />
-                <div v-if="comment.anonymous === 0 && !comment.imgUrl" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
-                  {{ comment.aliasName.slice(comment.aliasName.length - 2 , comment.aliasName.length) }}
+                <el-avatar v-if="comment.anonymous === 0 && comment.imgUrl" :src="'/api/v1/'+comment.imgUrl+'&access_token=' + accessToken" />
+                <div v-if="comment.anonymous === 0 && !comment.imgUrl && comment.aliasName" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
+                  {{ comment.aliasName.slice(-2) }}
                 </div>
                 <el-avatar v-if="comment.anonymous === 1" :src="require('@/assets/user.png')" />
               </el-col>
@@ -80,7 +90,7 @@
                 <div class="dss text-color-grey  margin-top-size-mix ">
                   <span>{{ comment.createdDate }}</span>
                   <div>
-                    <span style="cursor:pointer" @click="reflex(comment.id,comment.aliasName,num)">回复</span>
+                    <span style="cursor:pointer" @click="reflex(comment.id,comment.aliasName,num)">回复（{{ comment.commentVoList.length }}）</span>
                     <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
                     <span v-show="comment.userHasLike">
                       <i class="icon-zan-shixin red" @click="likeComment(num,comment.id,0)" />
@@ -135,6 +145,7 @@ export default {
       article: {
 
       },
+      accessToken: localStorage.getItem('token'),
       restore: {},
       anonymous: false,
       commentInput: '',
@@ -177,7 +188,9 @@ export default {
         }
       })
     },
-
+    goBacktToHome () {
+      this.$router.push({ name: 'home' })
+    },
     topArticle (flag, topFlag) {
       topArticle({ id: this.article.id, flag: flag, topFlag: topFlag }).then(res => {
         if (!res) {
@@ -193,11 +206,16 @@ export default {
       })
     },
     sendComment () {
+      if (!this.commentInput) {
+        this.$message.error('请输入评论内容')
+        return false
+      }
       saveComment({ articleId: this.article.id, anonymous: (this.anonymous ? 1 : 0), commentContent: this.commentInput }).then(res => {
         if (res) {
           this.$message.success('评论成功')
           this.article.commentNum++
-          this.comments.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚' })
+          this.comments.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentVoList: [], imgUrl: this.userInfo.userAvator })
+          this.commentInput = ''
         } else {
           this.$message.error('评论保存失败')
         }
@@ -211,7 +229,7 @@ export default {
       saveComment({ anonymous: (this.repChecked ? 1 : 0), commentContent: this.repInput, commentTopId: this.repTopId, commentId: this.repComId }).then(res => {
         if (res) {
           this.$message.success('回复成功')
-          this.comments[num].commentVoList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentAliasName: this.repName })
+          this.comments[num].commentVoList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentAliasName: this.repName, imgUrl: this.userInfo.userAvator })
           this.repChecked = false
           this.repInput = ''
         } else {
@@ -255,9 +273,11 @@ export default {
         if (!res) {
           this.$message.error('收藏失败，请稍后再试')
         } else if (flag === 0) {
+          this.article.attentionNum--
           this.article.userHasAttention = false
           this.$message.success('取消收藏成功')
         } else if (flag === 1) {
+          this.article.attentionNum++
           this.article.userHasAttention = true
           this.$message.success('收藏成功')
         }
@@ -286,17 +306,17 @@ export default {
         })
         this.$set(this.restore, index, true)
       }
-    },
-    edit () {
-      // const { href } = this.$router.resolve({ name: 'newArtical' })
-      // window.open(href + '?id=' + this.$route.query.id, '_self')
-      this.$router.push({
-        path: '/mfs-forum/newArtical',
-        query: {
-          id: this.$route.query.id
-        }
-      })
     }
+    // edit () {
+    //   // const { href } = this.$router.resolve({ name: 'newArtical' })
+    //   // window.open(href + '?id=' + this.$route.query.id, '_self')
+    //   this.$router.push({
+    //     path: '/mfs-forum/newArtical',
+    //     query: {
+    //       id: this.$route.query.id
+    //     }
+    //   })
+    // }
   }
 }
 </script>

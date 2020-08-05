@@ -56,14 +56,14 @@
       </div>
     </header>
     <div class="margin-top-size-large">
-      <el-table :data="tableData" style="width: 100%" @selection-change="handleSelectionChange">
+      <el-table :data="tableData" style="width: 100%" @selection-change="handleSelectionChange" @row-click="rowClick">
         <el-table-column type="selection" width="55px" />
         <el-table-column fixed prop="articleTitle" label="标题" min-width="300px" />
         <el-table-column prop="plateName" label="所属版块" />
         <el-table-column prop="aliasName" label="发布人" />
         <el-table-column prop="pubDate" label="发布时间" min-width="150px" />
         <el-table-column prop="readNum" label="阅读" />
-        <el-table-column label="操作" width="80px" fixed="right">
+        <el-table-column label="操作" width="80px" fixed="right" prop="operate">
           <template slot-scope="scope">
             <el-dropdown trigger="click" @command="title => choose(title, scope.row)">
               <span class="el-dropdown-link">
@@ -71,7 +71,7 @@
               </span>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="del">删除</el-dropdown-item>
-                <el-dropdown-item command="forumTop"><span v-show="scope.row.forumTop">取消</span>全论坛置顶</el-dropdown-item>
+                <el-dropdown-item v-show="scope.row.userIsAdmin" command="forumTop"><span v-show="scope.row.forumTop">取消</span>全论坛置顶</el-dropdown-item>
                 <el-dropdown-item command="plateTop"><span v-show="scope.row.plateTop">取消</span>版块置顶</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -83,7 +83,7 @@
           :current-page="params.page"
           :page-sizes="[10, 20, 50, 100]"
           :page-size="10"
-          layout="total, sizes, prev, pager, next, jumper"
+          layout="prev, pager, next, jumper, sizes, total"
           :total="totalRecords"
           background
           @size-change="handleSizeChange"
@@ -117,6 +117,7 @@ export default {
       publish: '',
       publishDateRange: [],
       params: {
+        orderType: 2,
         articleTitle: '',
         articleAuthor: '',
         plateId: '',
@@ -164,6 +165,14 @@ export default {
     onEnterSearch () {
       this.flushArticleList()
     },
+    rowClick (row, column) {
+      window.console.log(column)
+      if (column.property === 'operate') {
+        return
+      }
+      const { href } = this.$router.resolve({ name: 'previewDetails' })
+      window.open(href + '?id=' + row.id, '_self')
+    },
     showAdvance () {
       this.advancedSearch = !this.advancedSearch
     },
@@ -184,8 +193,6 @@ export default {
       this.flushArticleList()
     },
     handleClick (row) {
-      // eslint-disable-next-line no-console
-      console.log(row)
     },
     toggleSelection (rows) {
       if (rows) {
@@ -223,17 +230,20 @@ export default {
       if (this.multipleSelection.length === 0) {
         this.$message({
           message: '未选中数据',
-          type: 'info'
+          type: 'warning'
         })
         return
       }
-      window.console.log(this.multipleSelection)
-      window.console.log(this.arrayToStrWithOutComma(this.multipleSelection))
-
-      const req = {
-        ids: this.arrayToStrWithOutComma(this.multipleSelection)
-      }
-      this.deleteArticle(req)
+      this.$confirm('此操作将删除选中的帖子, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const req = {
+          ids: this.arrayToStrWithOutComma(this.multipleSelection)
+        }
+        this.deleteArticle(req)
+      })
     },
     // 切换页码
     handleSizeChange (val) {
@@ -252,13 +262,6 @@ export default {
           type: 'warning'
         }).then(() => {
           this.deleteArticle({ ids: row.id })
-        }).catch(err => {
-          // eslint-disable-next-line no-console
-          console.log(err)
-          this.$message({
-            type: 'info',
-            message: err
-          })
         })
       } else if (title === 'forumTop') {
         let warningMsg = '此操作将把帖子全论坛置顶, 是否继续?'
@@ -289,13 +292,6 @@ export default {
                 type: 'error'
               })
             }
-          })
-        }).catch(err => {
-          // eslint-disable-next-line no-console
-          console.log(err)
-          this.$message({
-            type: 'info',
-            message: '已取消操作'
           })
         })
       } else {
@@ -329,12 +325,6 @@ export default {
             }
           })
         })
-          .catch(() => {
-            this.$message({
-              type: 'info',
-              message: '已取消操作'
-            })
-          })
       }
     },
     submit (formName) {

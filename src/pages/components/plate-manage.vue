@@ -19,8 +19,8 @@
     <div style="margin-top:20px">
       <el-table :data="tableData" style="width: 100%" @selection-change="handleSelectionChange">
         <!-- <el-table-column type="selection" width="55px" /> -->
-        <el-table-column fixed prop="plateName" label="版块名称" />
-        <el-table-column prop="plateAdminName" label="版块管理员" />
+        <el-table-column fixed prop="plateName" min-width="120px" label="版块名称" />
+        <el-table-column prop="plateAdminName" min-width="250px" label="版块管理员" />
         <el-table-column prop="createdName" label="发布人" />
         <el-table-column prop="createdDate" label="创建时间" min-width="150px" />
         <el-table-column label="操作" width="80px" fixed="right">
@@ -45,7 +45,7 @@
           :current-page="params.page"
           :page-sizes="[10, 20, 50, 100]"
           :page-size="10"
-          layout="total, sizes, prev, pager, next, jumper"
+          layout="prev, pager, next, jumper, sizes, total"
           :total="totalRecords"
           background
           @size-change="handleSizeChange"
@@ -156,7 +156,7 @@ export default {
     },
     choose (title, row) {
       if (title === 'del') {
-        this.$confirm('此操作将删除该帖子 , 是否继续?', '提示', {
+        this.$confirm('此操作将删除该版块 , 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
@@ -165,6 +165,7 @@ export default {
             if (res === 1) {
               this.$message.success('删除成功')
               this.flushPlateList()
+              this.$store.state.header.flushFlag++
             } else if (res === 2) {
               this.dialogFormVisible = false
               // 该版块下还有帖子
@@ -172,7 +173,7 @@ export default {
               getPlateList().then(res => {
                 for (let i = 0; i < res.length; i++) {
                   if (res[i].id === row.id) {
-                    return
+                    continue
                   }
                   this.plateList.push(res[i])
                 }
@@ -187,13 +188,6 @@ export default {
                 type: 'error'
               })
             }
-          })
-        }).catch(err => {
-          // eslint-disable-next-line no-console
-          console.log(err)
-          this.$message({
-            type: 'info',
-            message: err
           })
         })
       } else {
